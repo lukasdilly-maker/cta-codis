@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CTA CODIS V2 — Test multijoueur</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b1320;color:#eef4ff}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;background:#15243a;border-bottom:1px solid #334763}header strong{color:#f4f7ff}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;height:calc(100dvh - 61px)}iframe{width:100%;height:100%;border:0;background:white}.panel{overflow:auto;background:#111e30;padding:15px;border-left:1px solid #34445a}section{background:#1b2a40;border:1px solid #354762;border-radius:10px;padding:12px;margin-bottom:12px}h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:0 0 8px}p,small{color:#b6c8dd}input,select,button{width:100%;padding:9px;margin:4px 0 8px;background:#101a2a;color:#fff;border:1px solid #4a607c;border-radius:6px;font:inherit}button{cursor:pointer;background:#1466aa;border-color:#2779c1;font-weight:600}button.secondary{background:#31425b}button.danger{background:#8b2c3b}.row{display:flex;gap:7px}.row>*{flex:1;min-width:0}.hidden{display:none}.item{border-top:1px solid #41536d;padding:10px 0}.item button{margin:4px 0}.ok{color:#76e4ae}.err{color:#ffb3b3}.pill{background:#30445d;border-radius:20px;padding:4px 8px;font-size:12px}#notice{font-size:13px;white-space:pre-wrap}label{font-size:12px;color:#bdcce0}summary{cursor:pointer;font-weight:600;padding:4px}code{overflow-wrap:anywhere}@media(max-width:850px){.layout{grid-template-columns:1fr;height:auto}.layout iframe{height:65dvh}.panel{border-left:0}}
+</style></head><body>
+<header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><span id="status">Non connecté</span></header>
+<div class="layout"><iframe src="./index.html" title="CTA CODIS V2 — jeu solo existant"></iframe>
+<aside class="panel"><section><h2>Compte joueur</h2>
+<div id="auth"><label>Adresse e-mail privée</label><input id="email" type="email" autocomplete="email" placeholder="adresse e-mail">
+<label>Mot de passe</label><input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe">
+<div class="row"><button id="login">Connexion</button><button class="secondary" id="signup">Inscription</button></div>
+<small>L'e-mail reste privé. Le pseudo est généré à l'inscription et peut être personnalisé ultérieurement par l'administration.</small></div>
+<div id="logged" class="hidden"><div id="identity"></div><button id="logout" class="secondary">Déconnexion</button></div><div id="notice" aria-live="polite"></div></section>
+<div id="connected" class="hidden">
+<section><h2>📡 Coopération</h2><p>Les demandes circulent entre comptes. Les véhicules du jeu ne sont pas encore transférés automatiquement.</p>
+<label>Destinataire</label><select id="recipient"></select><label>Service</label><select id="service"><option>SDIS</option><option>Gendarmerie</option><option>Police</option><option>SMUR</option><option>AASC</option><option>SNSM</option></select>
+<label>Type d'engin</label><input id="vehicle" maxlength="100" placeholder="Ex. VSAV, FPT, VLM, VL">
+<label>Quantité (1–20)</label><input id="quantity" type="number" min="1" max="20" value="1"><button id="send">Envoyer une demande</button></section>
+<section><h2>Demandes de renfort</h2><button id="refresh" class="secondary">Actualiser</button><div id="requests"></div></section>
+<section id="admin" class="hidden"><h2>🛡️ Super Administration</h2><p>Liste des comptes et suspension / réactivation. Aucune adresse e-mail ni mot de passe affiché.</p><button id="adminRefresh">Actualiser les comptes</button><div id="users"></div></section>
+</div></aside></div>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
+const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let uid=null,people=new Map(),role='player';
+function note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
+async function load(){
+ const {data:{user}}=await db.auth.getUser();uid=user?.id||null;
+ el('auth').classList.toggle('hidden',!!uid);el('logged').classList.toggle('hidden',!uid);el('connected').classList.toggle('hidden',!uid);
+ if(!uid){el('status').textContent='Non connecté';el('admin').classList.add('hidden');return}
+ const {data:p,error}=await db.from('profiles').select('username,role,suspended').eq('id',uid).single();
+ if(error||!p){note('Profil introuvable. Vérifie que le script initial a été exécuté.',true);return}
+ role=p.role;el('status').textContent=p.username;el('identity').textContent=p.username+' · '+p.role;
+ if(p.suspended){note('Ce compte est suspendu.',true);el('connected').classList.add('hidden');return}
+ el('admin').classList.toggle('hidden',role!=='superadmin');
+ await Promise.all([players(),requests()]);if(role==='superadmin')await adminUsers();
+}
+async function players(){
+ const {data,error}=await db.rpc('cta_list_players');
+ if(error){note('Migration SQL requise : '+error.message,true);return}
+ people=new Map((data||[]).map(p=>[p.id,p.username]));
+ el('recipient').replaceChildren(...(data||[]).map(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.username;return o}));
+}
+async function requests(){
+ const {data,error}=await db.from('reinforcement_requests').select('*').order('created_at',{ascending:false}).limit(100);
+ if(error){note(error.message,true);return}
+ el('requests').replaceChildren();
+ if(!data?.length){el('requests').textContent='Aucune demande.';return}
+ for(const r of data){
+  const item=document.createElement('div');item.className='item';
+  const peer=r.requester_id===uid?r.recipient_id:r.requester_id;
+  const direction=r.requester_id===uid?'Envoyée à ':'Reçue de ';
+  item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
+  if(r.recipient_id===uid&&r.status==='pending'){
+   const row=document.createElement('div');row.className='row';
+   for(const [label,accept] of [['Accepter',true],['Refuser',false]]){
+    const b=document.createElement('button');b.textContent=label;if(!accept)b.className='danger';
+    b.onclick=async()=>{b.disabled=true;const {error}=await db.rpc('respond_to_reinforcement',{p_request_id:r.id,p_accept:accept});note(error?error.message:'Réponse enregistrée.',!!error);await requests()};
+    row.append(b);
+   }item.append(row);
+  }el('requests').append(item);
+ }
+}
+async function adminUsers(){
+ const {data,error}=await db.rpc('cta_admin_users');
+ if(error){note(error.message,true);return}
+ el('users').replaceChildren();
+ for(const p of data||[]){
+  const item=document.createElement('div');item.className='item';
+  const name=document.createElement('div');name.textContent=p.username+' · '+p.role+(p.suspended?' · suspendu':'');item.append(name);
+  if(p.id!==uid&&p.role!=='superadmin'){
+   const b=document.createElement('button');b.className=p.suspended?'secondary':'danger';b.textContent=p.suspended?'Réactiver':'Suspendre';
+   b.onclick=async()=>{if(!confirm((p.suspended?'Réactiver ':'Suspendre ')+p.username+' ?'))return;
+    const {error}=await db.rpc('cta_admin_suspend',{p_target:p.id,p_suspend:!p.suspended});
+    note(error?error.message:'Modification enregistrée.',!!error);await adminUsers();};item.append(b);
+  }el('users').append(item);
+ }
+}
+el('login').onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});note(error?error.message:'Connexion réussie.',!!error);if(!error)await load()};
+el('signup').onclick=async()=>{const {data,error}=await db.auth.signUp({email:el('email').value.trim(),password:el('password').value});note(error?error.message:(data.session?'Compte créé.':'Compte créé. Vérifie ton e-mail pour confirmer ton inscription.'),!!error);if(data.session)await load()};
+el('logout').onclick=async()=>{await db.auth.signOut();await load()};
+el('send').onclick=async()=>{const recipient_id=el('recipient').value,quantity=Number(el('quantity').value),vehicle_type=el('vehicle').value.trim();
+ if(!recipient_id||!vehicle_type||!Number.isInteger(quantity)||quantity<1||quantity>20){note('Destinataire, engin ou quantité invalide.',true);return}
+ const {error}=await db.from('reinforcement_requests').insert({requester_id:uid,recipient_id,service:el('service').value,vehicle_type,quantity});
+ note(error?error.message:'Demande envoyée.',!!error);if(!error)await requests()};
+el('refresh').onclick=async()=>{await players();await requests()};
+el('adminRefresh').onclick=adminUsers;
+db.auth.onAuthStateChange(()=>{setTimeout(load,0)});
+await load();
+setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
+</script></body></html>
