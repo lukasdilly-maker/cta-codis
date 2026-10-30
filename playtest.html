@@ -68,9 +68,24 @@ async function players(){
  people=new Map((data||[]).map(p=>[p.id,p.username]));
  el('recipient').replaceChildren(...(data||[]).map(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.username;return o}));
 }
+function localFleet(){
+ try{
+  const p=JSON.parse(localStorage.getItem('cta15-profiles-v4'));
+  const g=p?.games?.[p.active];
+  if(!g)return [];
+  const stations=new Map((g.stations||[]).map(x=>[x.id,x.name]));
+  return (g.vehicles||[]).filter(v=>v.status==='ready'&&!v.mission).map(v=>({id:v.id,name:v.name,type:v.type,station:stations.get(v.station)||'Caserne'}));
+ }catch{return []}
+}
+async function allocations(){
+ const {data,error}=await db.from('cta_reinforcement_assignments').select('*').eq('status','assigned').limit(500);
+ if(error){return {items:[],error}}
+ return {items:data||[],error:null}
+}
 async function requests(){
  if(requestBusy)return;requestBusy=true;
- const {data,error}=await db.from('reinforcement_requests').select('*').order('created_at',{ascending:false}).limit(100);
+ const [{data,error},allocationResult]=await Promise.all([db.from('reinforcement_requests').select('*').order('created_at',{ascending:false}).limit(100),allocations()]);
+ const assigned=allocationResult.items;
  if(error){requestBusy=false;note(error.message,true);return}
  el('requests').replaceChildren();
  if(!data?.length){el('requests').textContent='Aucune demande.';requestBusy=false;return}
@@ -79,6 +94,28 @@ async function requests(){
   const peer=r.requester_id===uid?r.recipient_id:r.requester_id;
   const direction=r.requester_id===uid?'Envoyée à ':'Reçue de ';
   item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
+  const units=assigned.filter(a=>a.request_id===r.id);
+  if(units.length){
+   const detail=document.createElement('div');detail.textContent='Engins affectés : '+units.map(a=>a.vehicle_name+' ('+a.station_name+')').join(', ');
+   item.append(detail);
+   if(r.recipient_id===uid)for(const a of units){
+    const release=document.createElement('button');release.className='secondary';release.textContent='Libérer '+a.vehicle_name;
+    release.onclick=async()=>{release.disabled=true;const {error}=await db.rpc('cta_release_reinforcement',{p_assignment_id:a.id});note(error?error.message:'Engin libéré.',!!error);await requests()};item.append(release);
+   }
+  }
+  if(r.recipient_id===uid&&r.status==='accepted'){
+   const available=localFleet().filter(v=>!assigned.some(a=>a.provider_id===uid&&a.vehicle_id===v.id));
+   const box=document.createElement('div');const select=document.createElement('select');
+   const filtered=available.filter(v=>v.type.toLowerCase().includes(String(r.vehicle_type).toLowerCase())||v.name.toLowerCase().includes(String(r.vehicle_type).toLowerCase()));
+   for(const v of filtered){const option=document.createElement('option');option.value=String(v.id);option.textContent=v.name+' — '+v.station;select.append(option)}
+   const assign=document.createElement('button');assign.textContent='Affecter un engin ('+units.length+'/'+r.quantity+')';
+   assign.disabled=!filtered.length||units.length>=r.quantity;
+   assign.onclick=async()=>{const v=filtered.find(x=>String(x.id)===select.value);if(!v)return;
+    assign.disabled=true;const {error}=await db.rpc('cta_assign_reinforcement',{p_request_id:r.id,p_vehicle_id:v.id,p_vehicle_name:v.name,p_vehicle_type:v.type,p_station_name:v.station});
+    note(error?'Affectation refusée : '+error.message:'Engin affecté à la demande.',!!error);await requests()};
+   box.append(select,assign);if(!filtered.length){const hint=document.createElement('small');hint.textContent='Aucun engin disponible correspondant dans le profil actif de ce navigateur.';box.append(hint)}
+   item.append(box);
+  }
   if(r.recipient_id===uid&&r.status==='pending'){
    const row=document.createElement('div');row.className='row';
    for(const [label,accept] of [['Accepter',true],['Refuser',false]]){
