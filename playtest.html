@@ -155,6 +155,46 @@ window.startCtaGame=async function(){
     html=html.replace(renderSignature,renderSignature+
       "window.__ctaLiveStats=()=>{const v=state?.vehicles||[],st=state?.stations||[],p=state?.staff||[],i=state?.incidents||[];return {buildings:st.length,vehicles:v.length,staff:p.length,ready:v.filter(x=>x.status==='ready'&&!x.mission&&!x.fault).length,engaged:v.filter(x=>!!x.mission||x.status==='engaged').length,incidents:i.filter(x=>!x.closed).length}};");
   }else console.warn('CTA: render bridge signature missing');
+  // Road-only routing: never animate ground vehicles across a straight-line fallback.
+  // Retry OSRM endpoints before declaring the route unavailable.
+  const routeStart=html.indexOf('function getRoute(a,b,air=false){');
+  const routeEnd=html.indexOf('function timedRoute(',routeStart);
+  if(routeStart>=0&&routeEnd>routeStart){
+   const replacement=`function getRoute(a,b,air=false){
+    if(air)return Promise.resolve(fallbackRoute(a,b,true));
+    const key=[a.lon,a.lat,b.lon,b.lat].map(n=>n.toFixed(5)).join(',');
+    if(routeCache.has(key))return Promise.resolve(routeCache.get(key));
+    if(routePromises.has(key))return routePromises.get(key);
+    const promise=routeQueue.then(async()=>{
+      const coords=\`\${a.lon},\${a.lat};\${b.lon},\${b.lat}\`;
+      const servers=[CONFIG.osrm,'https://routing.openstreetmap.de/routed-car/route/v1/driving/'];
+      let error=null;
+      for(const base of servers){
+       const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),11000);
+       try{
+        const response=await fetch(base+coords+'?overview=full&geometries=geojson&steps=true',{signal:ctrl.signal});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const route=parseRoute(await response.json(),a,b);
+        if(route.segments.flatMap(s=>s.coords).length<3)throw Error('Géométrie routière insuffisante');
+        routeCache.set(key,route);
+        if(routeCache.size>150)routeCache.delete(routeCache.keys().next().value);
+        return route;
+       }catch(e){error=e}finally{clearTimeout(timer)}
+      }
+      throw Error('Itinéraire routier indisponible : '+(error?.message||'serveurs inaccessibles'));
+    });
+    routeQueue=promise.catch(()=>{});
+    routePromises.set(key,promise);
+    promise.then(()=>routePromises.delete(key),()=>routePromises.delete(key));
+    return promise;
+   }
+   `;
+   html=html.slice(0,routeStart)+replacement+html.slice(routeEnd);
+  }else console.warn('CTA routing patch not applied: function not found');
+  const dispatchRoute='const out=await getRoute(home,i.position,air),medical=v.doTransport?await getRoute(i.position,v.hospital.position,air):null,back=await getRoute(v.doTransport?v.hospital.position:i.position,home,air);';
+  if(html.includes(dispatchRoute)){
+   html=html.replace(dispatchRoute,`let out,medical,back;try{out=await getRoute(home,i.position,air);medical=v.doTransport?await getRoute(i.position,v.hospital.position,air):null;back=await getRoute(v.doTransport?v.hospital.position:i.position,home,air)}catch(error){if(state===game&&generation===token){v.status='ready';v.mission=null;v.crew=[];v.crewRoles=[];v.leg=null;v.until=null;for(const p of state.staff)if(p.mission===i.id&&!state.vehicles.some(other=>other!==v&&other.mission===i.id&&other.crew?.includes(p.id)))p.mission=null;i.units=i.units.filter(id=>id!==v.id);log(i,v.name+' : départ impossible, trajet routier indisponible.');notify('Départ impossible : '+error.message,true);save();render()}return}`);
+  }
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
