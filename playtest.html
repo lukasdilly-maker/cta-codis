@@ -109,6 +109,14 @@ window.startCtaGame=async function(){
   const valid="(!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lon)))";
   html=html.replace(old,valid);
   if(!html.includes(valid))throw Error('Remplacement non effectué');
+  // UI skin runs inside the real game document, preserving all game handlers and saves.
+  try{
+   const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
+   if(!cssResponse.ok||!jsResponse.ok)throw Error('Fichiers de présentation indisponibles');
+   const skinCss=await cssResponse.text(),skinJs=await jsResponse.text();
+   html=html.replace('</head>','<style id="cta-dashboard-skin">'+skinCss+'</style></head>');
+   html=html.replace('</body>','<script>'+skinJs.replaceAll('</script','<\\/script')+'<\\/script></body>');
+  }catch(skinError){console.error('Habillage tableau de bord',skinError);status.textContent='Jeu chargé sans habillage : '+skinError.message}
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
  }catch(error){
@@ -323,6 +331,7 @@ function consoleTab(tab){document.querySelectorAll('#consoleTabs button').forEac
 document.querySelectorAll('#consoleTabs button').forEach(b=>b.onclick=()=>consoleTab(b.dataset.tab));
 for(const id of ['consoleToggle','consoleFab'])el(id).onclick=()=>document.body.classList.toggle('console-collapsed');
 el('consoleClose').onclick=()=>document.body.classList.add('console-collapsed');
+window.addEventListener('message',e=>{if(e.source===document.querySelector('iframe').contentWindow&&e.data?.type==='cta-open-console'){consoleTab('renforts')}});
 consoleTab('renforts');document.body.classList.add('console-collapsed');
 window.ctaAuthReady=true;showGate(true);await load();
 setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
