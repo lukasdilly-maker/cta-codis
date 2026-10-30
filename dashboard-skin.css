@@ -199,3 +199,12 @@ body>header .stat{display:none!important}
 #mapPanel .cartography>.map-section .map-shell #map,#mapPanel .cartography>.map-section #map{height:100%!important;min-height:0!important;max-height:none!important}
 #mapPanel .cartography>.map-section>p,#mapPanel .cartography>.map-section>.legend,#mapPanel .cartography>.map-section>.map-legend{display:none!important}
 #mapPanel .cartography>.map-section>.toolbar,#mapPanel .cartography>.map-section>.map-actions{flex:0 0 auto!important;margin:0 0 5px!important;padding:0!important}
+
+#ctaOperationsContent.cta-summary-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:8px!important;height:calc(100% - 128px)!important;min-height:180px!important;overflow:auto!important;border:0!important;padding:0!important;background:transparent!important}
+.cta-summary-item{display:flex;flex-direction:column;justify-content:center;gap:7px;padding:10px;border:1px solid #31516c;border-radius:8px;background:#0b2034;min-width:0}
+.cta-summary-item small{color:#a6c4dc;font-size:11px}
+.cta-summary-item strong{color:#eff8ff;font-size:23px;line-height:1.1;font-variant-numeric:tabular-nums}
+.cta-summary-item:nth-child(4) strong{color:#3cdea0}
+.cta-summary-item:nth-child(5) strong{color:#f5c46e}
+.cta-summary-note{margin-top:8px;color:#7e9eb8;font-size:10px;text-align:right}
+@media(max-height:720px){#ctaOperationsContent.cta-summary-grid{min-height:140px;gap:5px}.cta-summary-item{padding:7px;gap:3px}.cta-summary-item strong{font-size:18px}}
