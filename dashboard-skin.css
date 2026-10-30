@@ -1,147 +1,85 @@
-/* CTA CODIS V2 — reconstructed operational desktop, reference 1813 × 832 */
-:root{--cta-bg:#071627;--cta-panel:#0e2238;--cta-border:#284967;--cta-text:#f0f6ff;--cta-muted:#a5bfd6;--cta-blue:#138bf1}
-html,body{background:var(--cta-bg)!important;color:var(--cta-text)!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important;overflow-x:hidden!important}
-body{padding:0!important;margin:0!important;min-height:100vh!important}
-body>header{height:76px!important;min-height:76px!important;position:relative!important;z-index:25!important;display:flex!important;align-items:center!important;gap:14px!important;padding:10px 17px!important;margin:0!important;background:#071a2e!important;border-bottom:1px solid #2b4d70!important}
-body>header .brand{width:auto!important;min-width:275px!important;margin:0!important;display:flex!important;align-items:center!important}
-body>header .brand h1{font-size:22px!important;margin:0!important;white-space:nowrap}
-body>header .brand .eyebrow{font-size:10px!important;letter-spacing:.5px}
-body>header .codis-logo{width:56px!important;height:56px!important;object-fit:contain!important}
-.cta-test-pill{font-size:12px;font-weight:700;display:inline-block;vertical-align:middle;margin-left:14px;padding:10px 12px;border-radius:12px;color:#92e0ff;background:#0c3657;border:1px solid #16608e;letter-spacing:0}
-body>header .clock{margin-left:auto!important;margin-right:auto!important;min-width:190px;text-align:center!important}
-body>header .clock strong{font-size:22px!important}
+/* CTA CODIS V2 · Progiciel opérationnel · Design system v3 */
+:root{--ui-bg:#071321;--ui-surface:#0e2033;--ui-surface2:#132a42;--ui-border:#294560;--ui-text:#eaf2fb;--ui-muted:#9db6cc;--ui-accent:#1689e5;--ui-good:#23c887;--ui-warn:#edb84e;--ui-danger:#f2697b}
+*{box-sizing:border-box}
+html,body{margin:0!important;padding:0!important;width:100%;height:100%;overflow:hidden!important;background:var(--ui-bg)!important;color:var(--ui-text)!important;font:13px/1.45 Inter,"Segoe UI",Arial,sans-serif!important}
+button,input,select,textarea{font:inherit!important}
+button{cursor:pointer;transition:background .14s,border-color .14s}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #5fc4ff!important;outline-offset:2px}
+body>header{position:relative!important;inset:auto!important;height:66px!important;min-height:66px!important;padding:8px 16px!important;margin:0!important;display:flex!important;align-items:center!important;gap:18px!important;background:#0b1c30!important;border-bottom:1px solid #31516d!important;z-index:20!important}
+body>header .brand{display:flex!important;align-items:center!important;gap:10px!important;min-width:270px!important;width:auto!important;margin:0!important}
+body>header .brand h1{font-size:18px!important;letter-spacing:.01em!important;margin:0!important}
+body>header .brand .eyebrow{font-size:9px!important;letter-spacing:1px!important}
+body>header .codis-logo{width:44px!important;height:44px!important;object-fit:contain!important}
+.cta-test-pill{font-size:10px!important;font-weight:700!important;color:#9cdbff!important;background:#123753!important;border:1px solid #23668f!important;border-radius:7px!important;padding:6px 8px!important;margin-left:10px!important;vertical-align:middle!important;white-space:nowrap!important}
+body>header .clock{margin:0 auto!important;text-align:center!important;min-width:180px}
+body>header .clock strong{font-size:19px!important;font-variant-numeric:tabular-nums}
+body>header .clock small{font-size:10px!important;color:var(--ui-muted)}
 body>header .stat{display:none!important}
-#ctaSession{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
-#ctaSessionName{padding:12px 18px;border-radius:10px;background:#11263e;border:1px solid #355777;font-size:13px}
-#ctaSessionLogout{background:#391b2a;color:#ffe2e6;border:1px solid #a13c50;border-radius:10px;padding:12px 16px;min-height:43px}
-#ctaDashboardShell{display:grid!important;grid-template-columns:242px minmax(0,1fr)!important;height:calc(100vh - 76px);min-height:660px}
-#ctaDashboardShell>nav{position:relative!important;inset:auto!important;width:242px!important;height:100%!important;min-height:0!important;max-height:none!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:flex-start!important;gap:3px!important;overflow:auto!important;padding:12px!important;background:#0a1d31!important;border-right:1px solid #2a5072!important}
-#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{display:block!important;flex:0 0 auto!important;align-self:stretch!important;width:100%!important;min-width:0!important;max-width:100%!important;height:43px!important;min-height:43px!important;max-height:43px!important;margin:0!important;padding:8px 12px!important;text-align:left!important;white-space:nowrap!important;font-size:13px!important;font-weight:500!important;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#e2edfa!important}
-#ctaDashboardShell>nav button[role=tab]:before{content:attr(data-cta-icon);display:inline-block;width:32px;font-size:20px;text-align:center;vertical-align:middle}
-#ctaDashboardShell>nav button[role=tab][aria-selected=true]{background:#147ee0!important;border-color:#49b0ff!important;color:white!important;box-shadow:0 2px 10px #0074b344}
-#ctaSidebarExtra{border-top:1px solid #2d4d6a;margin-top:auto;padding-top:13px;display:flex;flex-direction:column;gap:5px}
-#ctaSidebarExtra button:hover,#ctaDashboardShell>nav button:hover{background:#183b58!important}
-#ctaMainArea{min-width:0;overflow:auto;overflow-x:hidden;background:#071627;padding:16px 13px 12px}
-#ctaStats{display:grid;grid-template-columns:1.18fr 1fr .58fr .88fr 1.24fr 1.16fr .97fr 1.17fr;gap:10px;margin:0 0 14px}
-.cta-stat{min-width:0;min-height:69px;padding:12px 10px;display:flex;align-items:center;gap:10px;border-radius:9px;background:linear-gradient(140deg,#10283f,#0b1d30);border:1px solid #2b4b69}
-.cta-stat-icon{flex:0 0 32px;font-size:25px;text-align:center;color:#55b9ff}
-.cta-stat small{display:block;color:#a9c5dd;font-size:11px;white-space:nowrap}
-.cta-stat strong{display:block;font-size:18px;line-height:1.5;white-space:nowrap;color:#f6f9ff}
-.cta-stat.green{border-color:#166e53;background:#0b2b29}.cta-stat.green .cta-stat-icon{color:#31db8c}
-.cta-stat.amber{border-color:#a7770a;background:#32270e}.cta-stat.amber .cta-stat-icon{color:#ffcf52}
-.cta-stat.red{border-color:#8a3445;background:#321723}.cta-stat.red .cta-stat-icon{color:#ff667b}
-#ctaWorkspace{min-width:0}
-#ctaDashboard{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(370px,1fr);gap:12px;align-items:stretch}
-#ctaDashboardLeft{min-width:0;display:flex;flex-direction:column;gap:12px}
-#ctaDashboardRight{min-width:0;display:flex}
-#ctaDashboardLeft>main,#ctaDashboardLeft>section,#ctaMapCard,#ctaDashboardBottom>section{background:linear-gradient(145deg,#10253d,#0b1c30)!important;border:1px solid #2a4e6c!important;border-radius:11px!important;box-shadow:none!important;margin:0!important}
-#ctaDashboardLeft>main{padding:13px!important;min-height:304px}
+#ctaSession{display:flex;align-items:center;gap:8px;margin-left:auto}
+#ctaSessionName{padding:10px 14px;border:1px solid var(--ui-border);border-radius:8px;background:#132940;white-space:nowrap}
+#ctaSessionLogout{padding:9px 13px;border-radius:8px;border:1px solid #9c4655;background:#3a1d2b;color:#ffd9df}
+#ctaDashboardShell{display:grid!important;grid-template-columns:218px minmax(0,1fr)!important;height:calc(100dvh - 66px)!important;min-height:0!important;overflow:hidden!important}
+#ctaDashboardShell>nav{position:relative!important;inset:auto!important;width:218px!important;height:100%!important;min-height:0!important;max-height:none!important;padding:12px 8px!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:2px!important;overflow-y:auto!important;overflow-x:hidden!important;background:#0b1d30!important;border-right:1px solid #2b4762!important;scrollbar-width:thin;scrollbar-color:#36516b transparent}
+#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{flex:0 0 38px!important;align-self:stretch!important;display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:38px!important;min-height:38px!important;max-height:38px!important;margin:0!important;padding:8px 10px!important;text-align:left!important;white-space:nowrap!important;font-size:12px!important;font-weight:500!important;line-height:20px!important;border:1px solid transparent!important;border-radius:7px!important;background:transparent!important;color:#c8d9e8!important;box-shadow:none!important}
+#ctaDashboardShell>nav button[role=tab]::before{content:attr(data-cta-icon);display:inline-block;width:27px;font-size:17px;vertical-align:middle;text-align:center}
+#ctaDashboardShell>nav button[role=tab][aria-selected=true]{background:#167fce!important;border-color:#3ba8ec!important;color:white!important;font-weight:700!important}
+#ctaDashboardShell>nav button:hover,#ctaSidebarExtra button:hover{background:#1b3852!important}
+#ctaSidebarExtra{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--ui-border);margin-top:auto;padding-top:8px}
+#ctaMainArea{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important;padding:11px!important;background:#081725!important}
+#ctaStats{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;flex:0 0 66px!important;gap:7px!important;margin:0 0 10px!important;min-height:0!important}
+.cta-stat{min-width:0!important;min-height:0!important;display:flex!important;align-items:center!important;gap:7px!important;padding:7px!important;background:#10243a!important;border:1px solid #2b4b67!important;border-radius:9px!important;overflow:hidden!important}
+.cta-stat-icon{flex:0 0 22px!important;text-align:center!important;font-size:19px!important;color:#54b9fa!important}
+.cta-stat small{display:block!important;font-size:10px!important;line-height:1.2!important;color:#a7c0d6!important;white-space:normal!important}
+.cta-stat strong{display:block!important;margin-top:4px!important;font-size:clamp(12px,1.08vw,17px)!important;line-height:1.1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.cta-stat.green{background:#0e2a2a!important;border-color:#1d6c56!important}.cta-stat.green .cta-stat-icon{color:var(--ui-good)!important}
+.cta-stat.amber{background:#2c2618!important;border-color:#916d22!important}.cta-stat.amber .cta-stat-icon{color:var(--ui-warn)!important}
+.cta-stat.red{background:#2d1b29!important;border-color:#843c51!important}.cta-stat.red .cta-stat-icon{color:var(--ui-danger)!important}
+#ctaWorkspace{display:flex!important;flex:1 1 auto!important;min-height:0!important;min-width:0!important;flex-direction:column!important;overflow:hidden!important}
+#ctaDashboard{display:grid!important;grid-template-columns:minmax(0,1.42fr) minmax(0,1fr)!important;flex:1 1 auto!important;min-height:0!important;gap:10px!important;overflow:hidden!important}
+#ctaDashboard[hidden],#ctaDashboardBottom[hidden],#ctaStats[hidden],#ctaTools[hidden]{display:none!important}
+#ctaDashboardLeft{display:flex!important;flex-direction:column!important;min-height:0!important;min-width:0!important;gap:10px!important;overflow:hidden!important}
+#ctaDashboardRight{min-width:0!important;min-height:0!important;overflow:hidden!important}
+#ctaDashboardLeft>main,#ctaDashboardLeft>section,#ctaMapCard,#ctaDashboardBottom>section{border:1px solid var(--ui-border)!important;border-radius:10px!important;background:#10243a!important;box-shadow:none!important;margin:0!important}
+#ctaDashboardLeft>main{flex:1 1 52%!important;min-height:0!important;padding:12px!important;overflow:hidden!important}
 #ctaDashboardLeft>main>section{padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-#ctaDashboardLeft>main .section-head{margin:0 0 14px!important}
-#ctaDashboardLeft>main h2,#ctaOperations h2,#ctaMapCard h2{font-size:18px!important;margin:0!important}
-#ctaDashboardLeft>main .dashboard{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
-#ctaDashboardLeft>main .dashboard article{border-radius:10px!important;background:#0c2035!important;border:1px solid #2c4d6b!important;padding:13px!important}
-#ctaDashboardLeft>main .dashboard article strong{font-size:18px}
-#ctaMapCard{width:100%;padding:12px!important;overflow:hidden;min-height:520px}
-.cta-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
-.cta-card-head button{font-size:11px;padding:8px 11px;border-radius:7px;background:#143757;border:1px solid #386e93;color:#eff7ff}
-#ctaMapCard .map-section{display:block!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:0!important}
+#ctaDashboardLeft>main .section-head{margin-bottom:9px!important}
+#ctaDashboardLeft>main h2,#ctaOperations h2,#ctaMapCard h2{font-size:15px!important;margin:0!important;line-height:1.35!important}
+#ctaDashboardLeft>main #roomContent{height:calc(100% - 33px)!important;overflow:auto!important;scrollbar-width:thin;scrollbar-color:#385b78 transparent}
+#ctaDashboardLeft>main #roomContent .dashboard{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+#ctaDashboardLeft>main #roomContent .dashboard article{min-width:0!important;padding:10px!important;border:1px solid #2d4a65!important;border-radius:8px!important;background:#0c1f32!important}
+#ctaDashboardLeft>main #roomContent .dashboard article strong{font-size:14px!important}
+#ctaDashboardLeft>main #roomContent button{font-size:11px!important;padding:7px 9px!important;min-height:28px!important}
+#ctaOperations{flex:1 1 48%!important;min-height:0!important;padding:12px!important;overflow:hidden!important}
+.cta-card-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:0 0 9px!important}
+.cta-card-head button{background:#183955!important;border:1px solid #3a6687!important;color:#dcefff!important;border-radius:7px!important;padding:6px 9px!important;font-size:11px!important}
+#ctaOperationsContent{height:calc(100% - 37px)!important;min-height:0!important;overflow:auto!important;border:1px solid #2a4661!important;border-radius:8px!important;padding:11px!important;background:#0b1c2e!important;color:#b6cadb!important;font-size:12px!important}
+#ctaMapCard{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;padding:11px!important;overflow:hidden!important}
+#ctaMapCard .map-section{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 #ctaMapCard .map-section>.section-head{display:none!important}
-#ctaMapCard .map-shell{height:450px!important;min-height:450px!important;border-radius:8px!important;overflow:hidden}
-#ctaMapCard #map{height:450px!important;min-height:450px!important;width:100%!important}
-#ctaMapCard .map-build-toolbar{display:none}
-#ctaMapCard .legend{display:none}
-#ctaMapCard #mapWarning{font-size:10px}
-#ctaOperations{padding:13px!important;min-height:170px}
-#ctaOperationsContent{border:1px solid #294964;border-radius:9px;background:#0b1e31;padding:15px;font-size:12px;color:#bfd4e6;min-height:92px;line-height:1.7}
-#ctaDashboardBottom{display:grid;grid-template-columns:1fr 1.55fr 1.2fr;gap:11px;margin-top:12px}
-.cta-mini-card{min-width:0;min-height:104px;padding:13px!important}
-.cta-mini-card h3{margin:0 0 10px!important;font-size:13px!important}
-.cta-mini-card p,#ctaCallsSummary{font-size:11px;line-height:1.55;color:#b7cee2}
-#ctaFleetSummary{font-size:20px;font-weight:700}
-.cta-mini-card button{font-size:11px;background:#147ee0;border:1px solid #3cafff;border-radius:7px;padding:7px 12px;margin-top:5px}
-.cta-online{font-size:10px;color:#4be6a2;border:1px solid #207a55;padding:4px 7px;border-radius:20px}
-#ctaTools{margin-top:13px;padding:8px 10px;background:#0b2034;border:1px solid #294969;border-radius:10px}
-#ctaTools .toolbar{display:flex;flex-wrap:wrap;gap:7px;background:transparent!important;border:0!important;padding:5px!important;margin:0!important}
-#ctaTools .toolbar button,#ctaTools .toolbar select{background:#173651;border:1px solid #345b7c;border-radius:7px;padding:7px;font-size:11px}
-#ctaTools #notice{font-size:11px;padding:5px}
-#ctaWorkspace>main[role=tabpanel]{margin:0!important;padding:13px!important}
-#ctaWorkspace>main[role=tabpanel][hidden],#ctaDashboard[hidden],#ctaDashboardBottom[hidden],#ctaStats[hidden],#ctaTools[hidden]{display:none!important}
-#ctaWorkspace>main[role=tabpanel]:not([hidden]){display:block!important}
-#mapPanel .cartography{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:12px}
-#mapPanel .map-shell{height:65vh;min-height:420px}
-#mapPanel #map{height:100%!important}
-@media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))}#ctaDashboard{grid-template-columns:minmax(0,1.2fr) minmax(330px,1fr)}}
-@media(max-width:1100px){#ctaDashboard{grid-template-columns:1fr}#ctaDashboardBottom{grid-template-columns:repeat(2,minmax(0,1fr))}#ctaDashboardShell{grid-template-columns:205px minmax(0,1fr)!important}#ctaDashboardShell>nav{width:205px!important}body>header .clock{display:none!important}}
-@media(max-width:700px){body>header{height:65px!important;min-height:65px!important}body>header .brand{min-width:0!important}body>header .brand h1{font-size:14px!important}.cta-test-pill{display:none}#ctaSessionName{display:none}#ctaDashboardShell{display:block!important;height:calc(100vh - 65px)}#ctaDashboardShell>nav{width:100%!important;height:55px!important;min-height:55px!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;padding:5px!important}#ctaDashboardShell>nav button[role=tab]{width:auto!important;min-width:140px!important;max-width:none!important;flex:0 0 auto!important}#ctaSidebarExtra{display:none}#ctaMainArea{height:calc(100vh - 120px);padding:9px}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))}#ctaDashboardBottom{grid-template-columns:1fr}#ctaDashboardLeft>main .dashboard{grid-template-columns:1fr!important}}
-
-/* FIT-TO-VIEWPORT MODE: all operational dashboard content visible without scrolling */
-@media(min-width:701px){
-html,body{height:100%!important;overflow:hidden!important}
-#ctaDashboardShell{height:calc(100dvh - 76px)!important;min-height:0!important;overflow:hidden!important}
-#ctaDashboardShell>nav{height:100%!important;overflow:hidden!important;padding:8px!important;gap:0!important}
-#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{height:clamp(29px,4.25dvh,43px)!important;min-height:0!important;max-height:none!important;padding:4px 10px!important;font-size:clamp(10px,1.15dvh,13px)!important}
-#ctaDashboardShell>nav button[role=tab]:before{font-size:16px!important;width:25px!important}
-#ctaSidebarExtra{padding-top:6px!important;margin-top:auto!important;gap:0!important}
-#ctaMainArea{height:100%!important;overflow:hidden!important;padding:clamp(6px,1.1dvh,13px)!important;display:flex!important;flex-direction:column!important}
-#ctaStats{flex:0 0 auto!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:clamp(3px,.55vw,9px)!important;margin-bottom:clamp(5px,.8dvh,12px)!important}
-.cta-stat{min-height:clamp(42px,7.6dvh,69px)!important;padding:5px 7px!important;gap:5px!important}
-.cta-stat-icon{flex-basis:20px!important;font-size:clamp(15px,2.3dvh,25px)!important}
-.cta-stat small{font-size:clamp(8px,.9dvh,11px)!important;white-space:normal!important}
-.cta-stat strong{font-size:clamp(11px,1.75dvh,18px)!important;white-space:normal!important}
-#ctaWorkspace{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important}
-#ctaDashboard{flex:1 1 auto!important;min-height:0!important;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)!important;gap:clamp(5px,.7vw,12px)!important;overflow:hidden!important}
-#ctaDashboardLeft,#ctaDashboardRight{min-height:0!important;overflow:hidden!important;gap:clamp(5px,.75dvh,12px)!important}
-#ctaDashboardLeft>main{flex:1 1 53%!important;min-height:0!important;overflow:hidden!important;padding:clamp(7px,1dvh,13px)!important}
-#ctaDashboardLeft>main>section{height:100%!important;overflow:hidden!important}
-#ctaDashboardLeft>main .dashboard{gap:5px!important}
-#ctaDashboardLeft>main .dashboard article{padding:clamp(5px,.8dvh,13px)!important}
-#ctaDashboardLeft>main .dashboard article strong{font-size:clamp(12px,1.7dvh,18px)!important}
-#ctaDashboardLeft>main h2,#ctaOperations h2,#ctaMapCard h2{font-size:clamp(12px,1.8dvh,18px)!important}
-#ctaDashboardLeft>main .section-head{margin-bottom:clamp(4px,.7dvh,14px)!important}
-#ctaOperations{flex:1 1 47%!important;min-height:0!important;overflow:hidden!important;padding:clamp(7px,1dvh,13px)!important}
-#ctaOperationsContent{min-height:0!important;height:calc(100% - 35px)!important;overflow:hidden!important;padding:8px!important}
-#ctaMapCard{min-height:0!important;height:100%!important;display:flex!important;flex-direction:column!important;padding:clamp(7px,1dvh,12px)!important}
-.cta-card-head{flex:0 0 auto!important;margin-bottom:clamp(4px,.7dvh,12px)!important}
-#ctaMapCard .map-section{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important}
-#ctaMapCard .map-shell{flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:hidden!important}
-#ctaMapCard #map,#ctaMapCard .leaflet-container{height:100%!important;min-height:0!important}
-#ctaDashboardBottom{flex:0 0 clamp(75px,14dvh,115px)!important;min-height:0!important;margin-top:clamp(4px,.7dvh,12px)!important;gap:7px!important;overflow:hidden!important}
-.cta-mini-card{min-height:0!important;overflow:hidden!important;padding:clamp(6px,.85dvh,13px)!important}
-.cta-mini-card h3{font-size:clamp(11px,1.4dvh,13px)!important;margin-bottom:4px!important}
-.cta-mini-card p,#ctaCallsSummary{font-size:clamp(9px,1.15dvh,11px)!important;line-height:1.35!important}
+#ctaMapCard .map-shell{flex:1 1 auto!important;height:100%!important;min-height:0!important;border-radius:7px!important;overflow:hidden!important}
+#ctaMapCard #map{height:100%!important;min-height:0!important;width:100%!important}
+#ctaDashboardBottom{display:grid!important;grid-template-columns:1fr 1.4fr 1.2fr!important;flex:0 0 99px!important;min-height:0!important;gap:10px!important;margin:10px 0 0!important;overflow:hidden!important}
+.cta-mini-card{min-height:0!important;overflow:hidden!important;padding:11px!important}
+.cta-mini-card h3{font-size:12px!important;margin:0 0 7px!important}
+.cta-mini-card p,#ctaCallsSummary{font-size:11px!important;color:#b6cbdc!important;line-height:1.35!important}
+#ctaFleetSummary{font-size:16px!important;font-weight:700!important}
+.cta-mini-card button{margin-top:4px!important;padding:5px 9px!important;border-radius:6px!important;background:#167fcf!important;border:1px solid #3298dc!important;font-size:11px!important}
+.cta-online{font-size:10px;color:#47e6a1}
 #ctaTools{display:none!important}
-}
-@media(min-width:701px) and (max-height:690px){
-body>header{height:59px!important;min-height:59px!important;padding:5px 12px!important}
-body>header .brand .codis-logo{width:39px!important;height:39px!important}
-body>header .brand h1{font-size:16px!important}
-body>header .clock strong{font-size:17px!important}
-.cta-test-pill{padding:6px!important;font-size:10px!important}
-#ctaDashboardShell{height:calc(100dvh - 59px)!important}
-#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{height:clamp(25px,4.2dvh,33px)!important}
-#ctaSidebarExtra{padding-top:3px!important}
-}
-
-/* FINAL LAYOUT OVERRIDES — one application viewport, not stacked wrappers */
-@media(min-width:701px){
-#ctaDashboardShell{height:calc(100dvh - 76px)!important}
-#ctaMainArea{box-sizing:border-box!important;overflow:hidden!important}
-#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex:0 0 clamp(86px,13dvh,118px)!important}
-.cta-stat{min-height:0!important;height:100%!important;box-sizing:border-box!important}
-#ctaDashboard{height:auto!important;min-height:0!important}
-#ctaDashboardLeft>main{flex:1 1 55%!important}
-#ctaOperations{flex:1 1 45%!important}
-#ctaDashboardLeft>main #roomContent{max-height:100%!important;overflow:hidden!important}
-#ctaDashboardLeft>main #roomContent>section:nth-child(n+2),#ctaDashboardLeft>main #roomContent>.transmissions{display:none!important}
-#ctaDashboardLeft>main #roomContent .dashboard{margin-bottom:4px!important}
-#ctaDashboardLeft>main #roomContent button{padding:5px 8px!important;min-height:26px!important;font-size:10px!important}
-#ctaDashboardBottom{flex-basis:clamp(66px,12dvh,95px)!important}
-#ctaDashboardBottom .cta-mini-card button{margin-top:2px!important;padding:4px 8px!important}
-#ctaDashboardShell>nav{scrollbar-width:none!important}
-#ctaDashboardShell>nav::-webkit-scrollbar{display:none!important}
-#ctaWorkspace>main[role=tabpanel]:not([hidden]){flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:auto!important;scrollbar-width:thin;scrollbar-color:#315b7e #0a1d31}
-#ctaWorkspace>main[role=tabpanel]:not([hidden]) .cartography{min-height:0}
-#ctaWorkspace>main[role=tabpanel]:not([hidden]) #map{height:calc(100dvh - 190px)!important;min-height:300px!important}
-}
-@media(min-width:1551px) and (min-height:760px){#ctaStats{grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:1fr!important;flex-basis:74px!important}}
+#ctaWorkspace>main[role=tabpanel][hidden]{display:none!important}
+#ctaWorkspace>main[role=tabpanel]:not([hidden]){display:block!important;flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:auto!important;padding:14px!important;border:1px solid var(--ui-border)!important;border-radius:10px!important;background:#0e2034!important;scrollbar-width:thin;scrollbar-color:#365a79 transparent}
+#ctaWorkspace>main[role=tabpanel] section{border:1px solid #2b4a65!important;border-radius:9px!important;background:#10263d!important;padding:14px!important;margin-bottom:12px!important;box-shadow:none!important}
+#ctaWorkspace>main[role=tabpanel] .section-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:12px!important;padding-bottom:10px!important;border-bottom:1px solid #28445f!important}
+#ctaWorkspace>main[role=tabpanel] h2{font-size:17px!important;margin:0!important}
+#ctaWorkspace>main[role=tabpanel] input,#ctaWorkspace>main[role=tabpanel] select{border:1px solid #3c5b75!important;border-radius:7px!important;background:#0b1a2b!important;color:#edf5ff!important}
+#ctaWorkspace>main[role=tabpanel] button{border-radius:7px!important}
+#ctaWorkspace>main[role=tabpanel] table{width:100%!important;border-collapse:separate!important;border-spacing:0!important;font-size:12px!important}
+#ctaWorkspace>main[role=tabpanel] th{position:sticky;top:0;z-index:2;background:#18334e!important;color:#c7dff1!important;font-size:11px!important;padding:10px!important;text-align:left}
+#ctaWorkspace>main[role=tabpanel] td{border-bottom:1px solid #29435b!important;padding:9px!important}
+#ctaWorkspace>main[role=tabpanel] tr:hover td{background:#17314a!important}
+#mapPanel .cartography{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr)!important;gap:12px!important}
+#mapPanel .map-shell{height:calc(100dvh - 220px)!important;min-height:350px!important}
+#mapPanel #map{height:100%!important}
+@media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex-basis:108px!important}#ctaDashboardBottom{flex-basis:90px!important}}
+@media(max-height:720px){body>header{height:56px!important;min-height:56px!important;padding:5px 12px!important}body>header .brand h1{font-size:15px!important}body>header .codis-logo{width:37px!important;height:37px!important}body>header .clock strong{font-size:16px!important}#ctaDashboardShell{height:calc(100dvh - 56px)!important}#ctaDashboardShell>nav{padding:7px!important}#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{flex-basis:33px!important;height:33px!important;min-height:33px!important;max-height:33px!important;padding:5px 9px!important;font-size:11px!important}#ctaStats{flex-basis:88px!important}#ctaDashboardBottom{flex-basis:78px!important}#ctaDashboardLeft>main,#ctaOperations{padding:8px!important}#ctaMapCard{padding:8px!important}#ctaMainArea{padding:7px!important}#ctaDashboard{gap:7px!important}#ctaDashboardLeft{gap:7px!important}#ctaDashboardBottom{gap:7px!important;margin-top:7px!important}}
+@media(max-width:900px){#ctaDashboardShell{grid-template-columns:178px minmax(0,1fr)!important}#ctaDashboardShell>nav{width:178px!important}#ctaDashboard{grid-template-columns:1fr!important;overflow:auto!important}#ctaDashboardRight{min-height:300px!important}#ctaDashboardBottom{grid-template-columns:1fr!important;flex:0 0 auto!important;overflow:visible!important}#ctaMainArea{overflow:auto!important}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;flex:0 0 auto!important;grid-template-rows:none!important}.cta-stat{min-height:55px!important}#ctaDashboardLeft>main,#ctaOperations{min-height:190px!important}#ctaMapCard{min-height:350px!important}}
