@@ -195,6 +195,15 @@ window.startCtaGame=async function(){
   if(html.includes(dispatchRoute)){
    html=html.replace(dispatchRoute,`let out,medical,back;try{out=await getRoute(home,i.position,air);medical=v.doTransport?await getRoute(i.position,v.hospital.position,air):null;back=await getRoute(v.doTransport?v.hospital.position:i.position,home,air)}catch(error){if(state===game&&generation===token){v.status='ready';v.mission=null;v.crew=[];v.crewRoles=[];v.leg=null;v.until=null;for(const p of state.staff)if(p.mission===i.id&&!state.vehicles.some(other=>other!==v&&other.mission===i.id&&other.crew?.includes(p.id)))p.mission=null;i.units=i.units.filter(id=>id!==v.id);log(i,v.name+' : départ impossible, trajet routier indisponible.');notify('Départ impossible : '+error.message,true);save();render()}return}`);
   }
+  // Effondrement: require a cynotechnical unit, never a diving vehicle (VPL).
+  const collapseScenario="['collapse','DIV','Effondrement partiel','Une partie d’un mur vient de s’effondrer. Nous ne savons pas si quelqu’un se trouvait derrière.',{RESCUE:1,SUAP:1},'TRAUMA',75]";
+  if(html.includes(collapseScenario)){
+    html=html.replace(collapseScenario,collapseScenario.replace('{RESCUE:1,SUAP:1}','{CYNO:1,SUAP:1}'));
+  }else console.warn('CTA: collapse scenario signature missing');
+  const rescueCode="RESCUE:['ULS','VPL','VIMP','FSD','CeUSAR','VEC','VIS','DRAGON']";
+  if(html.includes(rescueCode)){
+    html=html.replace(rescueCode,"CYNO:['VCYNO','VEC'],RESCUE:['ULS','VIMP','FSD','CeUSAR','VIS','DRAGON']");
+  }else console.warn('CTA: capability mapping signature missing');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
