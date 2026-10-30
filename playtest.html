@@ -6,7 +6,7 @@
 </style></head><body>
 <header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><span id="status">Non connecté</span></header>
 <div class="layout"><iframe src="./index.html" title="CTA CODIS V2 — jeu solo existant"></iframe>
-<aside class="panel"><section><h2>Compte joueur</h2>
+<aside class="panel"><small id="importPatchStatus">Vérification du correctif import…</small><section><h2>Compte joueur</h2>
 <div id="auth"><label>Adresse e-mail privée</label><input id="email" type="email" autocomplete="email" placeholder="adresse e-mail">
 <label>Mot de passe</label><input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe">
 <div class="row"><button id="login">Connexion</button><button class="secondary" id="signup">Inscription</button></div>
@@ -33,11 +33,11 @@
      const original=validateGame.toString();
      const old='!CATALOG[b.type]||!insideTerritory(b.position,territoryOf(s))||!Array.isArray(b.extensions)';
      if(!original.includes(old))return 'signature différente';
-     const fixed=original.replace(old,"!CATALOG[b.type]||!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lng))||!Array.isArray(b.extensions)");
+     const fixed=original.replace(old,"!CATALOG[b.type]||!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lon))||!Array.isArray(b.extensions)");
      validateGame=eval('('+fixed+')');
      return 'ok';
    })()`);
-   if(result!=='ok')console.warn('Correctif import CTA:',result);
+   if(result!=='ok'){console.warn('Correctif import CTA:',result);document.getElementById('importPatchStatus').textContent='Correctif import non appliqué : '+result}else{document.getElementById('importPatchStatus').textContent='Correctif import actif ✓'}
   }catch(e){console.warn('Correctif import indisponible:',e)}
  }
  frame.addEventListener('load',apply);
