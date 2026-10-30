@@ -59,7 +59,7 @@ const session=document.createElement('div');session.id='ctaSession';session.inne
 $('ctaSessionLogout').onclick=()=>parent.postMessage({type:'cta-logout'},'*');
 function update(){
  for(const id of ['credits','tickets','level','staffCount']){const source=$(id),dest=$('ctaValue-'+id);if(source&&dest)dest.textContent=source.textContent}
- const active=$('activeCount')?.textContent||'0';$('ctaValue-ctaActive').textContent=active;$('ctaActiveBadge').textContent=active;
+ const active=$('activeCount')?.textContent||'—';$('ctaValue-ctaActive').textContent=active;$('ctaActiveBadge').textContent=active;
  const callItems=$('callsList')?.querySelectorAll('.alert-card')||[];
  $('ctaValue-ctaPending').textContent=String(callItems.length);
  $('ctaCallsSummary').textContent=Array.from(callItems).slice(0,3).map(x=>x.textContent.replace(/\s+/g,' ').trim().slice(0,95)).join(' · ')||'Aucun appel en attente';
@@ -70,7 +70,7 @@ function update(){
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
  if(home&&mapSection.parentElement!==mapCard){mapCard.append(mapSection);window.dispatchEvent(new Event('resize'))}
  if(selected==='map'&&mapSection.parentElement!==mapLayout){mapLayout.prepend(mapSection);window.dispatchEvent(new Event('resize'))}
- if(home)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+ if(home&&window.__ctaLastHome!==home)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));window.__ctaLastHome=home;
 }
 nav.addEventListener('click',()=>setTimeout(update,60));
 new MutationObserver(()=>setTimeout(update,50)).observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-selected']});
