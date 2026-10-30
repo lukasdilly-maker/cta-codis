@@ -13,6 +13,7 @@
 <small>L'e-mail reste privé. Le pseudo est généré à l'inscription et peut être personnalisé ultérieurement par l'administration.</small></div>
 <div id="logged" class="hidden"><div id="identity"></div><button id="logout" class="secondary">Déconnexion</button></div><div id="notice" aria-live="polite"></div></section>
 <div id="connected" class="hidden">
+<section><h2>☁️ Sauvegardes cloud</h2><p>Synchronisation manuelle des profils locaux du jeu. La restauration remplace les profils de ce navigateur après confirmation.</p><div class="row"><button id="cloudUpload">Envoyer la sauvegarde</button><button id="cloudRestore" class="secondary">Restaurer du cloud</button></div><small id="cloudStatus">Aucune opération effectuée.</small></section>
 <section><h2>📡 Coopération</h2><p>Les demandes circulent entre comptes. Les véhicules du jeu ne sont pas encore transférés automatiquement.</p>
 <label>Destinataire</label><select id="recipient"></select><label>Service</label><select id="service"><option>SDIS</option><option>Gendarmerie</option><option>Police</option><option>SMUR</option><option>AASC</option><option>SNSM</option></select>
 <label>Type d'engin</label><input id="vehicle" maxlength="100" placeholder="Ex. VSAV, FPT, VLM, VL">
@@ -78,6 +79,31 @@ async function adminUsers(){
   }el('users').append(item);
  }
 }
+
+const SAVE_KEY='cta15-profiles-v4';
+function cloudNote(msg,error=false){el('cloudStatus').textContent=msg;el('cloudStatus').className=error?'err':'ok';note(msg,error)}
+el('cloudUpload').onclick=async()=>{
+ if(!uid){cloudNote('Connecte-toi avant de sauvegarder.',true);return}
+ let raw=localStorage.getItem(SAVE_KEY),payload;
+ try{payload=JSON.parse(raw);if(!payload?.games||!payload?.active||!payload.games[payload.active])throw Error('Profils absents')}catch(e){cloudNote('Sauvegarde locale introuvable ou invalide. Ouvre le jeu et sauvegarde une partie.',true);return}
+ const b=el('cloudUpload');b.disabled=true;
+ try{const {error}=await db.from('cta_cloud_saves').upsert({user_id:uid,payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;cloudNote('Sauvegarde cloud enregistrée. Vérifie la table cta_cloud_saves.')}catch(e){cloudNote('Échec cloud : '+e.message,true)}finally{b.disabled=false}
+};
+el('cloudRestore').onclick=async()=>{
+ if(!uid){cloudNote('Connecte-toi avant de restaurer.',true);return}
+ const b=el('cloudRestore');b.disabled=true;
+ try{
+  const {data,error}=await db.from('cta_cloud_saves').select('payload,updated_at').eq('user_id',uid).maybeSingle();
+  if(error)throw error;if(!data)throw Error('Aucune sauvegarde cloud pour ce compte');
+  const p=data.payload;if(!p?.games||!p?.active||!p.games[p.active])throw Error('Format de sauvegarde invalide');
+  if(!confirm('Restaurer la sauvegarde du '+new Date(data.updated_at).toLocaleString('fr-FR')+' ? Cela remplacera les profils locaux de ce navigateur.'))return;
+  const current=localStorage.getItem(SAVE_KEY);if(current)localStorage.setItem(SAVE_KEY+'-backup-'+Date.now(),current);
+  localStorage.setItem(SAVE_KEY,JSON.stringify(p));
+  cloudNote('Sauvegarde restaurée. Rechargement du jeu.');
+  document.querySelector('iframe').contentWindow.location.reload();
+ }catch(e){cloudNote('Restauration impossible : '+e.message,true)}finally{b.disabled=false}
+};
+
 el('login').onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});note(error?error.message:'Connexion réussie.',!!error);if(!error)await load()};
 el('signup').onclick=async()=>{const {data,error}=await db.auth.signUp({email:el('email').value.trim(),password:el('password').value});note(error?error.message:(data.session?'Compte créé.':'Compte créé. Vérifie ton e-mail pour confirmer ton inscription.'),!!error);if(data.session)await load()};
 el('logout').onclick=async()=>{await db.auth.signOut();await load()};
