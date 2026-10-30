@@ -3,7 +3,7 @@
 <title>CTA CODIS V2 — Test multijoueur</title>
 <style>
 :root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b1320;color:#eef4ff}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;background:#15243a;border-bottom:1px solid #334763}header strong{color:#f4f7ff}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;height:calc(100dvh - 61px)}iframe{width:100%;height:100%;border:0;background:white}.panel{overflow:auto;background:#111e30;padding:15px;border-left:1px solid #34445a}section{background:#1b2a40;border:1px solid #354762;border-radius:10px;padding:12px;margin-bottom:12px}h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:0 0 8px}p,small{color:#b6c8dd}input,select,button{width:100%;padding:9px;margin:4px 0 8px;background:#101a2a;color:#fff;border:1px solid #4a607c;border-radius:6px;font:inherit}button{cursor:pointer;background:#1466aa;border-color:#2779c1;font-weight:600}button.secondary{background:#31425b}button.danger{background:#8b2c3b}.row{display:flex;gap:7px}.row>*{flex:1;min-width:0}.hidden{display:none}.item{border-top:1px solid #41536d;padding:10px 0}.item button{margin:4px 0}.ok{color:#76e4ae}.err{color:#ffb3b3}.pill{background:#30445d;border-radius:20px;padding:4px 8px;font-size:12px}#notice{font-size:13px;white-space:pre-wrap}label{font-size:12px;color:#bdcce0}summary{cursor:pointer;font-weight:600;padding:4px}code{overflow-wrap:anywhere}@media(max-width:850px){.layout{grid-template-columns:1fr;height:auto}.layout iframe{height:65dvh}.panel{border-left:0}}
-</style></head><body>
+#reinforcementDialog{border:1px solid #48617e;border-radius:12px;background:#142238;color:white;width:min(440px,94vw);padding:20px}#reinforcementDialog::backdrop{background:#000b}#reinforcementDialog h2{font-size:20px}#reinforcementDialog label{display:block;margin-top:10px}</style></head><body>
 <header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><span id="status">Non connecté</span></header>
 <div class="layout"><iframe src="./index.html" title="CTA CODIS V2 — jeu solo existant"></iframe>
 <aside class="panel"><small id="importPatchStatus">Vérification du correctif import…</small><section><h2>Compte joueur</h2>
@@ -49,7 +49,7 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
 const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false;
+let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false,incidentId=null;
 function note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
 async function load(){
  const {data:{user}}=await db.auth.getUser();uid=user?.id||null;
@@ -62,6 +62,39 @@ async function load(){
  el('admin').classList.toggle('hidden',role!=='superadmin');
  await Promise.all([players(),requests()]);startRealtime();if(role==='superadmin')await adminUsers();
 }
+function attachIncidentButton(){
+ const frame=document.querySelector('iframe');
+ try{
+  const doc=frame.contentDocument;
+  if(!doc||doc.__ctaMultiBound)return;
+  doc.__ctaMultiBound=true;
+  doc.addEventListener('click',event=>{
+   const button=event.target.closest?.('[data-action="reinforcement"]');
+   if(!button)return;
+   if(!uid){note('Connecte-toi pour demander un renfort multijoueur.',true);return}
+   event.preventDefault();event.stopImmediatePropagation();
+   incidentId=button.dataset.id||null;
+   el('reinforcementIncident').textContent='Intervention n°'+(incidentId||'inconnue');
+   const opts=el('recipient').querySelectorAll('option');
+   el('incidentRecipient').replaceChildren(...Array.from(opts,o=>o.cloneNode(true)));
+   el('incidentFeedback').textContent='';
+   el('reinforcementDialog').showModal();
+  },true);
+ }catch(e){console.warn('Intégration fiche intervention :',e)}
+}
+document.querySelector('iframe').addEventListener('load',attachIncidentButton);
+el('incidentCancel').onclick=()=>el('reinforcementDialog').close();
+el('incidentSend').onclick=async()=>{
+ const recipient=el('incidentRecipient').value,quantity=Number(el('incidentQuantity').value),vehicle=el('incidentVehicle').value.trim();
+ if(!uid||!recipient||!vehicle||!Number.isInteger(quantity)||quantity<1||quantity>20){el('incidentFeedback').textContent='Renseigne le destinataire, le moyen et une quantité entre 1 et 20.';return}
+ const button=el('incidentSend');button.disabled=true;
+ try{
+  const {data,error}=await db.rpc('cta_send_reinforcement',{p_recipient_id:recipient,p_service:el('incidentService').value,p_vehicle_type:vehicle,p_quantity:quantity});
+  if(error)throw error;
+  if(data?.id&&incidentId){const key='cta-multi-incidents';let mapping={};try{mapping=JSON.parse(localStorage.getItem(key)||'{}')}catch{}mapping[data.id]=incidentId;localStorage.setItem(key,JSON.stringify(mapping))}
+  el('reinforcementDialog').close();note('Renfort demandé depuis la fiche intervention.');await requests();
+ }catch(e){el('incidentFeedback').textContent='Envoi impossible : '+e.message}finally{button.disabled=false}
+};
 async function players(){
  const {data,error}=await db.rpc('cta_list_players');
  if(error){note('Migration SQL requise : '+error.message,true);return}
@@ -93,7 +126,7 @@ async function requests(){
   const item=document.createElement('div');item.className='item';
   const peer=r.requester_id===uid?r.recipient_id:r.requester_id;
   const direction=r.requester_id===uid?'Envoyée à ':'Reçue de ';
-  item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
+  let incidentMap={};try{incidentMap=JSON.parse(localStorage.getItem('cta-multi-incidents')||'{}')}catch{}\n  item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+(incidentMap[r.id]?' · Intervention n°'+esc(incidentMap[r.id]):'')+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
   const units=assigned.filter(a=>a.request_id===r.id);
   if(units.length){
    const detail=document.createElement('div');detail.textContent='Engins affectés : '+units.map(a=>a.vehicle_name+' ('+a.station_name+')').join(', ');
