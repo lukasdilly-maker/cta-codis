@@ -75,6 +75,37 @@ body:not(.console-collapsed) #consoleFab{display:none}
 #admin.active{display:block}
 #consoleIntro{padding:10px 12px;margin-bottom:10px;border-radius:9px;background:#0e3445;border:1px solid #22627b;color:#bdefff;font-size:11px;line-height:1.5}
 @media(max-width:850px){.layout{height:calc(100dvh - 58px)}.layout iframe{height:100%}.panel{top:8px;right:8px;bottom:8px;width:min(370px,calc(100vw - 16px));padding:12px}#consoleFab{right:10px;top:67px}}
+
+/* Cooperative operations workspace — one tab at a time, no overlapping sections */
+body.cta-authenticated .panel{width:min(520px,calc(100vw - 20px))!important;right:10px!important;top:10px!important;bottom:10px!important;padding:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#0b1c2e!important;border:1px solid #426581!important;border-radius:13px!important;box-shadow:0 20px 70px #000b!important;backdrop-filter:none!important}
+body.cta-authenticated .panel-header{flex:0 0 auto!important;display:flex!important;align-items:center!important;padding:16px 18px!important;margin:0!important;border-bottom:1px solid #2d4b65!important;background:#10283f!important}
+body.cta-authenticated .panel-header strong{font-size:16px!important;letter-spacing:.01em!important}
+body.cta-authenticated .panel-header small{font-size:11px!important}
+body.cta-authenticated .panel-header button{width:35px!important;height:35px!important;min-height:35px!important;padding:0!important;margin:0!important;font-size:17px!important}
+body.cta-authenticated #consoleIntro{flex:0 0 auto!important;margin:12px 16px 0!important;padding:9px 11px!important;font-size:11px!important;line-height:1.35!important;background:#12364a!important;border-color:#285d77!important}
+body.cta-authenticated #consoleTabs{flex:0 0 auto!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;margin:12px 16px 0!important;padding:4px!important;border-radius:9px!important}
+body.cta-authenticated #consoleTabs button{min-width:0!important;width:100%!important;height:37px!important;min-height:37px!important;margin:0!important;padding:5px 3px!important;font-size:11px!important;white-space:nowrap!important}
+body.cta-authenticated #consoleTabs button.active{background:#1477b8!important;border-color:#42b1ed!important}
+body.cta-authenticated #importPatchStatus{flex:0 0 auto!important;margin:8px 16px 0!important;padding:0!important;font-size:10px!important;color:#779ab4!important;background:none!important;border:0!important}
+body.cta-authenticated #connected{display:block!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;margin:0!important;padding:12px 16px 18px!important;scrollbar-width:thin;scrollbar-color:#476783 #0b1c2e}
+body.cta-authenticated #connected section[data-console-section]{display:none!important}
+body.cta-authenticated #connected section[data-console-section].active{display:block!important}
+body.cta-authenticated #connected section[data-console-section]{padding:16px!important;margin:0 0 12px!important;border:1px solid #31516e!important;border-radius:10px!important;background:#11283f!important;box-shadow:none!important}
+body.cta-authenticated #connected section h2{font-size:14px!important;margin:0 0 12px!important;line-height:1.35!important}
+body.cta-authenticated #connected section p{font-size:12px!important;line-height:1.55!important;margin:0 0 14px!important}
+body.cta-authenticated #connected label{display:block!important;margin:12px 0 5px!important;font-size:11px!important;font-weight:700!important;color:#bfd5e9!important}
+body.cta-authenticated #connected input,body.cta-authenticated #connected select{display:block!important;width:100%!important;height:42px!important;min-height:42px!important;margin:0 0 8px!important;padding:8px 12px!important;border-radius:7px!important;border:1px solid #436783!important;background:#091c2e!important;color:#edf6ff!important;font-size:12px!important}
+body.cta-authenticated #connected button{width:auto!important;max-width:100%!important;min-height:36px!important;margin:6px 0!important;padding:8px 13px!important;font-size:12px!important;border-radius:7px!important}
+body.cta-authenticated #connected #send{display:block!important;width:100%!important;margin-top:14px!important;min-height:43px!important}
+body.cta-authenticated #connected .row{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+body.cta-authenticated #connected .row button{flex:1 1 145px!important}
+body.cta-authenticated #connected .item{padding:12px!important;border-radius:9px!important;background:#0c2035!important;border:1px solid #2d4d67!important;margin:9px 0!important;overflow-wrap:anywhere!important}
+body.cta-authenticated #connected #logged{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+body.cta-authenticated #connected #identity{min-width:0!important;overflow-wrap:anywhere!important}
+body.cta-authenticated #connected #requests{margin-top:10px!important}
+body.cta-authenticated #connected #admin.active{display:block!important}
+body.cta-authenticated #connected #cloudStatus{margin-top:10px!important}
+@media(max-width:600px){body.cta-authenticated .panel{width:calc(100vw - 12px)!important;right:6px!important;top:6px!important;bottom:6px!important}body.cta-authenticated #consoleTabs{margin-left:10px!important;margin-right:10px!important}body.cta-authenticated #connected{padding:10px!important}}
 body.cta-authenticated>header{display:none!important}body.cta-authenticated>.layout{height:100dvh!important}body.cta-authenticated>.layout iframe{height:100dvh!important}body.cta-authenticated #consoleFab{display:none!important}body.cta-authenticated .panel{top:10px!important;bottom:10px!important}</style></head><body>
 <header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><div style="display:flex;align-items:center;gap:10px"><span id="status">Non connecté</span><button id="consoleToggle" type="button">☰ Console</button></div></header><button id="consoleFab" type="button" class="hidden">☰ Console multijoueur</button>
 <div id="loginGate"><div class="gate-card"><div class="gate-mark">🚒</div><h1>CTA CODIS V2</h1><p>CENTRE DE TRAITEMENT DE L’ALERTE</p><div class="gate-line"></div><h2>Identification requise</h2><p>Connectez-vous ou créez un compte pour accéder à votre centre opérationnel.</p><div id="gateAuth"><div id="auth"><label>Adresse e-mail privée</label><input id="email" type="email" autocomplete="email" placeholder="adresse e-mail">
@@ -330,6 +361,7 @@ el('send').onclick=async()=>{const recipient_id=el('recipient').value,quantity=N
 el('refresh').onclick=async()=>{await players();await requests()};
 el('adminRefresh').onclick=adminUsers;
 db.auth.onAuthStateChange(()=>{setTimeout(load,0)});
+const accountSection=document.querySelector('.panel>section[data-console-section="compte"]');if(accountSection&&el('connected'))el('connected').prepend(accountSection);
 function consoleTab(tab){document.querySelectorAll('#consoleTabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('[data-console-section]').forEach(x=>x.classList.toggle('active',x.dataset.consoleSection===tab));document.body.classList.remove('console-collapsed')}
 document.querySelectorAll('#consoleTabs button').forEach(b=>b.onclick=()=>consoleTab(b.dataset.tab));
 for(const id of ['consoleToggle','consoleFab'])el(id).onclick=()=>document.body.classList.toggle('console-collapsed');
