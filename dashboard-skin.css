@@ -1,0 +1,52 @@
+/* CTA CODIS V2 — Operational dashboard skin */
+:root{--bg:#071322;--panel:#0d2035;--panel2:#122941;--line:#284866;--muted:#a0bdd7;--text:#eff6ff;--blue:#4fb4ff;--green:#36df91;--red:#ff697b;--orange:#f4bb56}
+html,body{min-height:100%;background:var(--bg)!important;color:var(--text)!important}
+body{padding-left:244px;padding-top:74px;font-family:Inter,"Segoe UI",system-ui,sans-serif}
+body>header{position:fixed;top:0;left:0;right:0;height:74px;z-index:100;display:flex;flex-wrap:nowrap;align-items:center;gap:16px;padding:9px 18px;background:#091a2e!important;border-bottom:1px solid #244e74;box-shadow:0 8px 24px #0004}
+header .brand{min-width:235px;width:235px;margin:0;gap:10px}header .brand h1{font-size:19px;letter-spacing:.5px}header .brand .eyebrow{font-size:9px;letter-spacing:1px}header .codis-logo{width:43px;height:43px;object-fit:contain}
+header .clock{margin:auto;text-align:center}header .clock strong{font-size:22px}header .stat{padding:7px 11px;border:1px solid #2a4c6c;border-radius:9px;background:#10263e;min-width:95px}header .stat strong{font-size:17px}header .stat small{font-size:10px}
+header .session{order:0;margin-left:auto;white-space:nowrap}
+body>nav{position:fixed;top:74px;left:0;bottom:0;width:244px;z-index:90;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-y:auto;overflow-x:hidden;flex-wrap:nowrap;gap:4px;padding:16px 11px 24px;background:linear-gradient(#0c2137,#091a2e);border-right:1px solid #2b5277;border-bottom:0}
+body>nav button[role=tab]{text-align:left!important;width:100%;padding:12px 14px;border-radius:8px!important;font-size:13px;color:#c5dcf0;background:transparent!important;border:1px solid transparent!important;min-height:42px}
+body>nav button[role=tab]:hover{background:#173957!important}
+body>nav button[role=tab][aria-selected=true]{background:linear-gradient(110deg,#168af0,#126bb7)!important;border:1px solid #49b6ff!important;color:#fff!important;box-shadow:0 4px 14px #0057a44d}
+body>nav button[role=tab]::before{content:attr(data-cta-icon);display:inline-block;width:28px;font-size:18px;vertical-align:middle}
+body>.toolbar{margin:0;padding:10px 18px;gap:10px;background:#0b1d31;border-bottom:1px solid #28415b}
+body>.toolbar button,body>.toolbar select{border-radius:8px;background:#17314d;border-color:#315473;color:#edf6ff;padding:7px 9px}
+body>#notice{margin:9px 18px 0;border-radius:8px;border:1px solid #2c5d76;background:#102b40}
+body>main{padding:14px 18px 24px}
+body>main>section,body>main .map-section,body>main .intervention-pane,body>main .activity-section{background:linear-gradient(155deg,#11283f,#0b1d31);border:1px solid #294e6e;border-radius:12px;box-shadow:0 5px 20px #0003}
+body>main h2{font-size:19px;letter-spacing:-.3px}
+body>main .section-head{margin-bottom:16px}
+button,select,input{border-radius:8px}
+button{transition:background .15s,border-color .15s}
+button.primary,.engage{background:#116db3;border-color:#3eaff2}
+#roomPanel{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(360px,1fr);gap:14px;align-items:start}
+#roomPanel[hidden]{display:none!important}
+#roomPanel>section{grid-column:1}
+#ctaHomeMap{grid-column:2;grid-row:1 / span 2;min-width:0;background:#10243a;border:1px solid #315577;border-radius:12px;padding:12px;overflow:hidden}
+#ctaHomeMap h2{font-size:16px;margin:4px 0 12px}
+#ctaHomeMap .map-section{padding:0;border:0;box-shadow:none}
+#ctaHomeMap .map-section>.section-head{display:none}
+#ctaHomeMap #map{height:450px!important;min-height:350px}
+#ctaHomeMap .map-shell{border-radius:9px}
+#ctaHomeMap .legend{padding:8px}
+#roomPanel .dashboard{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#roomPanel .dashboard article,#roomPanel #roomContent article{border:1px solid #294d6c;background:#0d2137;border-radius:10px}
+#roomPanel .dashboard strong{color:#e9f6ff}
+#roomPanel .activity-row{border-color:#25425e}
+#ctaQuickPanel{grid-column:1 / -1;display:grid;grid-template-columns:1.15fr 1.15fr 1fr;gap:12px}
+.cta-widget{padding:15px;border-radius:11px;border:1px solid #2a5070;background:#0e2339;min-height:120px}
+.cta-widget h3{font-size:14px;margin:0 0 13px}
+.cta-widget .cta-sub{font-size:12px;color:#9eb9d1}
+.cta-widget .cta-value{font-size:22px;font-weight:750;color:#ecf6ff}
+.cta-widget button{font-size:12px;background:#126db2;border-color:#3c9ed5}
+#ctaMultiWidget button{margin-top:12px}
+#mapPanel .cartography{grid-template-columns:minmax(0,7fr) minmax(270px,3fr)}
+#mapPanel #map{height:min(70vh,780px)}
+#mapPanel .map-section{min-height:500px}
+#mapPanel .map-section.cta-map-away{display:none}
+body>footer{padding:16px 18px}
+@media(max-width:1450px){body{padding-left:210px}body>nav{width:210px}header .stat{min-width:76px;padding:6px 8px}header .stat strong{font-size:15px}#roomPanel{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)}}
+@media(max-width:1100px){#roomPanel{grid-template-columns:1fr}#roomPanel>section,#ctaHomeMap,#ctaQuickPanel{grid-column:1;grid-row:auto}#ctaQuickPanel{grid-template-columns:repeat(2,minmax(0,1fr))}header .stat{display:none}}
+@media(max-width:740px){body{padding-left:0;padding-top:62px}body>header{height:62px}header .brand{min-width:0;width:auto}header .brand h1{font-size:15px}header .clock{display:none}body>nav{position:sticky;top:62px;left:0;width:100%;height:auto;bottom:auto;z-index:80;flex-direction:row;overflow-x:auto;padding:7px;gap:4px}body>nav button[role=tab]{width:auto;min-width:max-content;font-size:11px;padding:9px!important}body>nav button[role=tab]::before{width:20px}body>main{padding:10px}#ctaQuickPanel{grid-template-columns:1fr}#roomPanel .dashboard{grid-template-columns:1fr}#ctaHomeMap #map{height:350px!important}}
