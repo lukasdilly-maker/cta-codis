@@ -141,3 +141,27 @@ body>header .stat{display:none!important}
 #ctaDashboardBottom .cta-mini-card{padding:8px 10px!important}
 #ctaDashboardBottom .cta-mini-card button{min-height:27px!important;margin-top:2px!important;padding:4px 10px!important}
 }
+
+/* Minimal operational home: only actionable information */
+#ctaDashboardLeft>main#roomPanel{display:none!important}
+#ctaDashboardBottom{display:none!important}
+#ctaStats .cta-stat{display:none!important}
+#ctaStats .cta-stat:has(#ctaValue-ctaPending),#ctaStats .cta-stat:has(#ctaValue-ctaActive),#ctaStats .cta-stat:has(#ctaValue-staffCount),#ctaStats .cta-stat:has(#ctaValue-ctaRadio){display:flex!important}
+#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:1fr!important;flex:0 0 68px!important}
+#ctaDashboard{grid-template-columns:minmax(310px,.88fr) minmax(0,1.6fr)!important}
+#ctaDashboardLeft>section#ctaOperations{flex:1 1 auto!important;height:100%!important;padding:14px!important}
+#ctaOperationsContent{height:calc(100% - 50px)!important}
+#ctaMapCard{height:100%!important}
+#ctaMapCard .map-section>.section-head,#ctaMapCard .map-section>.toolbar,#ctaMapCard .map-section>.controls,#ctaMapCard .map-section>.map-build-toolbar,#ctaMapCard .map-section>.map-tools,#ctaMapCard .map-section>.legend,#ctaMapCard .map-section>.map-legend,#ctaMapCard .map-section>.map-status,#ctaMapCard .map-section>.map-footer{display:none!important}
+#ctaMapCard .map-section>.map-shell~*{display:none!important}
+#ctaMapCard .map-section>.map-shell{flex:1 1 auto!important;height:100%!important;min-height:0!important}
+#ctaMapCard #map{height:100%!important}
+#ctaOperations .cta-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 15px}
+#ctaOperations .cta-quick-actions button{min-height:44px!important;border-radius:8px!important;border:1px solid #3b6585!important;background:#153a59!important;color:#eef7ff!important;font-weight:600!important}
+#ctaOperations .cta-quick-actions button:first-child{background:#137bce!important;border-color:#2ca9ff!important}
+#ctaOperations .cta-empty{padding:24px 12px;text-align:center;color:#9cb9cf;font-size:12px}
+#ctaOperations .cta-empty strong{display:block;color:#e5f3ff;font-size:15px;margin-bottom:6px}
+#ctaDashboardShell>nav button[role=tab]{font-size:12px!important}
+@media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:1fr!important;flex-basis:58px!important}}
+@media(max-height:720px){#ctaStats{flex-basis:52px!important}#ctaDashboardLeft>section#ctaOperations{padding:10px!important}}
+@media(max-width:900px){#ctaDashboard{grid-template-columns:1fr!important}#ctaDashboardLeft>section#ctaOperations{min-height:250px!important}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,1fr)!important;flex-basis:120px!important}}
