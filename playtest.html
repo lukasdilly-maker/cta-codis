@@ -145,7 +145,7 @@ el('logout').onclick=async()=>{await db.auth.signOut();await load()};
 el('send').onclick=async()=>{const recipient_id=el('recipient').value,quantity=Number(el('quantity').value),vehicle_type=el('vehicle').value.trim();
  if(!recipient_id||!vehicle_type||!Number.isInteger(quantity)||quantity<1||quantity>20){note('Destinataire, engin ou quantité invalide.',true);return}
  const {error}=await db.from('reinforcement_requests').insert({requester_id:uid,recipient_id,service:el('service').value,vehicle_type,quantity});
- note(error?error.message:'Demande envoyée.',!!error);if(!error)await requests()};
+ if(error){const details=[error.message,error.details,error.hint,error.code&&('Code '+error.code)].filter(Boolean).join(' — ');note('Échec de l’envoi : '+details,true);console.error('CTA CODIS renfort insertion',error)}else{note('Demande envoyée.');await requests()}};
 el('refresh').onclick=async()=>{await players();await requests()};
 el('adminRefresh').onclick=adminUsers;
 db.auth.onAuthStateChange(()=>{setTimeout(load,0)});
