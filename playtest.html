@@ -18,7 +18,7 @@
 <label>Destinataire</label><select id="recipient"></select><label>Service</label><select id="service"><option>SDIS</option><option>Gendarmerie</option><option>Police</option><option>SMUR</option><option>AASC</option><option>SNSM</option></select>
 <label>Type d'engin</label><input id="vehicle" maxlength="100" placeholder="Ex. VSAV, FPT, VLM, VL">
 <label>Quantité (1–20)</label><input id="quantity" type="number" min="1" max="20" value="1"><button id="send">Envoyer une demande</button></section>
-<section><h2>Demandes de renfort</h2><button id="refresh" class="secondary">Actualiser</button><div id="requests"></div></section>
+<section><h2>Demandes de renfort <span id="liveStatus" class="pill">Actualisation périodique</span></h2><button id="refresh" class="secondary">Actualiser</button><div id="requests"></div></section>
 <section id="admin" class="hidden"><h2>🛡️ Super Administration</h2><p>Liste des comptes et suspension / réactivation. Aucune adresse e-mail ni mot de passe affiché.</p><button id="adminRefresh">Actualiser les comptes</button><div id="users"></div></section>
 </div></aside></div>
 <script>
@@ -49,18 +49,18 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
 const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let uid=null,people=new Map(),role='player';
+let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false;
 function note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
 async function load(){
  const {data:{user}}=await db.auth.getUser();uid=user?.id||null;
  el('auth').classList.toggle('hidden',!!uid);el('logged').classList.toggle('hidden',!uid);el('connected').classList.toggle('hidden',!uid);
- if(!uid){el('status').textContent='Non connecté';el('admin').classList.add('hidden');return}
+ if(!uid){el('status').textContent='Non connecté';el('admin').classList.add('hidden');if(liveChannel){await db.removeChannel(liveChannel);liveChannel=null}return}
  const {data:p,error}=await db.from('profiles').select('username,role,suspended').eq('id',uid).single();
  if(error||!p){note('Profil introuvable. Vérifie que le script initial a été exécuté.',true);return}
  role=p.role;el('status').textContent=p.username;el('identity').textContent=p.username+' · '+p.role;
  if(p.suspended){note('Ce compte est suspendu.',true);el('connected').classList.add('hidden');return}
  el('admin').classList.toggle('hidden',role!=='superadmin');
- await Promise.all([players(),requests()]);if(role==='superadmin')await adminUsers();
+ await Promise.all([players(),requests()]);startRealtime();if(role==='superadmin')await adminUsers();
 }
 async function players(){
  const {data,error}=await db.rpc('cta_list_players');
@@ -69,10 +69,11 @@ async function players(){
  el('recipient').replaceChildren(...(data||[]).map(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.username;return o}));
 }
 async function requests(){
+ if(requestBusy)return;requestBusy=true;
  const {data,error}=await db.from('reinforcement_requests').select('*').order('created_at',{ascending:false}).limit(100);
- if(error){note(error.message,true);return}
+ if(error){requestBusy=false;note(error.message,true);return}
  el('requests').replaceChildren();
- if(!data?.length){el('requests').textContent='Aucune demande.';return}
+ if(!data?.length){el('requests').textContent='Aucune demande.';requestBusy=false;return}
  for(const r of data){
   const item=document.createElement('div');item.className='item';
   const peer=r.requester_id===uid?r.recipient_id:r.requester_id;
@@ -87,6 +88,16 @@ async function requests(){
    }item.append(row);
   }el('requests').append(item);
  }
+ requestBusy=false;
+}
+function startRealtime(){
+ if(!uid||liveChannel)return;
+ liveChannel=db.channel('cta-renforts-'+uid)
+ .on('postgres_changes',{event:'*',schema:'public',table:'reinforcement_requests',filter:'recipient_id=eq.'+uid},()=>requests())
+ .on('postgres_changes',{event:'*',schema:'public',table:'reinforcement_requests',filter:'requester_id=eq.'+uid},()=>requests())
+ .subscribe(state=>{
+  el('liveStatus').textContent=state==='SUBSCRIBED'?'Temps réel actif':state==='CHANNEL_ERROR'?'Actualisation périodique':'Connexion…';
+ });
 }
 async function adminUsers(){
  const {data,error}=await db.rpc('cta_admin_users');
@@ -124,7 +135,7 @@ el('cloudRestore').onclick=async()=>{
   const current=localStorage.getItem(SAVE_KEY);if(current)localStorage.setItem(SAVE_KEY+'-backup-'+Date.now(),current);
   localStorage.setItem(SAVE_KEY,JSON.stringify(p));
   cloudNote('Sauvegarde restaurée. Rechargement du jeu.');
-  document.querySelector('iframe').contentWindow.location.reload();
+  location.reload();
  }catch(e){cloudNote('Restauration impossible : '+e.message,true)}finally{b.disabled=false}
 };
 
