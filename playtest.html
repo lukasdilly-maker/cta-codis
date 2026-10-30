@@ -149,6 +149,12 @@ window.startCtaGame=async function(){
    html=html.replace(stateSignature,stateSignature+
     "window.__ctaLiveStats=()=>{if(!state)return null;const vehicles=Array.isArray(state.vehicles)?state.vehicles:[];return {buildings:(state.stations||[]).length,vehicles:vehicles.length,staff:(state.staff||[]).length,ready:vehicles.filter(v=>v.status==='ready'&&!v.mission&&!v.fault).length,engaged:vehicles.filter(v=>v.mission||v.status==='engaged').length,incidents:(state.incidents||[]).filter(i=>!i.closed).length}};");
   }else console.warn('CTA: live statistics bridge signature not found');
+  // Reliable statistics bridge: update from the game's own render cycle.
+  const renderSignature='function render(){';
+  if(html.includes(renderSignature)){
+    html=html.replace(renderSignature,renderSignature+
+      "window.__ctaLiveStats=()=>{const v=state?.vehicles||[],st=state?.stations||[],p=state?.staff||[],i=state?.incidents||[];return {buildings:st.length,vehicles:v.length,staff:p.length,ready:v.filter(x=>x.status==='ready'&&!x.mission&&!x.fault).length,engaged:v.filter(x=>!!x.mission||x.status==='engaged').length,incidents:i.filter(x=>!x.closed).length}};");
+  }else console.warn('CTA: render bridge signature missing');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
