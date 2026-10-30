@@ -83,3 +83,16 @@ body>header .stat{display:none!important}
 @media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex-basis:108px!important}#ctaDashboardBottom{flex-basis:90px!important}}
 @media(max-height:720px){body>header{height:56px!important;min-height:56px!important;padding:5px 12px!important}body>header .brand h1{font-size:15px!important}body>header .codis-logo{width:37px!important;height:37px!important}body>header .clock strong{font-size:16px!important}#ctaDashboardShell{height:calc(100dvh - 56px)!important}#ctaDashboardShell>nav{padding:7px!important}#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{flex-basis:33px!important;height:33px!important;min-height:33px!important;max-height:33px!important;padding:5px 9px!important;font-size:11px!important}#ctaStats{flex-basis:88px!important}#ctaDashboardBottom{flex-basis:78px!important}#ctaDashboardLeft>main,#ctaOperations{padding:8px!important}#ctaMapCard{padding:8px!important}#ctaMainArea{padding:7px!important}#ctaDashboard{gap:7px!important}#ctaDashboardLeft{gap:7px!important}#ctaDashboardBottom{gap:7px!important;margin-top:7px!important}}
 @media(max-width:900px){#ctaDashboardShell{grid-template-columns:178px minmax(0,1fr)!important}#ctaDashboardShell>nav{width:178px!important}#ctaDashboard{grid-template-columns:1fr!important;overflow:auto!important}#ctaDashboardRight{min-height:300px!important}#ctaDashboardBottom{grid-template-columns:1fr!important;flex:0 0 auto!important;overflow:visible!important}#ctaMainArea{overflow:auto!important}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;flex:0 0 auto!important;grid-template-rows:none!important}.cta-stat{min-height:55px!important}#ctaDashboardLeft>main,#ctaOperations{min-height:190px!important}#ctaMapCard{min-height:350px!important}}
+
+/* Operations overview: prioritize live map, hide map-management controls on the home screen */
+#ctaMapCard .map-section>.section-head,#ctaMapCard .map-section>.toolbar,#ctaMapCard .map-section>.controls,#ctaMapCard .map-section>.map-build-toolbar,#ctaMapCard .map-section>.map-tools,#ctaMapCard .map-section>.legend,#ctaMapCard .map-section>.map-legend,#ctaMapCard .map-section>.map-status,#ctaMapCard .map-section>.map-footer{display:none!important}
+#ctaMapCard .map-section{position:relative!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
+#ctaMapCard .map-shell{flex:1 1 auto!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+#ctaMapCard #map{height:100%!important;min-height:0!important;max-height:none!important}
+#ctaMapCard .map-section>p,#ctaMapCard .map-section>small{display:none!important}
+#ctaMapCard .map-section>.map-shell~*{display:none!important}
+#ctaMapCard .leaflet-control-attribution{font-size:9px!important}
+#ctaMapCard .leaflet-control-zoom a{width:28px!important;height:28px!important;line-height:28px!important}
+#ctaMapCard .map-section button{font-size:10px!important}
+#ctaMapCard .map-section select{font-size:10px!important;max-width:155px!important}
+#ctaMapCard .map-section>.map-shell{border:1px solid #2c5272!important}
