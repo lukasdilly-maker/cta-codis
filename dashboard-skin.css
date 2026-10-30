@@ -165,3 +165,19 @@ body>header .stat{display:none!important}
 @media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:1fr!important;flex-basis:58px!important}}
 @media(max-height:720px){#ctaStats{flex-basis:52px!important}#ctaDashboardLeft>section#ctaOperations{padding:10px!important}}
 @media(max-width:900px){#ctaDashboard{grid-template-columns:1fr!important}#ctaDashboardLeft>section#ctaOperations{min-height:250px!important}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,1fr)!important;flex-basis:120px!important}}
+
+/* Cartography is a dispatch map, not a message log. Reserve a compact calls column. */
+#mapPanel{height:100%!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+#mapPanel .cartography{flex:1 1 auto!important;height:auto!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,4fr) minmax(235px,1fr)!important;gap:10px!important;overflow:hidden!important}
+#mapPanel .cartography>.map-section{min-width:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#mapPanel .cartography>.map-section>.map-shell{flex:1 1 auto!important;min-height:0!important;height:100%!important}
+#mapPanel .cartography>.map-section #map{height:100%!important;min-height:0!important}
+#mapPanel .cartography>section:not(.map-section){min-width:0!important;min-height:0!important;overflow-y:auto!important;padding:10px!important}
+#mapPanel .cartography>section:not(.map-section) .alert-card{margin:7px 0!important;padding:10px!important}
+#mapPanel .cartography>section:not(.map-section) h2{font-size:14px!important}
+#mapPanel .cartography>section:not(.map-section) button{font-size:11px!important}
+#mapPanel .cartography>section:not(.map-section) .item{padding:8px!important}
+#mapPanel .cartography>section:not(.map-section) .activity-row{display:none!important}
+#mapPanel .cartography>section:not(.map-section) .journal,#mapPanel .cartography>section:not(.map-section) .log,#mapPanel .cartography>section:not(.map-section) .messages{display:none!important}
+@media(max-width:1100px){#mapPanel .cartography{grid-template-columns:minmax(0,3fr) minmax(215px,1fr)!important}}
+@media(max-width:700px){#mapPanel .cartography{grid-template-columns:1fr!important;grid-template-rows:minmax(350px,2fr) minmax(150px,1fr)!important;overflow:auto!important}}
