@@ -115,7 +115,7 @@ window.startCtaGame=async function(){
    if(!cssResponse.ok||!jsResponse.ok)throw Error('Fichiers de présentation indisponibles');
    const skinCss=await cssResponse.text(),skinJs=await jsResponse.text();
    html=html.replace('</head>','<style id="cta-dashboard-skin">'+skinCss+'</style></head>');
-   html=html.replace('</body>','<script>'+skinJs.replaceAll('</script','<\\/script')+'<\\/script></body>');
+   html=html.replace('</body>','<script>'+skinJs+'</'+'script></body>');
   }catch(skinError){console.error('Habillage tableau de bord',skinError);status.textContent='Jeu chargé sans habillage : '+skinError.message}
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
