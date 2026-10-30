@@ -143,6 +143,12 @@ window.startCtaGame=async function(){
   html=html.replace("if(activeTab!=='map')return;const m=metrics();","if(activeTab!=='map'&&activeTab!=='room')return;const m=metrics();");
   html=html.replace("if(tab==='map')requestAnimationFrame(renderMap);","if(tab==='map'||tab==='room')requestAnimationFrame(renderMap);");
   if(!html.includes(valid))throw Error('Remplacement non effectué');
+  // Read live statistics from the game engine state rather than localStorage.
+  const stateSignature="let profiles={active:'principal',games:{}};let state;";
+  if(html.includes(stateSignature)){
+   html=html.replace(stateSignature,stateSignature+
+    "window.__ctaLiveStats=()=>{if(!state)return null;const vehicles=Array.isArray(state.vehicles)?state.vehicles:[];return {buildings:(state.stations||[]).length,vehicles:vehicles.length,staff:(state.staff||[]).length,ready:vehicles.filter(v=>v.status==='ready'&&!v.mission&&!v.fault).length,engaged:vehicles.filter(v=>v.mission||v.status==='engaged').length,incidents:(state.incidents||[]).filter(i=>!i.closed).length}};");
+  }else console.warn('CTA: live statistics bridge signature not found');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
