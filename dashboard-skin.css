@@ -208,3 +208,9 @@ body>header .stat{display:none!important}
 .cta-summary-item:nth-child(5) strong{color:#f5c46e}
 .cta-summary-note{margin-top:8px;color:#7e9eb8;font-size:10px;text-align:right}
 @media(max-height:720px){#ctaOperationsContent.cta-summary-grid{min-height:140px;gap:5px}.cta-summary-item{padding:7px;gap:3px}.cta-summary-item strong{font-size:18px}}
+
+/* CODIS radio status: keep the complete "Lignes 18 / 112" label visible */
+#ctaStats .cta-stat:has(#ctaValue-ctaRadio){min-width:0!important;overflow:visible!important}
+#ctaStats .cta-stat:has(#ctaValue-ctaRadio)>div{min-width:0!important;flex:1 1 auto!important}
+#ctaStats #ctaValue-ctaRadio{font-size:clamp(12px,1.1vw,17px)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;line-height:1.25!important}
+#ctaStats .cta-stat:has(#ctaValue-ctaRadio) small{white-space:normal!important}
