@@ -84,8 +84,11 @@ window.startCtaGame=async function(){
  }
 };
 </script>
-<script type="module">
-import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+if(!window.supabase){document.getElementById('notice').textContent='Impossible de charger le service de connexion. Vérifie ta connexion Internet et recharge la page.';return}
+const {createClient}=window.supabase;
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
 const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false,incidentId=null,gameStarted=false;
@@ -249,8 +252,8 @@ el('cloudRestore').onclick=async()=>{
  }catch(e){cloudNote('Restauration impossible : '+e.message,true)}finally{b.disabled=false}
 };
 
-el('login').onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});note(error?error.message:'Connexion réussie.',!!error);if(!error)await load()};
-el('signup').onclick=async()=>{const department=el('department').value;if(!department){note('Sélectionne ton département pour créer ton compte.',true);return}const {data,error}=await db.auth.signUp({email:el('email').value.trim(),password:el('password').value,options:{data:{department}}});note(error?error.message:(data.session?'Compte créé.':'Compte créé. Vérifie ton e-mail pour confirmer ton inscription.'),!!error);if(data.session)await load()};
+el('login').onclick=async()=>{const b=el('login');b.disabled=true;note('Connexion en cours…');try{const {error}=await db.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});if(error)throw error;note('Connexion réussie. Chargement de ta partie…');await load()}catch(e){note('Connexion impossible : '+e.message,true)}finally{b.disabled=false}};
+el('signup').onclick=async()=>{const department=el('department').value;if(!department){note('Sélectionne ton département pour créer ton compte.',true);return}const b=el('signup');b.disabled=true;note('Création du compte…');try{const {data,error}=await db.auth.signUp({email:el('email').value.trim(),password:el('password').value,options:{data:{department}}});if(error)throw error;note(data.session?'Compte créé.':'Compte créé. Vérifie ton e-mail pour confirmer ton inscription.');if(data.session)await load()}catch(e){note('Inscription impossible : '+e.message,true)}finally{b.disabled=false}};
 el('logout').onclick=async()=>{await db.auth.signOut();location.reload()};
 el('send').onclick=async()=>{const recipient_id=el('recipient').value,quantity=Number(el('quantity').value),vehicle_type=el('vehicle').value.trim();
  if(!recipient_id||!vehicle_type||!Number.isInteger(quantity)||quantity<1||quantity>20){note('Destinataire, engin ou quantité invalide.',true);return}
@@ -261,4 +264,5 @@ el('adminRefresh').onclick=adminUsers;
 db.auth.onAuthStateChange(()=>{setTimeout(load,0)});
 showGate(true);await load();
 setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
+})().catch(error=>{console.error('CTA CODIS initialisation',error);document.getElementById('notice').textContent='Erreur de démarrage : '+error.message});
 </script></body></html>
