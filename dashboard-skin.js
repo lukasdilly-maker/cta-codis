@@ -70,7 +70,7 @@ function update(){
  $('ctaFleetSummary').textContent=$('staffCount')?.textContent||'—';
  let game=null;
  try{const profiles=JSON.parse(localStorage.getItem('cta15-profiles-v4')||'null');game=profiles?.games?.[profiles.active]||null}catch(e){}
- const live=typeof window.__ctaLiveStats==='function'?window.__ctaLiveStats():null;
+ let live=null;try{live=typeof window.__ctaLiveStats==='function'?window.__ctaLiveStats():null}catch(error){console.warn('CTA statistiques indisponibles',error)}
  if(live){
  $('ctaSumBuildings').textContent=live.buildings.toLocaleString('fr-FR');
  $('ctaSumVehicles').textContent=live.vehicles.toLocaleString('fr-FR');
@@ -95,7 +95,7 @@ function update(){
  $('ctaSumTerritory').textContent='Données actualisées depuis la partie active';
  }else{
  for(const id of ['ctaSumBuildings','ctaSumVehicles','ctaSumStaff','ctaSumReady','ctaSumEngaged','ctaSumIncidents'])$(id).textContent='—';
- $('ctaSumTerritory').textContent='Aucune partie active chargée';
+ $('ctaSumTerritory').textContent='Données indisponibles — liaison au moteur à vérifier';
  }
  const selected=nav.querySelector('[aria-selected="true"]')?.dataset.tab||'room';
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
