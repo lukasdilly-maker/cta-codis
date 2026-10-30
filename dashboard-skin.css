@@ -187,3 +187,15 @@ body>header .stat{display:none!important}
 #mapPanel>.cartography{height:100%!important;flex:1 1 auto!important;min-height:0!important}
 #mapPanel>.cartography>.map-section{height:100%!important}
 #mapPanel>.cartography>.intervention-pane{height:100%!important;overflow-y:auto!important}
+
+/* Cartography full-height map: compress toolbar and eliminate inherited fixed map heights */
+#mapPanel{height:100%!important;min-height:0!important;padding:8px!important}
+#mapPanel>.section-head{margin-bottom:6px!important;padding-bottom:5px!important}
+#mapPanel .cartography{height:100%!important;min-height:0!important;align-items:stretch!important}
+#mapPanel .cartography>.map-section{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;padding:10px!important}
+#mapPanel .cartography>.map-section>.section-head{flex:0 0 auto!important;min-height:0!important;gap:5px!important;margin-bottom:5px!important;padding-bottom:5px!important}
+#mapPanel .cartography>.map-section>.section-head h2{font-size:13px!important}
+#mapPanel .cartography>.map-section>.map-shell{flex:1 1 0%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:hidden!important}
+#mapPanel .cartography>.map-section .map-shell #map,#mapPanel .cartography>.map-section #map{height:100%!important;min-height:0!important;max-height:none!important}
+#mapPanel .cartography>.map-section>p,#mapPanel .cartography>.map-section>.legend,#mapPanel .cartography>.map-section>.map-legend{display:none!important}
+#mapPanel .cartography>.map-section>.toolbar,#mapPanel .cartography>.map-section>.map-actions{flex:0 0 auto!important;margin:0 0 5px!important;padding:0!important}
