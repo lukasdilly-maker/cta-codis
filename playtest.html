@@ -89,7 +89,8 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
 const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false,incidentId=null,gameStarted=false;
-function showGate(show){el('loginGate').classList.toggle('hidden',!show);if(show){const auth=el('auth'),notice=el('notice');el('gateAuth').append(auth,notice);el('gateFallback').classList.add('hidden')}else{const section=el('logged').parentElement;section.insertBefore(el('auth'),el('logged'));section.append(el('notice'))}}\nfunction note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
+function showGate(show){el('loginGate').classList.toggle('hidden',!show)}
+function note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
 async function load(){
  const {data:{user}}=await db.auth.getUser();uid=user?.id||null;
  el('auth').classList.remove('hidden');el('logged').classList.toggle('hidden',!uid);el('connected').classList.toggle('hidden',!uid);
