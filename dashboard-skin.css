@@ -1,63 +1,76 @@
-/* CTA CODIS V2 — Operational dashboard skin */
-:root{--bg:#071322;--panel:#0d2035;--panel2:#122941;--line:#284866;--muted:#a0bdd7;--text:#eff6ff;--blue:#4fb4ff;--green:#36df91;--red:#ff697b;--orange:#f4bb56}
-html,body{min-height:100%;background:var(--bg)!important;color:var(--text)!important}
-body{padding-left:244px;padding-top:74px;font-family:Inter,"Segoe UI",system-ui,sans-serif}
-body>header{position:fixed;top:0;left:0;right:0;height:74px;z-index:100;display:flex;flex-wrap:nowrap;align-items:center;gap:16px;padding:9px 18px;background:#091a2e!important;border-bottom:1px solid #244e74;box-shadow:0 8px 24px #0004}
-header .brand{min-width:235px;width:235px;margin:0;gap:10px}header .brand h1{font-size:19px;letter-spacing:.5px}header .brand .eyebrow{font-size:9px;letter-spacing:1px}header .codis-logo{width:43px;height:43px;object-fit:contain}
-header .clock{margin:auto;text-align:center}header .clock strong{font-size:22px}header .stat{padding:7px 11px;border:1px solid #2a4c6c;border-radius:9px;background:#10263e;min-width:95px}header .stat strong{font-size:17px}header .stat small{font-size:10px}
-header .session{order:0;margin-left:auto;white-space:nowrap}
-body>nav{position:fixed;top:74px;left:0;bottom:0;width:244px;z-index:90;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-y:auto;overflow-x:hidden;flex-wrap:nowrap;gap:4px;padding:16px 11px 24px;background:linear-gradient(#0c2137,#091a2e);border-right:1px solid #2b5277;border-bottom:0}
-body>nav button[role=tab]{text-align:left!important;width:100%;padding:12px 14px;border-radius:8px!important;font-size:13px;color:#c5dcf0;background:transparent!important;border:1px solid transparent!important;min-height:42px}
-body>nav button[role=tab]:hover{background:#173957!important}
-body>nav button[role=tab][aria-selected=true]{background:linear-gradient(110deg,#168af0,#126bb7)!important;border:1px solid #49b6ff!important;color:#fff!important;box-shadow:0 4px 14px #0057a44d}
-body>nav button[role=tab]::before{content:attr(data-cta-icon);display:inline-block;width:28px;font-size:18px;vertical-align:middle}
-body>.toolbar{margin:0;padding:10px 18px;gap:10px;background:#0b1d31;border-bottom:1px solid #28415b}
-body>.toolbar button,body>.toolbar select{border-radius:8px;background:#17314d;border-color:#315473;color:#edf6ff;padding:7px 9px}
-body>#notice{margin:9px 18px 0;border-radius:8px;border:1px solid #2c5d76;background:#102b40}
-body>main{padding:14px 18px 24px}
-body>main>section,body>main .map-section,body>main .intervention-pane,body>main .activity-section{background:linear-gradient(155deg,#11283f,#0b1d31);border:1px solid #294e6e;border-radius:12px;box-shadow:0 5px 20px #0003}
-body>main h2{font-size:19px;letter-spacing:-.3px}
-body>main .section-head{margin-bottom:16px}
-button,select,input{border-radius:8px}
-button{transition:background .15s,border-color .15s}
-button.primary,.engage{background:#116db3;border-color:#3eaff2}
-#roomPanel{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(360px,1fr);gap:14px;align-items:start}
-#roomPanel[hidden]{display:none!important}
-#roomPanel>section{grid-column:1}
-#ctaHomeMap{grid-column:2;grid-row:1 / span 2;min-width:0;background:#10243a;border:1px solid #315577;border-radius:12px;padding:12px;overflow:hidden}
-#ctaHomeMap h2{font-size:16px;margin:4px 0 12px}
-#ctaHomeMap .map-section{padding:0;border:0;box-shadow:none}
-#ctaHomeMap .map-section>.section-head{display:none}
-#ctaHomeMap #map{height:450px!important;min-height:350px}
-#ctaHomeMap .map-shell{border-radius:9px}
-#ctaHomeMap .legend{padding:8px}
-#roomPanel .dashboard{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-#roomPanel .dashboard article,#roomPanel #roomContent article{border:1px solid #294d6c;background:#0d2137;border-radius:10px}
-#roomPanel .dashboard strong{color:#e9f6ff}
-#roomPanel .activity-row{border-color:#25425e}
-#ctaQuickPanel{grid-column:1 / -1;display:grid;grid-template-columns:1.15fr 1.15fr 1fr;gap:12px}
-.cta-widget{padding:15px;border-radius:11px;border:1px solid #2a5070;background:#0e2339;min-height:120px}
-.cta-widget h3{font-size:14px;margin:0 0 13px}
-.cta-widget .cta-sub{font-size:12px;color:#9eb9d1}
-.cta-widget .cta-value{font-size:22px;font-weight:750;color:#ecf6ff}
-.cta-widget button{font-size:12px;background:#126db2;border-color:#3c9ed5}
-#ctaMultiWidget button{margin-top:12px}
-#mapPanel .cartography{grid-template-columns:minmax(0,7fr) minmax(270px,3fr)}
-#mapPanel #map{height:min(70vh,780px)}
-#mapPanel .map-section{min-height:500px}
-#mapPanel .map-section.cta-map-away{display:none}
-body>footer{padding:16px 18px}
-@media(max-width:1450px){body{padding-left:210px}body>nav{width:210px}header .stat{min-width:76px;padding:6px 8px}header .stat strong{font-size:15px}#roomPanel{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)}}
-@media(max-width:1100px){#roomPanel{grid-template-columns:1fr}#roomPanel>section,#ctaHomeMap,#ctaQuickPanel{grid-column:1;grid-row:auto}#ctaQuickPanel{grid-template-columns:repeat(2,minmax(0,1fr))}header .stat{display:none}}
-@media(max-width:740px){body{padding-left:0;padding-top:62px}body>header{height:62px}header .brand{min-width:0;width:auto}header .brand h1{font-size:15px}header .clock{display:none}body>nav{position:sticky;top:62px;left:0;width:100%;height:auto;bottom:auto;z-index:80;flex-direction:row;overflow-x:auto;padding:7px;gap:4px}body>nav button[role=tab]{width:auto;min-width:max-content;font-size:11px;padding:9px!important}body>nav button[role=tab]::before{width:20px}body>main{padding:10px}#ctaQuickPanel{grid-template-columns:1fr}#roomPanel .dashboard{grid-template-columns:1fr}#ctaHomeMap #map{height:350px!important}}
-
-/* Critical layout correction: original game nav buttons inherit flex sizing */
-body>nav[role="tablist"]{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;flex-wrap:nowrap!important;height:calc(100dvh - 74px)!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important}
-body>nav[role="tablist"]>button[role="tab"]{display:block!important;flex:0 0 auto!important;align-self:stretch!important;width:100%!important;min-width:0!important;max-width:100%!important;height:auto!important;min-height:43px!important;max-height:52px!important;margin:0!important;white-space:normal!important;text-align:left!important}
-body>main[role="tabpanel"][hidden]{display:none!important}
-body>main[role="tabpanel"]:not([hidden]){display:block!important;min-height:calc(100dvh - 200px)}
-body>.toolbar{position:relative;z-index:2}
-#ctaHomeMap{min-height:430px}
-#ctaHomeMap .map-section{display:block!important}
-#ctaHomeMap .leaflet-container{height:430px!important}
-@media(max-width:740px){body>nav[role="tablist"]{position:sticky!important;top:62px!important;left:0!important;width:100%!important;height:auto!important;max-height:60px!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important}body>nav[role="tablist"]>button[role="tab"]{flex:0 0 auto!important;width:auto!important;max-width:none!important;min-height:40px!important;white-space:nowrap!important}}
+/* CTA CODIS V2 — reconstructed operational desktop, reference 1813 × 832 */
+:root{--cta-bg:#071627;--cta-panel:#0e2238;--cta-border:#284967;--cta-text:#f0f6ff;--cta-muted:#a5bfd6;--cta-blue:#138bf1}
+html,body{background:var(--cta-bg)!important;color:var(--cta-text)!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important;overflow-x:hidden!important}
+body{padding:0!important;margin:0!important;min-height:100vh!important}
+body>header{height:76px!important;min-height:76px!important;position:relative!important;z-index:25!important;display:flex!important;align-items:center!important;gap:14px!important;padding:10px 17px!important;margin:0!important;background:#071a2e!important;border-bottom:1px solid #2b4d70!important}
+body>header .brand{width:auto!important;min-width:275px!important;margin:0!important;display:flex!important;align-items:center!important}
+body>header .brand h1{font-size:22px!important;margin:0!important;white-space:nowrap}
+body>header .brand .eyebrow{font-size:10px!important;letter-spacing:.5px}
+body>header .codis-logo{width:56px!important;height:56px!important;object-fit:contain!important}
+.cta-test-pill{font-size:12px;font-weight:700;display:inline-block;vertical-align:middle;margin-left:14px;padding:10px 12px;border-radius:12px;color:#92e0ff;background:#0c3657;border:1px solid #16608e;letter-spacing:0}
+body>header .clock{margin-left:auto!important;margin-right:auto!important;min-width:190px;text-align:center!important}
+body>header .clock strong{font-size:22px!important}
+body>header .stat{display:none!important}
+#ctaSession{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+#ctaSessionName{padding:12px 18px;border-radius:10px;background:#11263e;border:1px solid #355777;font-size:13px}
+#ctaSessionLogout{background:#391b2a;color:#ffe2e6;border:1px solid #a13c50;border-radius:10px;padding:12px 16px;min-height:43px}
+#ctaDashboardShell{display:grid!important;grid-template-columns:242px minmax(0,1fr)!important;height:calc(100vh - 76px);min-height:660px}
+#ctaDashboardShell>nav{position:relative!important;inset:auto!important;width:242px!important;height:100%!important;min-height:0!important;max-height:none!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:flex-start!important;gap:3px!important;overflow:auto!important;padding:12px!important;background:#0a1d31!important;border-right:1px solid #2a5072!important}
+#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{display:block!important;flex:0 0 auto!important;align-self:stretch!important;width:100%!important;min-width:0!important;max-width:100%!important;height:43px!important;min-height:43px!important;max-height:43px!important;margin:0!important;padding:8px 12px!important;text-align:left!important;white-space:nowrap!important;font-size:13px!important;font-weight:500!important;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#e2edfa!important}
+#ctaDashboardShell>nav button[role=tab]:before{content:attr(data-cta-icon);display:inline-block;width:32px;font-size:20px;text-align:center;vertical-align:middle}
+#ctaDashboardShell>nav button[role=tab][aria-selected=true]{background:#147ee0!important;border-color:#49b0ff!important;color:white!important;box-shadow:0 2px 10px #0074b344}
+#ctaSidebarExtra{border-top:1px solid #2d4d6a;margin-top:auto;padding-top:13px;display:flex;flex-direction:column;gap:5px}
+#ctaSidebarExtra button:hover,#ctaDashboardShell>nav button:hover{background:#183b58!important}
+#ctaMainArea{min-width:0;overflow:auto;overflow-x:hidden;background:#071627;padding:16px 13px 12px}
+#ctaStats{display:grid;grid-template-columns:1.18fr 1fr .58fr .88fr 1.24fr 1.16fr .97fr 1.17fr;gap:10px;margin:0 0 14px}
+.cta-stat{min-width:0;min-height:69px;padding:12px 10px;display:flex;align-items:center;gap:10px;border-radius:9px;background:linear-gradient(140deg,#10283f,#0b1d30);border:1px solid #2b4b69}
+.cta-stat-icon{flex:0 0 32px;font-size:25px;text-align:center;color:#55b9ff}
+.cta-stat small{display:block;color:#a9c5dd;font-size:11px;white-space:nowrap}
+.cta-stat strong{display:block;font-size:18px;line-height:1.5;white-space:nowrap;color:#f6f9ff}
+.cta-stat.green{border-color:#166e53;background:#0b2b29}.cta-stat.green .cta-stat-icon{color:#31db8c}
+.cta-stat.amber{border-color:#a7770a;background:#32270e}.cta-stat.amber .cta-stat-icon{color:#ffcf52}
+.cta-stat.red{border-color:#8a3445;background:#321723}.cta-stat.red .cta-stat-icon{color:#ff667b}
+#ctaWorkspace{min-width:0}
+#ctaDashboard{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(370px,1fr);gap:12px;align-items:stretch}
+#ctaDashboardLeft{min-width:0;display:flex;flex-direction:column;gap:12px}
+#ctaDashboardRight{min-width:0;display:flex}
+#ctaDashboardLeft>main,#ctaDashboardLeft>section,#ctaMapCard,#ctaDashboardBottom>section{background:linear-gradient(145deg,#10253d,#0b1c30)!important;border:1px solid #2a4e6c!important;border-radius:11px!important;box-shadow:none!important;margin:0!important}
+#ctaDashboardLeft>main{padding:13px!important;min-height:304px}
+#ctaDashboardLeft>main>section{padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#ctaDashboardLeft>main .section-head{margin:0 0 14px!important}
+#ctaDashboardLeft>main h2,#ctaOperations h2,#ctaMapCard h2{font-size:18px!important;margin:0!important}
+#ctaDashboardLeft>main .dashboard{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
+#ctaDashboardLeft>main .dashboard article{border-radius:10px!important;background:#0c2035!important;border:1px solid #2c4d6b!important;padding:13px!important}
+#ctaDashboardLeft>main .dashboard article strong{font-size:18px}
+#ctaMapCard{width:100%;padding:12px!important;overflow:hidden;min-height:520px}
+.cta-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.cta-card-head button{font-size:11px;padding:8px 11px;border-radius:7px;background:#143757;border:1px solid #386e93;color:#eff7ff}
+#ctaMapCard .map-section{display:block!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:0!important}
+#ctaMapCard .map-section>.section-head{display:none!important}
+#ctaMapCard .map-shell{height:450px!important;min-height:450px!important;border-radius:8px!important;overflow:hidden}
+#ctaMapCard #map{height:450px!important;min-height:450px!important;width:100%!important}
+#ctaMapCard .map-build-toolbar{display:none}
+#ctaMapCard .legend{display:none}
+#ctaMapCard #mapWarning{font-size:10px}
+#ctaOperations{padding:13px!important;min-height:170px}
+#ctaOperationsContent{border:1px solid #294964;border-radius:9px;background:#0b1e31;padding:15px;font-size:12px;color:#bfd4e6;min-height:92px;line-height:1.7}
+#ctaDashboardBottom{display:grid;grid-template-columns:1fr 1.55fr 1.2fr;gap:11px;margin-top:12px}
+.cta-mini-card{min-width:0;min-height:104px;padding:13px!important}
+.cta-mini-card h3{margin:0 0 10px!important;font-size:13px!important}
+.cta-mini-card p,#ctaCallsSummary{font-size:11px;line-height:1.55;color:#b7cee2}
+#ctaFleetSummary{font-size:20px;font-weight:700}
+.cta-mini-card button{font-size:11px;background:#147ee0;border:1px solid #3cafff;border-radius:7px;padding:7px 12px;margin-top:5px}
+.cta-online{font-size:10px;color:#4be6a2;border:1px solid #207a55;padding:4px 7px;border-radius:20px}
+#ctaTools{margin-top:13px;padding:8px 10px;background:#0b2034;border:1px solid #294969;border-radius:10px}
+#ctaTools .toolbar{display:flex;flex-wrap:wrap;gap:7px;background:transparent!important;border:0!important;padding:5px!important;margin:0!important}
+#ctaTools .toolbar button,#ctaTools .toolbar select{background:#173651;border:1px solid #345b7c;border-radius:7px;padding:7px;font-size:11px}
+#ctaTools #notice{font-size:11px;padding:5px}
+#ctaWorkspace>main[role=tabpanel]{margin:0!important;padding:13px!important}
+#ctaWorkspace>main[role=tabpanel][hidden],#ctaDashboard[hidden],#ctaDashboardBottom[hidden],#ctaStats[hidden],#ctaTools[hidden]{display:none!important}
+#ctaWorkspace>main[role=tabpanel]:not([hidden]){display:block!important}
+#mapPanel .cartography{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:12px}
+#mapPanel .map-shell{height:65vh;min-height:420px}
+#mapPanel #map{height:100%!important}
+@media(max-width:1550px){#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))}#ctaDashboard{grid-template-columns:minmax(0,1.2fr) minmax(330px,1fr)}}
+@media(max-width:1100px){#ctaDashboard{grid-template-columns:1fr}#ctaDashboardBottom{grid-template-columns:repeat(2,minmax(0,1fr))}#ctaDashboardShell{grid-template-columns:205px minmax(0,1fr)!important}#ctaDashboardShell>nav{width:205px!important}body>header .clock{display:none!important}}
+@media(max-width:700px){body>header{height:65px!important;min-height:65px!important}body>header .brand{min-width:0!important}body>header .brand h1{font-size:14px!important}.cta-test-pill{display:none}#ctaSessionName{display:none}#ctaDashboardShell{display:block!important;height:calc(100vh - 65px)}#ctaDashboardShell>nav{width:100%!important;height:55px!important;min-height:55px!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;padding:5px!important}#ctaDashboardShell>nav button[role=tab]{width:auto!important;min-width:140px!important;max-width:none!important;flex:0 0 auto!important}#ctaSidebarExtra{display:none}#ctaMainArea{height:calc(100vh - 120px);padding:9px}#ctaStats{grid-template-columns:repeat(2,minmax(0,1fr))}#ctaDashboardBottom{grid-template-columns:1fr}#ctaDashboardLeft>main .dashboard{grid-template-columns:1fr!important}}
