@@ -70,7 +70,16 @@ function update(){
  $('ctaFleetSummary').textContent=$('staffCount')?.textContent||'—';
  let game=null;
  try{const profiles=JSON.parse(localStorage.getItem('cta15-profiles-v4')||'null');game=profiles?.games?.[profiles.active]||null}catch(e){}
- if(game){
+ const live=typeof window.__ctaLiveStats==='function'?window.__ctaLiveStats():null;
+ if(live){
+ $('ctaSumBuildings').textContent=live.buildings.toLocaleString('fr-FR');
+ $('ctaSumVehicles').textContent=live.vehicles.toLocaleString('fr-FR');
+ $('ctaSumStaff').textContent=live.staff.toLocaleString('fr-FR');
+ $('ctaSumReady').textContent=live.ready.toLocaleString('fr-FR');
+ $('ctaSumEngaged').textContent=live.engaged.toLocaleString('fr-FR');
+ $('ctaSumIncidents').textContent=live.incidents.toLocaleString('fr-FR');
+ $('ctaSumTerritory').textContent='Données synchronisées avec le centre';
+ }else if(game){
  const stations=Array.isArray(game.stations)?game.stations:[];
  const vehicles=Array.isArray(game.vehicles)?game.vehicles:[];
  const personnel=Array.isArray(game.staff)?game.staff:[];
