@@ -50,3 +50,14 @@ body>footer{padding:16px 18px}
 @media(max-width:1450px){body{padding-left:210px}body>nav{width:210px}header .stat{min-width:76px;padding:6px 8px}header .stat strong{font-size:15px}#roomPanel{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)}}
 @media(max-width:1100px){#roomPanel{grid-template-columns:1fr}#roomPanel>section,#ctaHomeMap,#ctaQuickPanel{grid-column:1;grid-row:auto}#ctaQuickPanel{grid-template-columns:repeat(2,minmax(0,1fr))}header .stat{display:none}}
 @media(max-width:740px){body{padding-left:0;padding-top:62px}body>header{height:62px}header .brand{min-width:0;width:auto}header .brand h1{font-size:15px}header .clock{display:none}body>nav{position:sticky;top:62px;left:0;width:100%;height:auto;bottom:auto;z-index:80;flex-direction:row;overflow-x:auto;padding:7px;gap:4px}body>nav button[role=tab]{width:auto;min-width:max-content;font-size:11px;padding:9px!important}body>nav button[role=tab]::before{width:20px}body>main{padding:10px}#ctaQuickPanel{grid-template-columns:1fr}#roomPanel .dashboard{grid-template-columns:1fr}#ctaHomeMap #map{height:350px!important}}
+
+/* Critical layout correction: original game nav buttons inherit flex sizing */
+body>nav[role="tablist"]{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;flex-wrap:nowrap!important;height:calc(100dvh - 74px)!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important}
+body>nav[role="tablist"]>button[role="tab"]{display:block!important;flex:0 0 auto!important;align-self:stretch!important;width:100%!important;min-width:0!important;max-width:100%!important;height:auto!important;min-height:43px!important;max-height:52px!important;margin:0!important;white-space:normal!important;text-align:left!important}
+body>main[role="tabpanel"][hidden]{display:none!important}
+body>main[role="tabpanel"]:not([hidden]){display:block!important;min-height:calc(100dvh - 200px)}
+body>.toolbar{position:relative;z-index:2}
+#ctaHomeMap{min-height:430px}
+#ctaHomeMap .map-section{display:block!important}
+#ctaHomeMap .leaflet-container{height:430px!important}
+@media(max-width:740px){body>nav[role="tablist"]{position:sticky!important;top:62px!important;left:0!important;width:100%!important;height:auto!important;max-height:60px!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important}body>nav[role="tablist"]>button[role="tab"]{flex:0 0 auto!important;width:auto!important;max-width:none!important;min-height:40px!important;white-space:nowrap!important}}
