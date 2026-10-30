@@ -63,7 +63,7 @@ const session=document.createElement('div');session.id='ctaSession';session.inne
 $('ctaSessionLogout').onclick=()=>parent.postMessage({type:'cta-logout'},'*');
 function update(){
  for(const id of ['credits','tickets','level','staffCount']){const source=$(id),dest=$('ctaValue-'+id);if(source&&dest)dest.textContent=source.textContent}
- const active=$('activeCount')?.textContent||'—';$('ctaValue-ctaActive').textContent=active;$('ctaActiveBadge').textContent=active;
+ const active=$('activeCount')?.textContent||'—';if($('ctaValue-ctaActive'))$('ctaValue-ctaActive').textContent=active;
  const callItems=$('callsList')?.querySelectorAll('.alert-card')||[];
  $('ctaValue-ctaPending').textContent=String(callItems.length);
  $('ctaCallsSummary').textContent=Array.from(callItems).slice(0,3).map(x=>x.textContent.replace(/\s+/g,' ').trim().slice(0,95)).join(' · ')||'Aucun appel en attente';
