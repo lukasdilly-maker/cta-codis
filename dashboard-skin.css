@@ -220,3 +220,9 @@ body>header .stat{display:none!important}
 #ctaDashboardShell>nav{align-self:stretch!important;height:100%!important;min-height:0!important;max-height:100%!important;margin-bottom:0!important;border-bottom:0!important;border-radius:0!important;padding-bottom:12px!important}
 #ctaSidebarExtra{margin-top:auto!important;margin-bottom:0!important}
 @media(max-height:720px){#ctaDashboardShell>nav{padding-bottom:7px!important}}
+
+/* Full-viewport navigation: anchor its lower edge to the browser viewport, not content height */
+html body #ctaDashboardShell{height:calc(100vh - 66px)!important;height:calc(100dvh - 66px)!important;min-height:0!important;grid-template-rows:minmax(0,1fr)!important;overflow:hidden!important}
+html body #ctaDashboardShell>nav{position:relative!important;display:flex!important;flex-direction:column!important;align-self:stretch!important;justify-self:stretch!important;box-sizing:border-box!important;height:100%!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;padding:8px 7px 12px!important;margin:0!important;background:#0b1d30!important;border-radius:0!important;border-bottom:0!important}
+html body #ctaDashboardShell>nav #ctaSidebarExtra{margin-top:auto!important;margin-bottom:0!important;padding-top:9px!important;flex:0 0 auto!important}
+html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!important}
