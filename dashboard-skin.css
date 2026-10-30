@@ -96,3 +96,23 @@ body>header .stat{display:none!important}
 #ctaMapCard .map-section button{font-size:10px!important}
 #ctaMapCard .map-section select{font-size:10px!important;max-width:155px!important}
 #ctaMapCard .map-section>.map-shell{border:1px solid #2c5272!important}
+
+/* Sidebar and footer modules: no clipped controls or empty navigation gutter */
+#ctaDashboardShell>nav{justify-content:flex-start!important;padding-bottom:10px!important}
+#ctaSidebarExtra{margin-top:12px!important;padding-top:10px!important;flex-shrink:0!important}
+#ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{flex-shrink:0!important}
+#ctaDashboardBottom{flex:0 0 120px!important;min-height:120px!important;overflow:visible!important;align-items:stretch!important}
+#ctaDashboardBottom .cta-mini-card{min-height:0!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:5px!important;overflow:hidden!important;padding:12px!important}
+#ctaDashboardBottom .cta-mini-card h3{flex:0 0 auto!important;margin:0!important;font-size:12px!important;line-height:1.5!important}
+#ctaDashboardBottom .cta-mini-card p,#ctaCallsSummary{margin:0!important;flex:0 0 auto!important;line-height:1.4!important}
+#ctaDashboardBottom .cta-mini-card button{align-self:flex-start!important;flex:0 0 auto!important;margin-top:auto!important;padding:6px 12px!important;min-height:30px!important;line-height:1.2!important}
+#ctaDashboardBottom #ctaFleetSummary{font-size:17px!important;line-height:1.25!important}
+#ctaDashboardBottom .cta-online{white-space:nowrap!important}
+@media(max-height:720px){
+#ctaDashboardBottom{flex:0 0 99px!important;min-height:99px!important}
+#ctaDashboardBottom .cta-mini-card{padding:8px 10px!important;gap:3px!important}
+#ctaDashboardBottom .cta-mini-card h3{font-size:11px!important}
+#ctaDashboardBottom .cta-mini-card button{min-height:26px!important;padding:4px 10px!important;font-size:10px!important}
+#ctaDashboardBottom #ctaFleetSummary{font-size:14px!important}
+#ctaSidebarExtra{margin-top:7px!important;padding-top:6px!important}
+}
