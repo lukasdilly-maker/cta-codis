@@ -50,6 +50,10 @@ $('ctaMultiOpen').onclick=()=>parent.postMessage({type:'cta-open-console'},'*');
 for(const panel of document.querySelectorAll('body>main[role="tabpanel"]')){if(panel!==room)workspace.append(panel)}
 const operations=document.createElement('section');operations.id='ctaOperations';operations.innerHTML='<div class="cta-card-head"><h2>♟ Interventions en cours <span id="ctaActiveBadge">0</span></h2><button id="ctaOperationsOpen">Voir les opérations ↗</button></div><div id="ctaOperationsContent">Aucune intervention en cours.</div>';
 left.append(operations);$('ctaOperationsOpen').onclick=()=>$('tab-operations')?.click();
+const actions=document.createElement('div');actions.className='cta-quick-actions';actions.innerHTML='<button type="button" id="ctaGoCalls">☎ Gérer les appels</button><button type="button" id="ctaGoFleet">▰ Consulter les moyens</button>';
+operations.insertBefore(actions,$('ctaOperationsContent'));
+$('ctaGoCalls').onclick=()=>$('tab-calls')?.click();
+$('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
@@ -65,7 +69,10 @@ function update(){
  $('ctaCallsSummary').textContent=Array.from(callItems).slice(0,3).map(x=>x.textContent.replace(/\s+/g,' ').trim().slice(0,95)).join(' · ')||'Aucun appel en attente';
  $('ctaFleetSummary').textContent=$('staffCount')?.textContent||'—';
  const incidents=$('operationsList')?.querySelectorAll('article,.item,.operation-card')||[];
- $('ctaOperationsContent').textContent=Array.from(incidents).slice(0,3).map(x=>x.textContent.replace(/\s+/g,' ').trim().slice(0,200)).join(' · ')||'Consultez le synoptique des opérations pour suivre les interventions.';
+ const count=Number(active);
+ const content=$('ctaOperationsContent');
+ if(incidents.length){content.textContent=Array.from(incidents).slice(0,4).map(x=>x.textContent.replace(/\\s+/g,' ').trim().slice(0,180)).join(' · ')}
+ else{content.innerHTML=count===0?'<div class="cta-empty"><strong>Aucune intervention en cours</strong>Le centre est disponible pour de nouveaux appels.</div>':'<div class="cta-empty"><strong>'+active+' intervention(s) en cours</strong>Ouvrez les opérations pour consulter les fiches et engager des moyens.</div>'}
  const selected=nav.querySelector('[aria-selected="true"]')?.dataset.tab||'room';
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
  if(home&&mapSection.parentElement!==mapCard){mapCard.append(mapSection);window.dispatchEvent(new Event('resize'))}
