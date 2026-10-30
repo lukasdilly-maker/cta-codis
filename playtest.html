@@ -108,6 +108,9 @@ window.startCtaGame=async function(){
   if(!html.includes(old))throw Error('Signature du validateur différente : correctif non appliqué');
   const valid="(!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lon)))";
   html=html.replace(old,valid);
+  // Allow the operational map to render both on the map tab and in the home dashboard.
+  html=html.replace("if(activeTab!=='map')return;const m=metrics();","if(activeTab!=='map'&&activeTab!=='room')return;const m=metrics();");
+  html=html.replace("if(tab==='map')requestAnimationFrame(renderMap);","if(tab==='map'||tab==='room')requestAnimationFrame(renderMap);");
   if(!html.includes(valid))throw Error('Remplacement non effectué');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
@@ -331,7 +334,7 @@ function consoleTab(tab){document.querySelectorAll('#consoleTabs button').forEac
 document.querySelectorAll('#consoleTabs button').forEach(b=>b.onclick=()=>consoleTab(b.dataset.tab));
 for(const id of ['consoleToggle','consoleFab'])el(id).onclick=()=>document.body.classList.toggle('console-collapsed');
 el('consoleClose').onclick=()=>document.body.classList.add('console-collapsed');
-window.addEventListener('message',e=>{if(e.source===document.querySelector('iframe').contentWindow&&e.data?.type==='cta-open-console'){consoleTab('renforts')}});
+window.addEventListener('message',e=>{if(e.source!==document.querySelector('iframe').contentWindow)return;if(e.data?.type==='cta-open-console')consoleTab('renforts');if(e.data?.type==='cta-logout')el('logout').click()});
 consoleTab('renforts');document.body.classList.add('console-collapsed');
 window.ctaAuthReady=true;showGate(true);await load();
 setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
