@@ -48,7 +48,7 @@ $('ctaOpenMap').onclick=()=>$('tab-map')?.click();
 $('ctaFleetOpen').onclick=()=>$('tab-fleet')?.click();
 $('ctaMultiOpen').onclick=()=>parent.postMessage({type:'cta-open-console'},'*');
 for(const panel of document.querySelectorAll('body>main[role="tabpanel"]')){if(panel!==room)workspace.append(panel)}
-const operations=document.createElement('section');operations.id='ctaOperations';operations.innerHTML='<div class="cta-card-head"><h2>♟ Interventions en cours <span id="ctaActiveBadge">0</span></h2><button id="ctaOperationsOpen">Voir les opérations ↗</button></div><div id="ctaOperationsContent">Aucune intervention en cours.</div>';
+const operations=document.createElement('section');operations.id='ctaOperations';operations.innerHTML='<div class="cta-card-head"><h2>▦ Synthèse du centre</h2><button id="ctaOperationsOpen">Voir les opérations ↗</button></div><div id="ctaOperationsContent" class="cta-summary-grid"><div class="cta-summary-item"><small>▥ Bâtiments</small><strong id="ctaSumBuildings">—</strong></div><div class="cta-summary-item"><small>▰ Engins</small><strong id="ctaSumVehicles">—</strong></div><div class="cta-summary-item"><small>♟ Personnels</small><strong id="ctaSumStaff">—</strong></div><div class="cta-summary-item"><small>● Engins disponibles</small><strong id="ctaSumReady">—</strong></div><div class="cta-summary-item"><small>▣ Engins engagés</small><strong id="ctaSumEngaged">—</strong></div><div class="cta-summary-item"><small>☎ Interventions actives</small><strong id="ctaSumIncidents">—</strong></div></div><div class="cta-summary-note" id="ctaSumTerritory">Données de la partie active</div>';
 left.append(operations);$('ctaOperationsOpen').onclick=()=>$('tab-operations')?.click();
 const actions=document.createElement('div');actions.className='cta-quick-actions';actions.innerHTML='<button type="button" id="ctaGoCalls">☎ Gérer les appels</button><button type="button" id="ctaGoFleet">▰ Consulter les moyens</button>';
 operations.insertBefore(actions,$('ctaOperationsContent'));
@@ -68,11 +68,26 @@ function update(){
  $('ctaValue-ctaPending').textContent=String(callItems.length);
  $('ctaCallsSummary').textContent=Array.from(callItems).slice(0,3).map(x=>x.textContent.replace(/\s+/g,' ').trim().slice(0,95)).join(' · ')||'Aucun appel en attente';
  $('ctaFleetSummary').textContent=$('staffCount')?.textContent||'—';
- const incidents=$('operationsList')?.querySelectorAll('article,.item,.operation-card')||[];
- const count=Number(active);
- const content=$('ctaOperationsContent');
- if(incidents.length){content.textContent=Array.from(incidents).slice(0,4).map(x=>x.textContent.replace(/\\s+/g,' ').trim().slice(0,180)).join(' · ')}
- else{content.innerHTML=count===0?'<div class="cta-empty"><strong>Aucune intervention en cours</strong>Le centre est disponible pour de nouveaux appels.</div>':'<div class="cta-empty"><strong>'+active+' intervention(s) en cours</strong>Ouvrez les opérations pour consulter les fiches et engager des moyens.</div>'}
+ let game=null;
+ try{const profiles=JSON.parse(localStorage.getItem('cta15-profiles-v4')||'null');game=profiles?.games?.[profiles.active]||null}catch(e){}
+ if(game){
+ const stations=Array.isArray(game.stations)?game.stations:[];
+ const vehicles=Array.isArray(game.vehicles)?game.vehicles:[];
+ const personnel=Array.isArray(game.staff)?game.staff:[];
+ const incidents=Array.isArray(game.incidents)?game.incidents.filter(i=>!i.closed):[];
+ const ready=vehicles.filter(v=>v.status==='ready'&&!v.mission&&!v.fault).length;
+ const engaged=vehicles.filter(v=>!!v.mission||v.status==='engaged').length;
+ $('ctaSumBuildings').textContent=stations.length.toLocaleString('fr-FR');
+ $('ctaSumVehicles').textContent=vehicles.length.toLocaleString('fr-FR');
+ $('ctaSumStaff').textContent=personnel.length.toLocaleString('fr-FR');
+ $('ctaSumReady').textContent=ready.toLocaleString('fr-FR');
+ $('ctaSumEngaged').textContent=engaged.toLocaleString('fr-FR');
+ $('ctaSumIncidents').textContent=incidents.length.toLocaleString('fr-FR');
+ $('ctaSumTerritory').textContent='Données actualisées depuis la partie active';
+ }else{
+ for(const id of ['ctaSumBuildings','ctaSumVehicles','ctaSumStaff','ctaSumReady','ctaSumEngaged','ctaSumIncidents'])$(id).textContent='—';
+ $('ctaSumTerritory').textContent='Aucune partie active chargée';
+ }
  const selected=nav.querySelector('[aria-selected="true"]')?.dataset.tab||'room';
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
  if(home&&mapSection.parentElement!==mapCard){mapCard.append(mapSection);window.dispatchEvent(new Event('resize'))}
