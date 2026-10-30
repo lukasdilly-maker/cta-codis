@@ -122,3 +122,26 @@ body>header .clock strong{font-size:17px!important}
 #ctaDashboardShell>nav button[role=tab],#ctaSidebarExtra button{height:clamp(25px,4.2dvh,33px)!important}
 #ctaSidebarExtra{padding-top:3px!important}
 }
+
+/* FINAL LAYOUT OVERRIDES — one application viewport, not stacked wrappers */
+@media(min-width:701px){
+#ctaDashboardShell{height:calc(100dvh - 76px)!important}
+#ctaMainArea{box-sizing:border-box!important;overflow:hidden!important}
+#ctaStats{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex:0 0 clamp(86px,13dvh,118px)!important}
+.cta-stat{min-height:0!important;height:100%!important;box-sizing:border-box!important}
+#ctaDashboard{height:auto!important;min-height:0!important}
+#ctaDashboardLeft>main{flex:1 1 55%!important}
+#ctaOperations{flex:1 1 45%!important}
+#ctaDashboardLeft>main #roomContent{max-height:100%!important;overflow:hidden!important}
+#ctaDashboardLeft>main #roomContent>section:nth-child(n+2),#ctaDashboardLeft>main #roomContent>.transmissions{display:none!important}
+#ctaDashboardLeft>main #roomContent .dashboard{margin-bottom:4px!important}
+#ctaDashboardLeft>main #roomContent button{padding:5px 8px!important;min-height:26px!important;font-size:10px!important}
+#ctaDashboardBottom{flex-basis:clamp(66px,12dvh,95px)!important}
+#ctaDashboardBottom .cta-mini-card button{margin-top:2px!important;padding:4px 8px!important}
+#ctaDashboardShell>nav{scrollbar-width:none!important}
+#ctaDashboardShell>nav::-webkit-scrollbar{display:none!important}
+#ctaWorkspace>main[role=tabpanel]:not([hidden]){flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:auto!important;scrollbar-width:thin;scrollbar-color:#315b7e #0a1d31}
+#ctaWorkspace>main[role=tabpanel]:not([hidden]) .cartography{min-height:0}
+#ctaWorkspace>main[role=tabpanel]:not([hidden]) #map{height:calc(100dvh - 190px)!important;min-height:300px!important}
+}
+@media(min-width:1551px) and (min-height:760px){#ctaStats{grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:1fr!important;flex-basis:74px!important}}
