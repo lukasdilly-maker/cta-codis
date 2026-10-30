@@ -214,3 +214,9 @@ body>header .stat{display:none!important}
 #ctaStats .cta-stat:has(#ctaValue-ctaRadio)>div{min-width:0!important;flex:1 1 auto!important}
 #ctaStats #ctaValue-ctaRadio{font-size:clamp(12px,1.1vw,17px)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;line-height:1.25!important}
 #ctaStats .cta-stat:has(#ctaValue-ctaRadio) small{white-space:normal!important}
+
+/* Sidebar extends flush to bottom of the application viewport */
+#ctaDashboardShell{align-items:stretch!important}
+#ctaDashboardShell>nav{align-self:stretch!important;height:100%!important;min-height:0!important;max-height:100%!important;margin-bottom:0!important;border-bottom:0!important;border-radius:0!important;padding-bottom:12px!important}
+#ctaSidebarExtra{margin-top:auto!important;margin-bottom:0!important}
+@media(max-height:720px){#ctaDashboardShell>nav{padding-bottom:7px!important}}
