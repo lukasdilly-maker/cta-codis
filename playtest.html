@@ -21,6 +21,29 @@
 <section><h2>Demandes de renfort</h2><button id="refresh" class="secondary">Actualiser</button><div id="requests"></div></section>
 <section id="admin" class="hidden"><h2>🛡️ Super Administration</h2><p>Liste des comptes et suspension / réactivation. Aucune adresse e-mail ni mot de passe affiché.</p><button id="adminRefresh">Actualiser les comptes</button><div id="users"></div></section>
 </div></aside></div>
+<script>
+/* Correctif ciblé : l'import ne rejette plus les bâtiments sur un contour départemental imprécis. */
+(function(){
+ const frame=document.querySelector('iframe');
+ function apply(){
+  try{
+   const w=frame.contentWindow;
+   const result=w.eval(`(function(){
+     if(typeof validateGame!=='function')return 'validateur absent';
+     const original=validateGame.toString();
+     const old='!CATALOG[b.type]||!insideTerritory(b.position,territoryOf(s))||!Array.isArray(b.extensions)';
+     if(!original.includes(old))return 'signature différente';
+     const fixed=original.replace(old,"!CATALOG[b.type]||!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lng))||!Array.isArray(b.extensions)");
+     validateGame=eval('('+fixed+')');
+     return 'ok';
+   })()`);
+   if(result!=='ok')console.warn('Correctif import CTA:',result);
+  }catch(e){console.warn('Correctif import indisponible:',e)}
+ }
+ frame.addEventListener('load',apply);
+ if(frame.contentDocument?.readyState==='complete')apply();
+})();
+</script>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
