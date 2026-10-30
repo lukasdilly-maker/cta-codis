@@ -43,7 +43,7 @@ button.danger{background:#853548;border-color:#b24c5c}
 @media(max-width:850px){.layout{grid-template-columns:1fr;height:auto}.layout iframe{height:65dvh}.panel{border-left:0;border-top:1px solid #334b64}.panel{padding:12px}header{padding:10px 12px}header strong{font-size:13px}}
 #loginGate{position:fixed;inset:66px 0 0;z-index:100;display:flex;justify-content:center;align-items:center;overflow:auto;padding:22px;background:radial-gradient(circle at 50% 15%,#24445e,#0b1625 65%)}#loginGate.hidden{display:none}.gate-card{width:min(480px,100%);border:1px solid #3d647f;background:linear-gradient(150deg,#1c3046,#101e30);padding:30px;border-radius:20px;text-align:center;box-shadow:0 30px 80px #0008}.gate-card h1{margin:8px 0 4px;font-size:29px}.gate-card h2{font-size:19px;margin:20px 0 8px}.gate-card p{color:#b6ccdf;line-height:1.5;font-size:13px}.gate-mark{font-size:46px}.gate-line{height:2px;background:linear-gradient(90deg,transparent,#37a4d6,transparent);margin:22px 0}.gate-card #auth{text-align:left}.gate-card #auth label{margin-top:12px}.gate-card #auth input,.gate-card #auth select{width:100%}.gate-card #notice{text-align:left;margin-top:12px}.gate-card #auth .row{margin-top:12px}.gate-card #auth small{display:block;margin-top:9px}#loginGate #logged{display:none!important}@media(max-width:850px){#loginGate{inset:60px 0 0}.gate-card{padding:22px}}</style></head><body>
 <header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><span id="status">Non connecté</span></header>
-<div id="loginGate"><div class="gate-card"><div class="gate-mark">🚒</div><h1>CTA CODIS V2</h1><p>CENTRE DE TRAITEMENT DE L’ALERTE</p><div class="gate-line"></div><h2>Identification requise</h2><p>Connectez-vous ou créez un compte pour accéder à votre centre opérationnel.</p><div id="gateAuth"></div><small>Accès au jeu réservé aux comptes connectés.</small></div></div><div class="layout"><iframe title="CTA CODIS V2 — espace de jeu sécurisé" loading="lazy"></iframe>
+<div id="loginGate"><div class="gate-card"><div class="gate-mark">🚒</div><h1>CTA CODIS V2</h1><p>CENTRE DE TRAITEMENT DE L’ALERTE</p><div class="gate-line"></div><h2>Identification requise</h2><p>Connectez-vous ou créez un compte pour accéder à votre centre opérationnel.</p><div id="gateAuth"></div><div id="gateFallback"><button id="gateLogin" type="button">Se connecter</button><button id="gateSignup" type="button" class="secondary">S’inscrire</button></div><small>Accès au jeu réservé aux comptes connectés.</small></div></div><div class="layout"><iframe title="CTA CODIS V2 — espace de jeu sécurisé" loading="lazy"></iframe>
 <aside class="panel"><small id="importPatchStatus">Vérification du correctif import…</small><section><h2>Compte joueur</h2>
 <div id="auth"><label>Adresse e-mail privée</label><input id="email" type="email" autocomplete="email" placeholder="adresse e-mail">
 <label>Mot de passe</label><input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe">
@@ -89,7 +89,7 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 const db=createClient('https://ltgriwbzogvorwthhkjb.supabase.co','sb_publishable_oBGm-DfXhFaaGOBmJnfFTg_UlxJKJkL');
 const el=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let uid=null,people=new Map(),role='player',liveChannel=null,requestBusy=false,incidentId=null,gameStarted=false;
-function showGate(show){el('loginGate').classList.toggle('hidden',!show);if(show){const auth=el('auth'),notice=el('notice');el('gateAuth').append(auth,notice)}else{const section=el('logged').parentElement;section.insertBefore(el('auth'),el('logged'));section.append(el('notice'))}}\nfunction note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
+function showGate(show){el('loginGate').classList.toggle('hidden',!show);if(show){const auth=el('auth'),notice=el('notice');el('gateAuth').append(auth,notice);el('gateFallback').classList.add('hidden')}else{const section=el('logged').parentElement;section.insertBefore(el('auth'),el('logged'));section.append(el('notice'))}}\nfunction note(message,error=false){el('notice').textContent=message;el('notice').className=error?'err':'ok'}
 async function load(){
  const {data:{user}}=await db.auth.getUser();uid=user?.id||null;
  el('auth').classList.toggle('hidden',!!uid);el('logged').classList.toggle('hidden',!uid);el('connected').classList.toggle('hidden',!uid);
@@ -258,6 +258,6 @@ el('send').onclick=async()=>{const recipient_id=el('recipient').value,quantity=N
 el('refresh').onclick=async()=>{await players();await requests()};
 el('adminRefresh').onclick=adminUsers;
 db.auth.onAuthStateChange(()=>{setTimeout(load,0)});
-showGate(true);await load();
+el('gateLogin').onclick=()=>{showGate(true);el('email').focus()};el('gateSignup').onclick=()=>{showGate(true);el('department').focus()};showGate(true);await load();
 setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
 </script></body></html>
