@@ -116,3 +116,28 @@ body>header .stat{display:none!important}
 #ctaDashboardBottom #ctaFleetSummary{font-size:14px!important}
 #ctaSidebarExtra{margin-top:7px!important;padding-top:6px!important}
 }
+
+/* V3.1 — cartography tab and footer: viewport-safe, no truncated buttons */
+#ctaDashboardBottom{flex:0 0 110px!important;min-height:110px!important;overflow:visible!important}
+#ctaDashboardBottom .cta-mini-card{position:relative!important;padding:10px 12px!important;gap:4px!important;overflow:hidden!important}
+#ctaDashboardBottom .cta-mini-card button{position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;max-width:100%!important;min-height:29px!important;margin-top:3px!important;padding:5px 12px!important;line-height:1.2!important;white-space:nowrap!important}
+#ctaDashboardBottom .cta-mini-card h3{font-size:12px!important;line-height:1.25!important}
+#ctaDashboardBottom .cta-mini-card p{margin:0!important}
+#mapPanel{height:100%!important;min-height:0!important;overflow:hidden!important}
+#mapPanel>.section-head{flex:0 0 auto!important}
+#mapPanel .cartography{height:calc(100% - 58px)!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr)!important;gap:12px!important;align-items:stretch!important}
+#mapPanel .cartography>.map-section,#mapPanel .cartography>section{min-width:0!important;min-height:0!important;overflow:auto!important;scrollbar-width:thin!important}
+#mapPanel .cartography>.map-section{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#mapPanel .cartography>.map-section>.section-head{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;padding:0 0 9px!important;margin:0 0 9px!important}
+#mapPanel .cartography>.map-section>.section-head h2{flex:0 0 100%!important;font-size:15px!important}
+#mapPanel .cartography>.map-section>.section-head select{min-width:0!important;max-width:100%!important;flex:1 1 150px!important}
+#mapPanel .cartography>.map-section>.section-head label{flex:0 0 auto!important}
+#mapPanel .cartography>.map-section>.map-shell{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important}
+#mapPanel .cartography>.map-section #map{height:100%!important;min-height:0!important}
+#mapPanel .cartography>section:not(.map-section){overflow-y:auto!important}
+#mapPanel .cartography>section:not(.map-section) .alert-card{max-width:100%!important}
+@media(max-height:720px){
+#ctaDashboardBottom{flex-basis:103px!important;min-height:103px!important}
+#ctaDashboardBottom .cta-mini-card{padding:8px 10px!important}
+#ctaDashboardBottom .cta-mini-card button{min-height:27px!important;margin-top:2px!important;padding:4px 10px!important}
+}
