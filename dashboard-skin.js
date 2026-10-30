@@ -105,5 +105,24 @@ function update(){
 }
 nav.addEventListener('click',()=>setTimeout(update,60));
 new MutationObserver(()=>setTimeout(update,50)).observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-selected']});
-setInterval(update,3000);update();
+// Independent, fault-isolated summary refresh: never depends on dashboard update().
+function refreshSummary(){
+ try{
+  let data=typeof window.__ctaLiveStats==='function'?window.__ctaLiveStats():null;
+  if(!data){
+   const saved=JSON.parse(localStorage.getItem('cta15-profiles-v4')||'null');
+   const g=saved?.games?.[saved.active];
+   if(g){const v=g.vehicles||[];data={buildings:(g.stations||[]).length,vehicles:v.length,staff:(g.staff||[]).length,ready:v.filter(x=>x.status==='ready'&&!x.mission&&!x.fault).length,engaged:v.filter(x=>!!x.mission||x.status==='engaged').length,incidents:(g.incidents||[]).filter(x=>!x.closed).length}}
+  }
+  const ids={buildings:'ctaSumBuildings',vehicles:'ctaSumVehicles',staff:'ctaSumStaff',ready:'ctaSumReady',engaged:'ctaSumEngaged',incidents:'ctaSumIncidents'};
+  if(!data){$('ctaSumTerritory').textContent='Connexion aux données du jeu indisponible';return}
+  for(const [key,id] of Object.entries(ids)){const el=$(id);if(el)el.textContent=Number(data[key]??0).toLocaleString('fr-FR')}
+  $('ctaSumTerritory').textContent='Synchronisation : '+(typeof window.__ctaLiveStats==='function'?'moteur de jeu':'sauvegarde locale');
+ }catch(e){console.error('CTA: erreur synthèse',e);const el=$('ctaSumTerritory');if(el)el.textContent='Erreur de synchronisation : '+e.message}
+}
+setInterval(refreshSummary,2000);
+setTimeout(refreshSummary,200);
+setInterval(()=>{try{update()}catch(e){console.error('CTA: tableau de bord',e)}},3000);
+try{update()}catch(e){console.error('CTA: tableau de bord initial',e)}
+
 })();
