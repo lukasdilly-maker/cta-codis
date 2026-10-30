@@ -181,3 +181,9 @@ body>header .stat{display:none!important}
 #mapPanel .cartography>section:not(.map-section) .journal,#mapPanel .cartography>section:not(.map-section) .log,#mapPanel .cartography>section:not(.map-section) .messages{display:none!important}
 @media(max-width:1100px){#mapPanel .cartography{grid-template-columns:minmax(0,3fr) minmax(215px,1fr)!important}}
 @media(max-width:700px){#mapPanel .cartography{grid-template-columns:1fr!important;grid-template-rows:minmax(350px,2fr) minmax(150px,1fr)!important;overflow:auto!important}}
+
+/* Remove the actual 'Derniers messages' section (sibling of cartography) */
+#mapPanel>.activity-section{display:none!important}
+#mapPanel>.cartography{height:100%!important;flex:1 1 auto!important;min-height:0!important}
+#mapPanel>.cartography>.map-section{height:100%!important}
+#mapPanel>.cartography>.intervention-pane{height:100%!important;overflow-y:auto!important}
