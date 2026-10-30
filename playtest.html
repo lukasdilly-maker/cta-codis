@@ -169,7 +169,8 @@ async function requests(){
   const item=document.createElement('div');item.className='item';
   const peer=r.requester_id===uid?r.recipient_id:r.requester_id;
   const direction=r.requester_id===uid?'Envoyée à ':'Reçue de ';
-  let incidentMap={};try{incidentMap=JSON.parse(localStorage.getItem('cta-multi-incidents')||'{}')}catch{}\n  item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+(incidentMap[r.id]?' · Intervention n°'+esc(incidentMap[r.id]):'')+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
+  let incidentMap={};try{incidentMap=JSON.parse(localStorage.getItem('cta-multi-incidents')||'{}')}catch{}
+  item.innerHTML='<strong>'+esc(direction+(people.get(peer)||peer.slice(0,8)))+'</strong><div>'+esc(r.service)+' · '+esc(r.quantity)+' × '+esc(r.vehicle_type)+(incidentMap[r.id]?' · Intervention n°'+esc(incidentMap[r.id]):'')+'</div><small>'+esc(r.status)+' · '+new Date(r.created_at).toLocaleString('fr-FR')+'</small>';
   const units=assigned.filter(a=>a.request_id===r.id);
   if(units.length){
    const detail=document.createElement('div');detail.textContent='Engins affectés : '+units.map(a=>a.vehicle_name+' ('+a.station_name+')').join(', ');
