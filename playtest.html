@@ -322,6 +322,7 @@ function ctaRefNorm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u
 function ctaRefDeparture(i){
  const s=findScenario(i.scenario), text=ctaRefNorm(s?.name||'');
  const refs=window.CTA_REFERENCE_V2?.departures||[];
+ const groups=window.CTA_REFERENCE_V2?.groups||[];if(/feu.*(vegetation|vegetaux|foret|broussailles).*evolutif|feu.*evolutif.*(vegetation|vegetaux|foret)/.test(text))return groups.find(g=>g.name==='GIFF')||null;
  const aliases=[['parking sous sol',/parking.*(souterrain|sous.sol)/],['vl 2roues',/feu de vehicule|feu de voiture|feu de moto/],['maison',/feu de maison/],['feu d appartement',/feu d appartement/],['acc circulation',/accident de circulation/]];
  for(const [name,re] of aliases)if(re.test(text)){const d=refs.find(x=>ctaRefNorm(x.name)===name);if(d)return d;}
  return refs.find(x=>ctaRefNorm(x.name)===text)||null;
@@ -333,6 +334,7 @@ function ctaRefMatches(v,code){
  if(required==='ENGINPOMPEHORSROUTE')return ['CCFM','CCFL','CCFS','CCR'].includes(actual);
  if(required==='EPS')return ['EPS','EPA','BEA'].includes(actual);
  if(required==='VSRMOUFPTSR')return ['VSRM','FPTSR'].includes(actual);
+ if(required==='CCFM')return actual==='CCFM';
  return actual===required;
 }
 function ctaRefProposal(i,departure){
