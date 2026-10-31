@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CTA CODIS V2 — Test multijoueur</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#10243a"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./cta-icon.svg" type="image/svg+xml">
+<title>CTA CODIS V2 — Centre de traitement de l’alerte</title>
 <style>
 :root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b1320;color:#eef4ff}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;background:#15243a;border-bottom:1px solid #334763}header strong{color:#f4f7ff}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;height:calc(100dvh - 61px)}iframe{width:100%;height:100%;border:0;background:white}.panel{overflow:auto;background:#111e30;padding:15px;border-left:1px solid #34445a}section{background:#1b2a40;border:1px solid #354762;border-radius:10px;padding:12px;margin-bottom:12px}h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:0 0 8px}p,small{color:#b6c8dd}input,select,button{width:100%;padding:9px;margin:4px 0 8px;background:#101a2a;color:#fff;border:1px solid #4a607c;border-radius:6px;font:inherit}button{cursor:pointer;background:#1466aa;border-color:#2779c1;font-weight:600}button.secondary{background:#31425b}button.danger{background:#8b2c3b}.row{display:flex;gap:7px}.row>*{flex:1;min-width:0}.hidden{display:none}.item{border-top:1px solid #41536d;padding:10px 0}.item button{margin:4px 0}.ok{color:#76e4ae}.err{color:#ffb3b3}.pill{background:#30445d;border-radius:20px;padding:4px 8px;font-size:12px}#notice{font-size:13px;white-space:pre-wrap}label{font-size:12px;color:#bdcce0}summary{cursor:pointer;font-weight:600;padding:4px}code{overflow-wrap:anywhere}@media(max-width:850px){.layout{grid-template-columns:1fr;height:auto}.layout iframe{height:65dvh}.panel{border-left:0}}
 #reinforcementDialog{border:1px solid #48617e;border-radius:12px;background:#142238;color:white;width:min(440px,94vw);padding:20px}#reinforcementDialog::backdrop{background:#000b}#reinforcementDialog h2{font-size:20px}#reinforcementDialog label{display:block;margin-top:10px}
@@ -107,6 +107,19 @@ body.cta-authenticated #connected #admin.active{display:block!important}
 body.cta-authenticated #connected #cloudStatus{margin-top:10px!important}
 @media(max-width:600px){body.cta-authenticated .panel{width:calc(100vw - 12px)!important;right:6px!important;top:6px!important;bottom:6px!important}body.cta-authenticated #consoleTabs{margin-left:10px!important;margin-right:10px!important}body.cta-authenticated #connected{padding:10px!important}}
 body.cta-authenticated>header{display:none!important}body.cta-authenticated>.layout{height:100dvh!important}body.cta-authenticated>.layout iframe{height:100dvh!important}body.cta-authenticated #consoleFab{display:none!important}body.cta-authenticated .panel{top:10px!important;bottom:10px!important}
+/* App-grade mobile refinements: consistent motion, edge-to-edge, and keyboard-safe layout */
+:root{--cta-bottom:calc(65px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent}
+@media(max-width:850px){
+ body{min-height:100dvh;user-select:none;-webkit-user-select:none}
+ input,textarea,select{user-select:text;-webkit-user-select:text}
+ .layout{height:calc(100dvh - 56px - var(--cta-bottom))}
+ #ctaMobileNav{height:var(--cta-bottom)}
+ .panel{bottom:var(--cta-bottom)}
+ #loginGate{height:auto;max-height:calc(100dvh - 56px)}
+ #status{max-width:84px}
+ #ctaMobileNav button:focus-visible{outline:2px solid #85d7ff;outline-offset:-3px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
 /* CTA CODIS mobile cockpit: safe areas, accessible touch targets, bottom navigation */
 @media(max-width:850px){
  html,body{width:100%;max-width:100%;overflow-x:hidden}
@@ -702,6 +715,7 @@ consoleTab('renforts');document.body.classList.add('console-collapsed');
 window.ctaAuthReady=true;showGate(true);await load();
 setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await adminUsers()}},12000);
 }
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./cta-sw.js',{scope:'./'}).catch(e=>console.warn('CTA PWA:',e.message)),{once:true})}
 window.addEventListener('cta-supabase-ready',()=>initializeCtaAuth().catch(e=>window.ctaAuthStatus('Erreur de démarrage : '+e.message)),{once:true});
 window.ctaBootAuth().catch(e=>window.ctaAuthStatus('Erreur de démarrage : '+e.message));
 </script><script>
