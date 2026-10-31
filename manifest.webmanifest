@@ -1,0 +1,29 @@
+{
+  "id": "./playtest.html",
+  "name": "CTA CODIS V2 — Centre de traitement de l'alerte",
+  "short_name": "CTA CODIS",
+  "description": "Simulation opérationnelle de traitement de l'alerte et de gestion des moyens de secours.",
+  "lang": "fr",
+  "start_url": "./playtest.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#081321",
+  "theme_color": "#10243a",
+  "categories": [
+    "games",
+    "simulation"
+  ],
+  "icons": [
+    {
+      "src": "./cta-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
