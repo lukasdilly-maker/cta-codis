@@ -107,6 +107,42 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
  nav.querySelector('[data-tab="fleet"]')?.addEventListener('click',()=>setTimeout(attach,80));
  setTimeout(attach,250);
 })();
+// Experimental industrial-fire operations view, isolated from real dispatch and saves.
+(function(){
+ let installed=false;
+ function install(){
+  if(installed)return;
+  const tab=nav.querySelector('[data-tab="operations"]');
+  const panels=[...workspace.querySelectorAll('main[role="tabpanel"]')];
+  const panel=panels.find(el=>el.id==='operationsPanel'||el.id==='tab-operations'||el.getAttribute('aria-labelledby')===tab?.id)
+    ||panels.find(el=>/opérations en cours|interventions actives|gestion des opérations/i.test(el.textContent||''))
+    ||(tab&&document.getElementById(tab.getAttribute('aria-controls')||''));
+  if(!panel||panel.id==='ctaOperations')return;
+  installed=true;
+  const original=[...panel.children];
+  const controls=document.createElement('div');controls.id='ctaOperationsExperimentControls';
+  controls.style.cssText='display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-bottom:10px';
+  const label=document.createElement('span');label.textContent='Prototype feu industriel · simulation indépendante';label.style.cssText='font-size:12px;color:#aac1d4';
+  const toggle=document.createElement('button');toggle.type='button';toggle.textContent='Tester le nouveau suivi d’intervention';
+  toggle.style.cssText='border:1px solid #447493;border-radius:6px;padding:9px 12px;background:#17618d;color:#fff';
+  controls.append(label,toggle);
+  const frame=document.createElement('iframe');frame.id='ctaOperationsExperimentFrame';frame.title='Simulation expérimentale feu industriel';
+  frame.src=new URL('operation-feu-industriel-test.html',parent.location.href).href;
+  frame.style.cssText='display:none;width:100%;height:calc(100% - 58px);min-height:560px;border:0;background:#e9eef3;border-radius:7px';
+  panel.prepend(controls);panel.append(frame);
+  let preview=false;
+  function display(){
+   for(const el of original)el.style.display=preview?'none':'';
+   frame.style.display=preview?'block':'none';
+   toggle.textContent=preview?'Revenir aux opérations réelles':'Tester le nouveau suivi d’intervention';
+   label.textContent=preview?'Démonstration fictive — aucune opération du jeu n’est modifiée':'Prototype feu industriel · simulation indépendante';
+  }
+  toggle.addEventListener('click',()=>{preview=!preview;display()});
+  display();
+ }
+ nav.querySelector('[data-tab="operations"]')?.addEventListener('click',()=>setTimeout(install,80));
+ setTimeout(install,300);
+})();
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
