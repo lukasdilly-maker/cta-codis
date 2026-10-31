@@ -48,24 +48,43 @@ $('ctaOpenMap').onclick=()=>$('tab-map')?.click();
 $('ctaFleetOpen').onclick=()=>$('tab-fleet')?.click();
 $('ctaMultiOpen').onclick=()=>parent.postMessage({type:'cta-open-console'},'*');
 for(const panel of document.querySelectorAll('body>main[role="tabpanel"]')){if(panel!==room)workspace.append(panel)}
-// Recover native automatic-call and game-speed controls without duplicating their handlers.
+// Unified simulation bar: move native controls (preserving original handlers and state).
 const ctaSimulationControls=document.createElement('div');
 ctaSimulationControls.id='ctaSimulationControls';
-ctaSimulationControls.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:8px 12px;margin:0 0 10px;background:#10263d;border:1px solid #31526f;border-radius:7px;color:#e7f4ff';
-const ctaSimulationLabel=document.createElement('strong');ctaSimulationLabel.textContent='Simulation';ctaSimulationControls.append(ctaSimulationLabel);
-const movedControls=[];
-for(const bar of toolbars){
- for(const el of [...bar.querySelectorAll('button,input,select,label')]){
-  if(movedControls.some(x=>x.contains(el)))continue;
-  const str=[el.textContent,el.id,el.name,el.title,el.getAttribute('aria-label'),el.htmlFor].join(' ').toLowerCase();
-  if(!/(appel.{0,18}auto|auto.{0,18}appel|vitesse|speed|simulation.{0,10}(x|vitesse))/.test(str))continue;
-  const node=el.closest('label')||el;
-  if(movedControls.some(x=>x===node||x.contains(node)))continue;
-  movedControls.push(node);
- }
+const ctaSimulationLabel=document.createElement('strong');
+ctaSimulationLabel.textContent='Simulation';
+ctaSimulationControls.append(ctaSimulationLabel);
+function moveNativeControl(id,target){
+ const input=$(id);if(!input)return;
+ const label=input.closest('label');
+ if(label)target.append(label);else target.append(input);
 }
-for(const node of movedControls)ctaSimulationControls.append(node);
-if(movedControls.length){mainArea.insertBefore(ctaSimulationControls,workspace)}
+moveNativeControl('speed',ctaSimulationControls);
+moveNativeControl('auto',ctaSimulationControls);
+const ctaSettingsButton=document.createElement('button');
+ctaSettingsButton.type='button';ctaSettingsButton.id='ctaSettingsToggle';
+ctaSettingsButton.textContent='⚙ Paramètres';
+ctaSettingsButton.setAttribute('aria-expanded','false');
+ctaSimulationControls.append(ctaSettingsButton);
+const ctaSettingsPanel=document.createElement('div');
+ctaSettingsPanel.id='ctaSettingsPanel';
+ctaSettingsPanel.hidden=true;
+const ctaSettingsTitle=document.createElement('strong');
+ctaSettingsTitle.textContent='Paramètres de la simulation';
+ctaSettingsPanel.append(ctaSettingsTitle);
+const ctaSettingsGroups=[
+ ['Gestion',()=>{const box=document.createElement('div');box.className='cta-settings-group';const title=document.createElement('h3');title.textContent='Gestion de partie';box.append(title);for(const bar of toolbars){if(bar.querySelector('#profileSelect')||bar.querySelector('[data-action="new-profile"]')){while(bar.firstChild)box.append(bar.firstChild);}}return box;}],
+ ['Trafic',()=>{const box=document.createElement('div');box.className='cta-settings-group';const title=document.createElement('h3');title.textContent='Trafic et alertes';box.append(title);for(const id of ['trafficBadge','traffic','popup'])moveNativeControl(id,box);const create=tools.querySelector('[data-action="new-call"]');if(create)box.append(create);return box;}],
+ ['Conditions',()=>{const box=document.createElement('div');box.className='cta-settings-group';const title=document.createElement('h3');title.textContent='Conditions de simulation';box.append(title);for(const id of ['simulationInfo','weather','school','environment'])moveNativeControl(id,box);return box;}]
+];
+for(const [,factory] of ctaSettingsGroups)ctaSettingsPanel.append(factory());
+ctaSettingsButton.onclick=()=>{
+ ctaSettingsPanel.hidden=!ctaSettingsPanel.hidden;
+ ctaSettingsButton.setAttribute('aria-expanded',String(!ctaSettingsPanel.hidden));
+ ctaSettingsButton.textContent=ctaSettingsPanel.hidden?'⚙ Paramètres':'✕ Fermer les paramètres';
+};
+mainArea.insertBefore(ctaSimulationControls,workspace);
+mainArea.insertBefore(ctaSettingsPanel,workspace);
 const operations=document.createElement('section');operations.id='ctaOperations';operations.innerHTML='<div class="cta-card-head"><h2>▦ Synthèse du centre</h2><button id="ctaOperationsOpen">Voir les opérations ↗</button></div><div id="ctaOperationsContent" class="cta-summary-grid"><div class="cta-summary-item"><small>▥ Bâtiments</small><strong id="ctaSumBuildings">—</strong></div><div class="cta-summary-item"><small>▰ Engins</small><strong id="ctaSumVehicles">—</strong></div><div class="cta-summary-item"><small>♟ Personnels</small><strong id="ctaSumStaff">—</strong></div><div class="cta-summary-item"><small>● Engins disponibles</small><strong id="ctaSumReady">—</strong></div><div class="cta-summary-item"><small>▣ Engins engagés</small><strong id="ctaSumEngaged">—</strong></div><div class="cta-summary-item"><small>☎ Interventions actives</small><strong id="ctaSumIncidents">—</strong></div></div><div class="cta-summary-note" id="ctaSumTerritory">Données de la partie active</div>';
 left.append(operations);$('ctaOperationsOpen').onclick=()=>$('tab-operations')?.click();
 const actions=document.createElement('div');actions.className='cta-quick-actions';actions.innerHTML='<button type="button" id="ctaGoCalls">☎ Gérer les appels</button><button type="button" id="ctaGoFleet">▰ Consulter les moyens</button>';
