@@ -321,7 +321,7 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
   else console.warn('CTA : ancrage de présélection introuvable');
 
   // Operational dispatch templates and group formations (playtest-only, reversible).
-  const operationalModule = String.raw\`
+  const operationalModule = String.raw`
 const CTA_GROUPS={
  incendie:{label:'Groupe Incendie',units:[['EPA|EPS|BEA',1],['FPT|FPTL|CCR',2],['VID|VTU|CID',1],['VLCG',1]]},
  liquide:{label:'Feu de liquide inflammable',units:[['CCIM|FMOGP',1],['FPT',2],['MPR',1],['VLCG',1]]},
@@ -352,7 +352,7 @@ const CTA_GROUPS={
  colonne:{label:'Commandement colonne',units:[['VPC',1],['VLCC',2],['VLCG',2],['VLI|VSSO',1],['DRONE',1]]},
  site:{label:'Commandement site',units:[['VPC',2],['VLCC',2],['VLCG',3],['VLI|VSSO',1],['VL|VLR',1],['VLCDS',1],['VLCDS|VLCG',1]]}
 };
-const ctaNorm=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+const ctaNorm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ctaCode=v=>String(TYPES[v.type]?.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const ctaMatch=(v,pattern)=>pattern.split('|').some(raw=>{const code=raw.replace(/[^A-Z0-9]/g,'');const actual=ctaCode(v);return actual===code||((code==='FPT'||code==='CCF'||code==='VSR')&&actual.startsWith(code));});
 const CTA_MISSIONS=[
@@ -404,10 +404,10 @@ function ctaRenderGroups(i,isCall){
 }
 document.addEventListener('change',e=>{if(e.target?.id!=='ctaGroupSelect'||treatmentRef?.kind!=='incident')return;const i=state.incidents.find(i=>i.id===treatmentRef.id);if(i){i.ctaGroup=e.target.value||null;save();}});
 window.__ctaGroups=CTA_GROUPS;
-\`;
+`;
   const moduleAnchor="function preselectMeans(){";
   if(html.includes(moduleAnchor)){
-   html=html.replace(moduleAnchor,operationalModule+"\\n"+moduleAnchor);
+   html=html.replace(moduleAnchor,operationalModule+"\n"+moduleAnchor);
    const original="const result=suggestUnits(i);for(const e of $('dispatchList')";
    if(html.includes(original))html=html.replace(original,"const result=ctaSuggestOperational(i);for(const e of $('dispatchList')");
    const message="(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');";
