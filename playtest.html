@@ -322,7 +322,38 @@ function ctaRefNorm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u
 function ctaRefDeparture(i){
  const s=findScenario(i.scenario), text=ctaRefNorm(s?.name||'');
  const refs=window.CTA_REFERENCE_V2?.departures||[];
- const groups=window.CTA_REFERENCE_V2?.groups||[];if(/feu.*(vegetation|vegetaux|foret|broussailles).*evolutif|feu.*evolutif.*(vegetation|vegetaux|foret)/.test(text))return groups.find(g=>g.name==='GIFF')||null;
+ const groups=window.CTA_REFERENCE_V2?.groups||[];
+ // Explicit operational group escalation: simulated response proposals inspired by the supplied RO/SDACR.
+ // Do not deploy a full group for every ordinary incident. Context/scale is required.
+ const rules=[
+  ['GIFF',/feu.*(foret|vegetation|vegetaux|broussailles|chaume|recolte).*(evolutif|important|majeur|propagation|grande ampleur)|feu.*(evolutif|important|majeur).*(foret|vegetation|vegetaux|broussailles)|feu de foret/],
+  ['GFEV',/feu.*(vegetation|vegetaux|broussailles|chaume|recolte).*(etendu|multiple|renfort)/],
+  ['Feu de Liquide Inflammable',/feu.*(hydrocarbure|carburant|liquide inflammable|raffinerie|depot petrolier)/],
+  ['Incendie',/(incendie|feu).*(industriel majeur|entrepot important|immeuble important|batiment de grande ampleur)/],
+  ['Alimentation (Option 2)',/(incendie|feu).*(manque d eau|sans hydrant|defaut d alimentation)/],
+  ['Secours Routier',/(accident|collision).*(multiple|carambolage|nombreux vehicules|desincarceration complexe)/],
+  ['RAMEVAC',/(accident|collision|evacuation).*(nombreuses victimes|victimes multiples|novi|nombreux blesses)/],
+  ['PMA',/(poste medical avance|pma|nombreuses victimes.*(majeur|massif))/],
+  ['Transport Impliqués',/(evacuation|transport).*(nombreux impliques|population|sinistres)/],
+  ['Épuisement Assèchement Protection (avec CSO)',/(inondation|epuisement|assechement).*(majeure|massive|generalisee|renfort important)/],
+  ['Épuisement Assèchement Protection',/(inondation|epuisement|assechement).*(plusieurs batiments|multiples locaux|importante)/],
+  ['Tempête',/(tempete|vents violents).*(majeure|generalisee|nombreux degats|renfort)/],
+  ['Inondation Sauvetage',/(inondation|crue).*(sauvetage|personnes bloquees|evacuation)/],
+  ['Sauvetage Aquatique',/(sauvetage aquatique|noyade multiple|plusieurs personnes.*eau)/],
+  ['PLG/SAV',/(plongee|plongeur|recherche subaquatique).*(sauvetage|recherche|complexe)/],
+  ['RCH',/(fuite|rejet|pollution).*(produit chimique|substance chimique|toxique).*(important|majeur|multiple|etendu)|accident chimique majeur/],
+  ['RAD',/(risque radiologique|incident radiologique|contamination radioactive)/],
+  ['IMP',/(milieu perilleux|ravin|falaise|hauteur).*(sauvetage complexe|plusieurs victimes|renfort)/],
+  ['Cyno',/(recherche cynotechnique|personnes ensevelies.*chien)/],
+  ['USAR',/(effondrement|ensevelissement).*(immeuble|batiment|majeur|multiple|important)/],
+  ['Intervention Spécialisée UDIT',/(intervention udit|risque technologique majeur)/],
+  ['Sauvetage NRBC UDIT',/(sauvetage|victimes).*(nrbc|chimique.*massif)/],
+  ['Décontamination NRBC UDIT',/(decontamination|contamination).*(nrbc|chimique|radiologique).*(massive|collective|multiple)/],
+  ['Violences Urbaines',/(emeute urbaine|violences urbaines).*(incendie|feu|engins pompes|protection)/],
+  ['Commandement Colonne',/(commandement colonne|renfort colonne|colonne de renfort)/],
+  ['Commandement Site',/(commandement site|commandement de site|poste de commandement de site)/]
+ ];
+ for(const [name,pattern] of rules)if(pattern.test(text)){const group=groups.find(g=>g.name===name);if(group)return group;}
  const aliases=[['parking sous sol',/parking.*(souterrain|sous.sol)/],['vl 2roues',/feu de vehicule|feu de voiture|feu de moto/],['maison',/feu de maison/],['feu d appartement',/feu d appartement/],['acc circulation',/accident de circulation/]];
  for(const [name,re] of aliases)if(re.test(text)){const d=refs.find(x=>ctaRefNorm(x.name)===name);if(d)return d;}
  return refs.find(x=>ctaRefNorm(x.name)===text)||null;
