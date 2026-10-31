@@ -1,6 +1,6 @@
-/* CTA CODIS V2 — 600 distinct dispatch scenario definitions.
+/* CTA CODIS V2 — distinct operational call natures.
    Executed inside the game after SCENARIOS is initialized, before call generation.
-   Existing scenarios are retained. Each variant has its own ID, title and caller dialogue. */
+   Existing scenarios are retained. One entry per nature; no time-of-day or contextual duplicates. */
 (function(){
 const templates=[
 ['INC','Feu d’appartement','De la fumée sort d’un appartement et des habitants sont encore dans l’immeuble.',{INC:2,EPC:1,COM:1,POLICE:1},'inc'],
@@ -68,35 +68,26 @@ const templates=[
 ['AP','Renfort de sécurité pénitentiaire','Un établissement demande une équipe spécialisée de sécurisation.',{ERIS:1},'ap'],
 ['ADMIN','Liaison de coordination','Une liaison opérationnelle doit être assurée entre deux sites.',{ADMIN:1},'admin']
 ];
-const contexts=[
-['en début de matinée','Bonjour, je vous appelle car'],
-['en fin de matinée','Je viens de voir que'],
-['à la mi-journée','Il faut venir rapidement :'],
-['en début d’après-midi','On nous signale que'],
-['en fin d’après-midi','Je suis sur place et'],
-['en soirée','Bonsoir, je vous appelle parce que'],
-['pendant la nuit','Je viens d’être réveillé,'],
-['près d’une école','Il y a du monde autour,'],
-['dans un quartier résidentiel','Les voisins sont inquiets,'],
-['près d’une zone commerciale','Je travaille à proximité et'],
-['sur un secteur isolé','Nous sommes assez loin du centre,'],
-['par temps pluvieux','Il pleut et la situation empire,']
-];
-const oldIds=new Set(SCENARIOS.map(s=>s.id));
+// Only distinct operational natures appear in call qualification menus.
+// Caller wording is separate from the nature and never includes time or weather qualifiers.
+const normalize=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const known=new Set(SCENARIOS.map(s=>normalize(s.name)));
 let added=0;
 for(let t=0;t<templates.length;t++){
- const [category,name,text,needs,family]=templates[t];
- for(let v=0;v<contexts.length;v++){
-  const id='cta600-'+String(t+1).padStart(3,'0')+'-'+String(v+1).padStart(2,'0');
-  if(oldIds.has(id))continue;
-  const [setting,intro]=contexts[v];
-  SCENARIOS.push({id,category,name:name+' — '+setting,text:intro+' '+text.charAt(0).toLowerCase()+text.slice(1),
-   needs:{...needs},credits:category==='INC'?2400:category==='SUAP'?1200:1300,
-   xp:category==='INC'?110:70,transport:category==='SUAP'||category==='SANTE',
-   message:'Intervention en cours : compte rendu et évolution de la situation transmis au CTA.',
-   family,variant:v+1});
-  added++;
- }
+ const [category,name,dialogue,needs,family]=templates[t];
+ const key=normalize(name);
+ if(known.has(key))continue;
+ known.add(key);
+ SCENARIOS.push({
+  id:'cta-nature-'+String(t+1).padStart(3,'0'),
+  category,name,text:dialogue,needs:{...needs},
+  credits:category==='INC'?2400:category==='SUAP'?1200:1300,
+  xp:category==='INC'?110:70,
+  transport:category==='SUAP'||category==='SANTE',
+  message:'Intervention en cours : compte rendu transmis au CTA.',
+  family
+ });
+ added++;
 }
 window.__ctaScenarioCatalog={added,total:SCENARIOS.length,templates:templates.length};
 })();
