@@ -312,7 +312,7 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
   if(!html.includes(nativeQualify))throw Error('Ancrage de qualification absent : correctif non appliqué');
   html=html.replace(nativeQualify,fixedQualify);
   // Parking souterrain: exact operational departure, without altering the native vehicle catalogue.
-  const parkingModule=String.raw\`
+  const parkingModule=String.raw`
 function ctaParkingPlan(i){const s=findScenario(i.scenario);const norm=x=>String(x||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();return /feu de parking souterrain|feu de parking sous.sol/.test(norm(s?.name));}
 function ctaParkingSuggest(i){
  const slots=['FPTL','FPT','EPA','VSAV','GOC3','CEREV'];
@@ -321,10 +321,10 @@ function ctaParkingSuggest(i){
  for(const code of slots){const vehicle=available.find(v=>!chosen.includes(v)&&String(TYPES[v.type]?.code||'').toUpperCase()===code);if(vehicle)chosen.push(vehicle);else missing.push(code);}
  return {ids:chosen.map(v=>v.id),missing,slots};
 }
-\`;
+`;
   const parkingAnchor='function preselectMeans(){';
   if(!html.includes(parkingAnchor))throw Error('Ancrage présélection absent');
-  html=html.replace(parkingAnchor,parkingModule+'\\n'+parkingAnchor);
+  html=html.replace(parkingAnchor,parkingModule+'\n'+parkingAnchor);
   const nativeSuggestion='const result=suggestUnits(i);for(const e of';
   if(!html.includes(nativeSuggestion))throw Error('Ancrage suggestion absent');
   html=html.replace(nativeSuggestion,'const parking=ctaParkingPlan(i);const parkingResult=parking?ctaParkingSuggest(i):null;const result=parking?{ids:parkingResult.ids,missing:{}}:suggestUnits(i);for(const e of');
