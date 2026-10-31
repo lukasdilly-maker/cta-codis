@@ -3,13 +3,13 @@
    Existing scenarios are retained. Each variant has its own ID, title and caller dialogue. */
 (function(){
 const templates=[
-['INC','Feu d’appartement','De la fumée sort d’un appartement et des habitants sont encore dans l’immeuble.',{INC:2,EPA:1},'inc'],
+['INC','Feu d’appartement','De la fumée sort d’un appartement et des habitants sont encore dans l’immeuble.',{INC:2,EPC:1,COM:1,POLICE:1},'inc'],
 ['INC','Feu de maison','Une maison brûle, les flammes gagnent la toiture.',{INC:2},'inc'],
 ['INC','Feu de cuisine','Un feu a pris dans une cuisine et la fumée envahit le logement.',{INC:1},'inc'],
 ['INC','Feu de garage','Un garage attenant à une habitation est en feu.',{INC:2},'inc'],
-['INC','Feu de toiture','La toiture d’un bâtiment commence à brûler.',{INC:2,EPA:1},'inc'],
+['INC','Feu de toiture','La toiture d’un bâtiment commence à brûler.',{INC:2,EPC:1},'inc'],
 ['INC','Feu de cave','De la fumée remonte d’une cave dans la cage d’escalier.',{INC:2},'inc'],
-['INC','Feu de commerce','De la fumée sort d’un commerce fermé.',{INC:2,EPA:1},'inc'],
+['INC','Feu de commerce','De la fumée sort d’un commerce fermé.',{INC:2,EPC:1},'inc'],
 ['INC','Feu d’entrepôt important','Un entrepôt industriel est touché par un incendie important.',{INC:3},'major'],
 ['INC','Incendie industriel majeur','Des flammes et des fumées importantes sont visibles sur un site industriel.',{INC:3},'major'],
 ['INC','Feu de dépôt d’hydrocarbures','Un feu s’est déclaré dans une zone de stockage de carburant.',{INC:3},'major'],
