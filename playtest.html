@@ -311,26 +311,51 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
   const fixedQualify="const selected=SCENARIOS.find(x=>x.id===type&&x.category===category);if(!selected)return notify('Choisissez une catégorie et une nature d’intervention valides.',true),null;c.scenario=selected.id;c.needs={...selected.needs};";
   if(!html.includes(nativeQualify))throw Error('Ancrage de qualification absent : correctif non appliqué');
   html=html.replace(nativeQualify,fixedQualify);
-  // Parking souterrain: exact operational departure, without altering the native vehicle catalogue.
-  const parkingModule=String.raw`
-function ctaParkingPlan(i){const s=findScenario(i.scenario);const norm=x=>String(x||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();return /feu de parking souterrain|feu de parking sous.sol/.test(norm(s?.name));}
-function ctaParkingSuggest(i){
- const slots=['FPTL','FPT','EPA','VSAV','GOC3','CEREV'];
- const available=state.vehicles.filter(v=>fleetState(v).key==='green'&&ctaDispatchAllowed(v,i)).sort((a,b)=>distance(getStation(a.station).position,i.position)-distance(getStation(b.station).position,i.position));
+  // Operational reference: user-provided interventions worksheet + 28 operational groups.
+  try {
+    const refResponse=await fetch('./operational-reference-v2.js',{cache:'no-store'});
+    if(!refResponse.ok)throw Error('Référentiel HTTP '+refResponse.status);
+    const refCode=await refResponse.text();
+    html=html.replace('</body>','<script>'+refCode+'</'+'script></body>');
+    const referenceLogic=String.raw`
+function ctaRefNorm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+function ctaRefDeparture(i){
+ const s=findScenario(i.scenario), text=ctaRefNorm(s?.name||'');
+ const refs=window.CTA_REFERENCE_V2?.departures||[];
+ const aliases=[['parking sous sol',/parking.*(souterrain|sous.sol)/],['vl 2roues',/feu de vehicule|feu de voiture|feu de moto/],['maison',/feu de maison/],['feu d appartement',/feu d appartement/],['acc circulation',/accident de circulation/]];
+ for(const [name,re] of aliases)if(re.test(text)){const d=refs.find(x=>ctaRefNorm(x.name)===name);if(d)return d;}
+ return refs.find(x=>ctaRefNorm(x.name)===text)||null;
+}
+function ctaRefMatches(v,code){
+ const actual=String(TYPES[v.type]?.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ const required=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ if(required==='ENGINPOMPE')return ['FPT','FPTL','CCR','FPTSR'].includes(actual);
+ if(required==='ENGINPOMPEHORSROUTE')return ['CCFM','CCFL','CCFS','CCR'].includes(actual);
+ if(required==='EPS')return ['EPS','EPA','BEA'].includes(actual);
+ if(required==='VSRMOUFPTSR')return ['VSRM','FPTSR'].includes(actual);
+ return actual===required;
+}
+function ctaRefProposal(i,departure){
+ const avail=state.vehicles.filter(v=>fleetState(v).key==='green'&&ctaDispatchAllowed(v,i)).sort((a,b)=>distance(getStation(a.station).position,i.position)-distance(getStation(b.station).position,i.position));
  const chosen=[],missing=[];
- for(const code of slots){const vehicle=available.find(v=>!chosen.includes(v)&&String(TYPES[v.type]?.code||'').toUpperCase()===code);if(vehicle)chosen.push(vehicle);else missing.push(code);}
- return {ids:chosen.map(v=>v.id),missing,slots};
+ for(const item of departure.units)for(let n=0;n<item.qty;n++){
+  const v=avail.find(v=>!chosen.includes(v)&&ctaRefMatches(v,item.code));
+  if(v)chosen.push(v);else missing.push(item.code);
+ }
+ return {ids:chosen.map(v=>v.id),missing};
 }
 `;
-  const parkingAnchor='function preselectMeans(){';
-  if(!html.includes(parkingAnchor))throw Error('Ancrage présélection absent');
-  html=html.replace(parkingAnchor,parkingModule+'\n'+parkingAnchor);
-  const nativeSuggestion='const result=suggestUnits(i);for(const e of';
-  if(!html.includes(nativeSuggestion))throw Error('Ancrage suggestion absent');
-  html=html.replace(nativeSuggestion,'const parking=ctaParkingPlan(i);const parkingResult=parking?ctaParkingSuggest(i):null;const result=parking?{ids:parkingResult.ids,missing:{}}:suggestUnits(i);for(const e of');
-  const nativeMessage="$('proposalMessage').textContent=result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');";
-  if(!html.includes(nativeMessage))throw Error('Ancrage message absent');
-  html=html.replace(nativeMessage,"$('proposalMessage').textContent=parking?('Feu de parking souterrain — départ : 1 FPTL, 1 FPT, 1 EPA, 1 VSAV, 1 GOC3, 1 CEREV. '+result.ids.length+'/6 moyens présélectionnés.'+(parkingResult.missing.length?' Indisponibles ou absents du catalogue : '+parkingResult.missing.join(', '):' Composition couverte.')):result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');");
+    const anchor='function preselectMeans(){';
+    if(!html.includes(anchor))throw Error('Ancrage de présélection introuvable');
+    html=html.replace(anchor,referenceLogic+'\n'+anchor);
+    const selection='const result=suggestUnits(i);for(const e of';
+    if(!html.includes(selection))throw Error('Sélection native introuvable');
+    html=html.replace(selection,"const departure=ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;const result=referenceResult?{ids:referenceResult.ids,missing:{}}:suggestUnits(i);for(const e of");
+    const message="$('proposalMessage').textContent=result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');";
+    if(!html.includes(message))throw Error('Message natif introuvable');
+    html=html.replace(message,"$('proposalMessage').textContent=departure?('Départ type — '+departure.name+' : '+departure.units.map(x=>x.qty+' '+x.code).join(' + ')+'. '+result.ids.length+' moyens disponibles.'+(referenceResult.missing.length?' Moyens manquants : '+referenceResult.missing.join(', '):' Composition complète.')):result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');");
+    console.info('CTA CODIS: référentiel interventions et groupes chargé');
+  }catch(referenceError){console.error('CTA référentiel opérationnel',referenceError)}
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
