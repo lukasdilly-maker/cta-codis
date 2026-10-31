@@ -27,6 +27,16 @@ $('board').onclick=e=>{const btn=e.target.closest('[data-station]');if(!btn)retu
 $('cancel').onclick=()=>$('edit').close();
 $('save').onclick=()=>{if(!editing)return;const value=$('editValue').value.trim();if(!value){$('editValue').focus();return}aliases[editing.id]=value;localStorage.setItem('cta-synoptic-aliases-'+profile,JSON.stringify(aliases));$('edit').close();render()};
 $('legend').innerHTML=Object.values(colors).map(c=>'<span style="background:'+c[0]+';color:'+c[1]+'">'+c[2]+'</span>').join('');
+if(new URLSearchParams(location.search).get('embedded')==='1'){
+ document.body.classList.add('embedded');
+ const style=document.createElement('style');
+ style.textContent='body.embedded{height:100vh;overflow:hidden}body.embedded header,body.embedded .note{display:none!important}body.embedded .wrap{height:100%;display:flex;flex-direction:column;padding:8px}body.embedded .board{flex:1;min-height:0;overflow:auto}body.embedded .toolbar{flex:0 0 auto}body.embedded .legend{flex:0 0 auto}';
+ document.head.append(style);
+ let last='';
+ setInterval(()=>{
+  try{const raw=localStorage.getItem('cta15-profiles-v4')||'';if(raw!==last){last=raw;load()}}catch(e){console.warn('Synoptique actualisation',e)}
+ },1500);
+}
 load();
 })();
 </script></body></html>
