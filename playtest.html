@@ -354,6 +354,20 @@ function ctaRefProposal(i,departure){
     const message="$('proposalMessage').textContent=result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');";
     if(!html.includes(message))throw Error('Message natif introuvable');
     html=html.replace(message,"$('proposalMessage').textContent=departure?('Départ type — '+departure.name+' : '+departure.units.map(x=>x.qty+' '+x.code).join(' + ')+'. '+result.ids.length+' moyens disponibles.'+(referenceResult.missing.length?' Moyens manquants : '+referenceResult.missing.join(', '):' Composition complète.')):result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');");
+    // Offer the 28 groups in the native incident treatment window.
+    const renderAnchor="const checked=fresh?new Set():new Set([...$('dispatchList').querySelectorAll('input:checked')].map(e=>e.value));";
+    const groupUi=String.raw`
+ const groupHost=$('proposalMessage')?.parentElement;
+ if(groupHost&&!document.getElementById('ctaGroupSelect')){
+  const label=document.createElement('label');label.textContent='Groupe opérationnel (optionnel)';
+  const select=document.createElement('select');select.id='ctaGroupSelect';
+  select.innerHTML='<option value="">Départ type de la nature</option>'+window.CTA_REFERENCE_V2.groups.map((g,k)=>'<option value="'+k+'">'+g.name+'</option>').join('');
+  label.appendChild(select);groupHost.insertBefore(label,$('proposalMessage'));
+ }
+`;
+    if(html.includes(renderAnchor))html=html.replace(renderAnchor,renderAnchor+groupUi);
+    const refLine='const departure=ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;';
+    if(html.includes(refLine))html=html.replace(refLine,"const groupIndex=$('ctaGroupSelect')?.value;const selectedGroup=groupIndex!==undefined&&groupIndex!==''?window.CTA_REFERENCE_V2.groups[Number(groupIndex)]:null;const departure=selectedGroup||ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;");
     console.info('CTA CODIS: référentiel interventions et groupes chargé');
   }catch(referenceError){console.error('CTA référentiel opérationnel',referenceError)}
   // UI skin runs inside the real game document, preserving all game handlers and saves.
