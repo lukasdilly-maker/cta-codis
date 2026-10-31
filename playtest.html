@@ -290,9 +290,12 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
    const catalogResponse=await fetch('./scenario-catalog-v2.js',{cache:'no-store'});
    if(!catalogResponse.ok)throw Error('Catalogue HTTP '+catalogResponse.status);
    const catalogCode=await catalogResponse.text();
+   const reference500Response=await fetch('./scenario-reference-500.js',{cache:'no-store'});
+   if(!reference500Response.ok)throw Error('Référentiel 500 HTTP '+reference500Response.status);
+   const reference500Code=await reference500Response.text();
    const catalogAnchor="const PARTNERS=['SAMU','Police','Enedis','Maire','Préfecture'];";
    if(!html.includes(catalogAnchor))throw Error('Ancrage des scénarios introuvable');
-   html=html.replace(catalogAnchor,catalogCode+'\n'+catalogAnchor);
+   html=html.replace(catalogAnchor,catalogCode+'\n'+reference500Code+'\n'+catalogAnchor);
    // Enforce dispatch restrictions on the actual native dispatch operation.
    const dispatchAnchor="const vehicles=[...new Set(ids)].map(getVehicle);";
    if(!html.includes(dispatchAnchor))throw Error('Ancrage des départs introuvable');
@@ -322,6 +325,8 @@ function ctaRefNorm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u
 function ctaRefDeparture(i){
  const s=findScenario(i.scenario), text=ctaRefNorm(s?.name||'');
  const refs=window.CTA_REFERENCE_V2?.departures||[];
+ const from500=(window.CTA_500_MOTIFS||[]).find(x=>i.scenario==='cta-ref500-'+String(x.n).padStart(3,'0'));
+
  const groups=window.CTA_REFERENCE_V2?.groups||[];
  // Explicit operational group escalation: simulated response proposals inspired by the supplied RO/SDACR.
  // Do not deploy a full group for every ordinary incident. Context/scale is required.
@@ -356,7 +361,14 @@ function ctaRefDeparture(i){
  for(const [name,pattern] of rules)if(pattern.test(text)){const group=groups.find(g=>g.name===name);if(group)return group;}
  const aliases=[['parking sous sol',/parking.*(souterrain|sous.sol)/],['vl 2roues',/feu de vehicule|feu de voiture|feu de moto/],['maison',/feu de maison/],['feu d appartement',/feu d appartement/],['acc circulation',/accident de circulation/]];
  for(const [name,re] of aliases)if(re.test(text)){const d=refs.find(x=>ctaRefNorm(x.name)===name);if(d)return d;}
- return refs.find(x=>ctaRefNorm(x.name)===text)||null;
+ const explicit=refs.find(x=>ctaRefNorm(x.name)===text);
+ if(explicit)return explicit;
+ if(from500){
+  const means=from500.means;
+  const special={'FPT + moyen spécialisé':[{qty:1,code:'FPT'},{qty:1,code:'MOYEN SPECIALISE'}],'VSAV + VLM/UMH':[{qty:1,code:'VSAV'},{qty:1,code:'VLM/UMH'}],'VSAV + VSR':[{qty:1,code:'VSAV'},{qty:1,code:'VSR'}]};
+  return {name:from500.name,units:special[means]||[{qty:1,code:means}]};
+ }
+ return null;
 }
 function ctaRefMatches(v,code){
  const actual=String(TYPES[v.type]?.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -366,6 +378,12 @@ function ctaRefMatches(v,code){
  if(required==='EPS')return ['EPS','EPA','BEA'].includes(actual);
  if(required==='VSRMOUFPTSR')return ['VSRM','FPTSR'].includes(actual);
  if(required==='CCFM')return actual==='CCFM';
+ if(required==='CCF')return ['CCFM','CCFL','CCFS','CCF'].includes(actual);
+ if(required==='VEHICULETECHNIQUEDIR')return ['DIR','VTU','VID','VL','VIT','VTECH'].includes(actual);
+ if(required==='PATROUILLEPNGNPM')return ['VL','VLP','VLI','VLU','VLTT','VPS','VPSP'].includes(actual)&&['PN','GN','PM'].includes(String(TYPES[v.type]?.family||'').toUpperCase());
+ if(required==='VLMUMH')return ['VLM','UMH','AR','VRM'].includes(actual);
+ if(required==='EQUIPESMPMPGHM')return ['VIMP','VGRIMP','VLTT','VLHR'].includes(actual);
+ if(required==='EQUIPEGRIMA')return ['VPL','VSN','VBS','VIMP'].includes(actual);
  return actual===required;
 }
 function ctaRefProposal(i,departure){
