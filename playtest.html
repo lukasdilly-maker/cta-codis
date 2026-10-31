@@ -204,6 +204,30 @@ window.startCtaGame=async function(){
   if(html.includes(rescueCode)){
     html=html.replace(rescueCode,"CYNO:['VCYNO','VEC'],RESCUE:['ULS','VIMP','FSD','CeUSAR','VIS','DRAGON']");
   }else console.warn('CTA: capability mapping signature missing');
+  // Shared vehicle status semantics for synoptic, dispatch and operations.
+  const fleetStart=html.indexOf('function fleetState(v){');
+  const fleetEnd=html.indexOf('function setFault(',fleetStart);
+  if(fleetStart>=0&&fleetEnd>fleetStart){
+    const statusFunction=`function fleetState(v){
+      if(TYPES[v.type]?.legacyUnavailable)return {key:'black',label:'Indisponible',detail:'Ancien modèle à remplacer'};
+      if(v.fault)return {key:'black',label:'Indisponible',detail:v.faultReason||'Indisponibilité manuelle'};
+      const status=v.status||'ready';
+      if(status==='return'){
+        const available=!v.fault&&v.returnUnavailable!==true&&v.availableOnReturn!==false;
+        return {key:available?'return-ready':'return-unavailable',label:available?'En retour disponible':'En retour indisponible',detail:'Retour vers la base'};
+      }
+      if(status==='transport'||status==='routing_hospital')return {key:'transport',label:'Transport CH',detail:'Transport vers un centre hospitalier'};
+      if(status==='hospital')return {key:'hospital',label:'Arrivée CH',detail:'Arrivé au centre hospitalier'};
+      if(status==='onscene'||status==='operation'||status==='awaiting_hospital'||status==='awaiting_release')return {key:'onscene',label:'Sur les lieux',detail:'Engin sur les lieux de l’intervention'};
+      if(status==='enroute'||status==='routing_detour'||status==='roadblock'||status==='road_wait')return {key:'departed',label:'Parti',detail:'En route vers l’intervention'};
+      if(status==='planning'||status==='awaiting_cta'||status==='routing_return')return {key:'alert',label:'Alerté',detail:'Départ en préparation'};
+      if(status!=='ready')return {key:'alert',label:'Alerté',detail:'Statut technique : '+status};
+      if(!planCrew([v]))return {key:'black',label:'Indisponible',detail:'Effectif ou qualification manquante'};
+      return {key:'green',label:'Disponible',detail:'Disponible en base'};
+    }
+    `;
+    html=html.slice(0,fleetStart)+statusFunction+html.slice(fleetEnd);
+  }else console.warn('CTA: vehicle status mapping not found');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
