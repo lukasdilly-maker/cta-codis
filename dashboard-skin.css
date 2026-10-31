@@ -267,3 +267,24 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 .status.green{color:#ffffff!important}
 .status.alert{color:#111111!important}
 
+
+/* CTA CODIS operations: enforce dark incident cards despite legacy !important rules */
+#ctaWorkspace #operationsPanel #ctaRealOperations,
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-card,
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-head,
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-body,
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-log{
+ background:#10263d!important;color:#eaf3fc!important;
+}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-card{
+ border:1px solid #34536d!important;border-radius:7px!important;
+ box-shadow:none!important;margin-bottom:9px!important;padding:0!important;
+}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-head{border-bottom:1px solid #34536d!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-id{color:#36d3c4!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-head button{color:#c7deef!important;background:#163650!important;border:1px solid #3d6381!important;border-radius:5px!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-head button:hover{background:#225579!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-row{border-top:1px solid #36536d!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-station{background:#168e88!important;color:#fff!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-unit{border:0!important}
+#ctaWorkspace #operationsPanel #ctaRealOperations .op-sub{color:#9dbbd1!important}
