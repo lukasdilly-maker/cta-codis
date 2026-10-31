@@ -318,3 +318,30 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 #ctaSettingsPanel #simulationInfo{width:100%!important;font-size:12px!important;color:#b8d1e4!important}
 #ctaSettingsPanel #notice{width:100%!important}
 @media(max-width:850px){#ctaSettingsPanel{grid-template-columns:1fr!important}#ctaSimulationControls #ctaSettingsToggle{margin-left:0!important}}
+
+/* Radio inbox: header notification and incident-linked messages */
+#ctaRadioInbox{position:relative;display:flex;justify-content:flex-end;margin:-2px 0 9px;z-index:35}
+#ctaRadioAlert{display:flex;align-items:center;gap:8px;background:#10263d!important;color:#c9e0f0!important;border:1px solid #355875!important;border-radius:7px!important;padding:8px 12px!important;font-size:12px!important;font-weight:700!important}
+#ctaRadioAlert .cta-radio-symbol{font-size:17px;color:#8caabe}
+#ctaRadioAlert.has-unread{border-color:#e6a238!important}
+#ctaRadioAlert.has-unread .cta-radio-symbol{color:#f59e0b;animation:ctaRadioPulse 1.1s ease-in-out infinite}
+#ctaRadioAlert[data-level=urgent].has-unread{border-color:#ff5555!important}
+#ctaRadioAlert[data-level=urgent].has-unread .cta-radio-symbol{color:#ff5555;animation-duration:.55s}
+#ctaRadioAlert[data-level=bilan].has-unread{border-color:#24bbd0!important}
+#ctaRadioAlert[data-level=bilan].has-unread .cta-radio-symbol{color:#24bbd0;animation-duration:1.7s}
+#ctaRadioUnread{background:#e34e53;color:#fff;border-radius:12px;padding:2px 6px;min-width:19px;text-align:center}
+@keyframes ctaRadioPulse{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.23;filter:brightness(1.6)}}
+#ctaRadioPanel{position:absolute;right:0;top:100%;margin-top:6px;width:min(440px,calc(100vw - 26px));max-height:460px;overflow:auto;background:#10263d!important;color:#eaf3fc!important;border:1px solid #3c5f7b!important;border-radius:9px;box-shadow:0 12px 35px #0008;padding:12px}
+#ctaRadioPanel[hidden]{display:none!important}
+#ctaRadioPanel .cta-radio-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #34516b}
+#ctaRadioPanel .cta-radio-head button{background:transparent!important;color:#dceafa!important;border:0!important}
+#ctaRadioPanel .cta-radio-message{padding:11px 3px;border-bottom:1px solid #2d4961;display:flex;align-items:flex-start;gap:10px;justify-content:space-between}
+#ctaRadioPanel .cta-radio-message strong{font-size:12px;color:#f4b75c}
+#ctaRadioPanel .cta-radio-message.bilan strong{color:#53c6e2}
+#ctaRadioPanel .cta-radio-message.urgent strong{color:#ff7373}
+#ctaRadioPanel .cta-radio-message p{font-size:12px;color:#c6d9e9;margin:5px 0 0}
+#ctaRadioPanel .cta-radio-message.read{opacity:.62}
+#ctaRadioPanel .cta-radio-message button{white-space:nowrap;background:#194461!important;color:#fff!important;border:1px solid #3a6888!important;border-radius:5px!important;padding:6px 8px!important;font-size:11px!important}
+#ctaRadioPanel .cta-radio-message button:disabled{opacity:.55}
+#ctaRadioPanel .cta-radio-empty{font-size:12px;color:#a9c1d3}
+@media(prefers-reduced-motion:reduce){#ctaRadioAlert.has-unread .cta-radio-symbol{animation:none!important}}
