@@ -106,7 +106,38 @@ body.cta-authenticated #connected #requests{margin-top:10px!important}
 body.cta-authenticated #connected #admin.active{display:block!important}
 body.cta-authenticated #connected #cloudStatus{margin-top:10px!important}
 @media(max-width:600px){body.cta-authenticated .panel{width:calc(100vw - 12px)!important;right:6px!important;top:6px!important;bottom:6px!important}body.cta-authenticated #consoleTabs{margin-left:10px!important;margin-right:10px!important}body.cta-authenticated #connected{padding:10px!important}}
-body.cta-authenticated>header{display:none!important}body.cta-authenticated>.layout{height:100dvh!important}body.cta-authenticated>.layout iframe{height:100dvh!important}body.cta-authenticated #consoleFab{display:none!important}body.cta-authenticated .panel{top:10px!important;bottom:10px!important}</style></head><body>
+body.cta-authenticated>header{display:none!important}body.cta-authenticated>.layout{height:100dvh!important}body.cta-authenticated>.layout iframe{height:100dvh!important}body.cta-authenticated #consoleFab{display:none!important}body.cta-authenticated .panel{top:10px!important;bottom:10px!important}
+/* CTA CODIS mobile cockpit: safe areas, accessible touch targets, bottom navigation */
+@media(max-width:850px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden}
+ body{overscroll-behavior-y:contain}
+ header{position:relative;z-index:25;min-height:56px;padding:8px 12px;gap:6px}
+ header strong{font-size:12px;line-height:1.25}
+ header .pill{display:none}
+ #status{max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;padding:6px}
+ #consoleToggle,#consoleFab{display:none!important}
+ .layout{display:block;height:calc(100dvh - 56px - 65px - env(safe-area-inset-bottom));min-height:0}
+ .layout iframe{display:block;width:100%;height:100%;min-height:0;border:0}
+ .panel{position:fixed;z-index:45;inset:56px 0 calc(65px + env(safe-area-inset-bottom)) 0;width:100%;max-width:none;height:auto;max-height:none;overflow-y:auto;transform:none!important;opacity:1!important;pointer-events:auto!important;border:0;border-radius:0;padding:14px 14px 30px;background:#0b1829}
+ body.console-collapsed .panel{display:none;pointer-events:none!important}
+ .panel-header{position:sticky;top:-14px;z-index:2;padding:10px 2px;background:#0b1829}
+ .panel section{margin-bottom:12px}
+ #consoleTabs{display:flex;overflow-x:auto;scrollbar-width:none;gap:5px}
+ #consoleTabs button{flex:0 0 auto;min-width:72px;min-height:44px;font-size:12px}
+ button,input,select,textarea{min-height:44px;touch-action:manipulation}
+ input,select,textarea{font-size:16px}
+ #loginGate{inset:56px 0 0;padding:12px 12px calc(20px + env(safe-area-inset-bottom))}
+ .gate-card{padding:19px;border-radius:15px}
+ .gate-card h1{font-size:24px}
+ #ctaMobileNav{position:fixed;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;bottom:0;left:0;right:0;height:calc(65px + env(safe-area-inset-bottom));padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:#10243a;border-top:1px solid #37536e;z-index:60;box-shadow:0 -6px 25px #0008}
+ #ctaMobileNav button{margin:0;padding:4px 2px;min-height:50px;background:transparent;border:0;border-radius:10px;color:#b9cde3;font-size:11px;font-weight:650;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px}
+ #ctaMobileNav button .nav-icon{font-size:20px;line-height:1.2}
+ #ctaMobileNav button.active{background:#1a5279;color:white}
+ #reinforcementDialog{max-height:calc(100dvh - 90px);width:calc(100vw - 20px)}
+}
+@media(min-width:851px){#ctaMobileNav{display:none}}
+
+</style></head><body>
 <header><strong>🚒 CTA CODIS V2 <span class="pill">MULTIJOUEUR — TEST</span></strong><div style="display:flex;align-items:center;gap:10px"><span id="status">Non connecté</span><button id="consoleToggle" type="button">☰ Console</button></div></header><button id="consoleFab" type="button" class="hidden">☰ Console multijoueur</button>
 <div id="loginGate"><div class="gate-card"><div class="gate-mark">🚒</div><h1>CTA CODIS V2</h1><p>CENTRE DE TRAITEMENT DE L’ALERTE</p><div class="gate-line"></div><h2>Identification requise</h2><p>Connectez-vous ou créez un compte pour accéder à votre centre opérationnel.</p><div id="gateAuth"><div id="auth"><label>Adresse e-mail privée</label><input id="email" type="email" autocomplete="email" placeholder="adresse e-mail">
 <label>Mot de passe</label><input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe">
@@ -673,4 +704,24 @@ setInterval(async()=>{if(uid){await requests();if(role==='superadmin')await admi
 }
 window.addEventListener('cta-supabase-ready',()=>initializeCtaAuth().catch(e=>window.ctaAuthStatus('Erreur de démarrage : '+e.message)),{once:true});
 window.ctaBootAuth().catch(e=>window.ctaAuthStatus('Erreur de démarrage : '+e.message));
+</script><script>
+(function(){
+ const nav=document.createElement('nav');nav.id='ctaMobileNav';nav.setAttribute('aria-label','Navigation mobile CTA CODIS');
+ nav.innerHTML='<button type="button" data-mobile="game" class="active"><span class="nav-icon">🗺️</span>Carte</button><button type="button" data-mobile="renforts"><span class="nav-icon">🚨</span>Renforts</button><button type="button" data-mobile="cloud"><span class="nav-icon">☁️</span>Sauvegarde</button><button type="button" data-mobile="compte"><span class="nav-icon">👤</span>Compte</button>';
+ document.body.appendChild(nav);
+ function activate(view){
+  if(view==='game'){document.body.classList.add('console-collapsed');}
+  else{
+   document.body.classList.remove('console-collapsed');
+   const target=document.querySelector('#consoleTabs button[data-tab="'+view+'"]');
+   if(target)target.click();
+  }
+  nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mobile===view));
+ }
+ nav.addEventListener('click',e=>{const b=e.target.closest('button[data-mobile]');if(b)activate(b.dataset.mobile)});
+ const observer=new MutationObserver(()=>{if(window.innerWidth>850)return;const open=!document.body.classList.contains('console-collapsed');const active=document.querySelector('#consoleTabs button.active')?.dataset.tab||'renforts';nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mobile===(open?active:'game')))});
+ observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+ document.querySelector('#consoleClose')?.addEventListener('click',()=>activate('game'));
+ window.addEventListener('resize',()=>{if(window.innerWidth<=850&&document.body.classList.contains('console-collapsed'))activate('game')});
+})();
 </script></body></html>
