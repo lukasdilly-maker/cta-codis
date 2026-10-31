@@ -226,3 +226,33 @@ html body #ctaDashboardShell{height:calc(100vh - 66px)!important;height:calc(100
 html body #ctaDashboardShell>nav{position:relative!important;display:flex!important;flex-direction:column!important;align-self:stretch!important;justify-self:stretch!important;box-sizing:border-box!important;height:100%!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;padding:8px 7px 12px!important;margin:0!important;background:#0b1d30!important;border-radius:0!important;border-bottom:0!important}
 html body #ctaDashboardShell>nav #ctaSidebarExtra{margin-top:auto!important;margin-bottom:0!important;padding-top:9px!important;flex:0 0 auto!important}
 html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!important}
+
+/* Officially requested vehicle status palette — shared by fleet, dispatch and operations */
+:root{
+ --cta-status-ready:#10842c;
+ --cta-status-alert:#f5f6f8;
+ --cta-status-departed:#ff4248;
+ --cta-status-onscene:#ff4248;
+ --cta-status-return-ready:#087c22;
+ --cta-status-return-unavailable:#050505;
+ --cta-status-transport:#0023a5;
+ --cta-status-hospital:#0023a5;
+}
+.status.green,.unit.green{--unit-color:var(--cta-status-ready)!important}
+.status.alert,.unit.alert{--unit-color:var(--cta-status-alert)!important}
+.status.departed,.unit.departed,.status.onscene,.unit.onscene{--unit-color:var(--cta-status-departed)!important}
+.status.return-ready,.unit.return-ready{--unit-color:var(--cta-status-return-ready)!important}
+.status.return-unavailable,.unit.return-unavailable,.status.black,.unit.black{--unit-color:var(--cta-status-return-unavailable)!important}
+.status.transport,.unit.transport,.status.hospital,.unit.hospital{--unit-color:var(--cta-status-transport)!important}
+.status.green,.status.alert,.status.departed,.status.onscene,.status.return-ready,.status.return-unavailable,.status.transport,.status.hospital,.status.black{display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:4px 9px!important;min-height:24px!important;border:1px solid transparent!important;border-radius:3px!important;font-size:11px!important;font-weight:700!important;line-height:1.25!important;white-space:nowrap!important;text-align:center!important}
+.status.green{background:var(--cta-status-ready)!important;color:#fff!important}
+.status.alert{background:var(--cta-status-alert)!important;color:#182331!important;border-color:#b7c5d1!important}
+.status.departed,.status.onscene{background:var(--cta-status-departed)!important;color:#fff!important}
+.status.return-ready{background:var(--cta-status-return-ready)!important;color:#fff!important}
+.status.return-unavailable,.status.black{background:#050505!important;color:#fff!important;border-color:#424c57!important}
+.status.transport,.status.hospital{background:var(--cta-status-transport)!important;color:#fff!important}
+.unit.alert{border-top-color:var(--cta-status-alert)!important}
+.unit.departed,.unit.onscene{border-top-color:var(--cta-status-departed)!important}
+.unit.return-ready{border-top-color:var(--cta-status-return-ready)!important}
+.unit.return-unavailable,.unit.black{border-top-color:#050505!important}
+.unit.transport,.unit.hospital{border-top-color:var(--cta-status-transport)!important}
