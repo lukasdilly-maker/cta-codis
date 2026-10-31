@@ -70,32 +70,14 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
   const wrapper=document.createElement('div');
   wrapper.id='ctaSynopticWrapper';
   wrapper.style.cssText='display:flex;flex-direction:column;width:100%;height:100%;min-height:520px;gap:6px';
-  const toolbar=document.createElement('div');
-  toolbar.style.cssText='display:flex;justify-content:flex-end;flex:0 0 auto';
-  const toggle=document.createElement('button');
-  toggle.type='button';toggle.textContent='Afficher les moyens classiques';
-  toggle.style.cssText='background:#194e75;color:white;border:1px solid #406889;border-radius:5px;padding:7px 12px';
-  toolbar.append(toggle);
   const frame=document.createElement('iframe');
   frame.id='ctaSynopticFrame';frame.title='Synoptique opérationnelle des moyens';
   frame.src=new URL('synoptique-test.html?embedded=1',parent.location.href).href;
   frame.style.cssText='width:100%;height:100%;flex:1 1 auto;min-height:460px;border:0;background:#081525;border-radius:6px';
-  wrapper.append(toolbar,frame);
+  wrapper.append(frame);
   panel.append(wrapper);
-  let classic=false;
-  function show(){
-   for(const node of originals)node.style.display=classic?'':'none';
-   wrapper.style.display=classic?'none':'flex';
-   toggle.textContent=classic?'':'Afficher les moyens classiques';
-  }
-  toggle.onclick=()=>{classic=true;show()};
-  const back=document.createElement('button');
-  back.type='button';back.textContent='Revenir à la synoptique';
-  back.style.cssText='background:#194e75;color:white;border:1px solid #406889;border-radius:5px;padding:7px 12px;margin:5px';
-  back.onclick=()=>{classic=false;back.style.display='none';show()};
-  panel.append(back);back.style.display='none';
-  toggle.onclick=()=>{classic=true;show();back.style.display='inline-block'};
-  show();
+  for(const node of originals)node.style.display='none';
+  wrapper.style.display='flex';
   setInterval(()=>{
    try{
     if(!frame.isConnected||typeof window.__ctaSynopticData!=='function')return;
@@ -107,42 +89,6 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
  nav.querySelector('[data-tab="fleet"]')?.addEventListener('click',()=>setTimeout(attach,80));
  setTimeout(attach,250);
 })();
-// Experimental industrial-fire operations view, isolated from real dispatch and saves.
-(function(){
- let installed=false;
- function install(){
-  if(installed)return;
-  const tab=nav.querySelector('[data-tab="operations"]');
-  const panels=[...workspace.querySelectorAll('main[role="tabpanel"]')];
-  const panel=panels.find(el=>el.id==='operationsPanel'||el.id==='tab-operations'||el.getAttribute('aria-labelledby')===tab?.id)
-    ||panels.find(el=>/opérations en cours|interventions actives|gestion des opérations/i.test(el.textContent||''))
-    ||(tab&&document.getElementById(tab.getAttribute('aria-controls')||''));
-  if(!panel||panel.id==='ctaOperations')return;
-  installed=true;
-  const original=[...panel.children];
-  const controls=document.createElement('div');controls.id='ctaOperationsExperimentControls';
-  controls.style.cssText='display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-bottom:10px';
-  const label=document.createElement('span');label.textContent='Prototype feu industriel · simulation indépendante';label.style.cssText='font-size:12px;color:#aac1d4';
-  const toggle=document.createElement('button');toggle.type='button';toggle.textContent='Tester le nouveau suivi d’intervention';
-  toggle.style.cssText='border:1px solid #447493;border-radius:6px;padding:9px 12px;background:#17618d;color:#fff';
-  controls.append(label,toggle);
-  const frame=document.createElement('iframe');frame.id='ctaOperationsExperimentFrame';frame.title='Simulation expérimentale feu industriel';
-  frame.src=new URL('operation-feu-industriel-test.html',parent.location.href).href;
-  frame.style.cssText='display:none;width:100%;height:calc(100% - 58px);min-height:560px;border:0;background:#e9eef3;border-radius:7px';
-  panel.prepend(controls);panel.append(frame);
-  let preview=false;
-  function display(){
-   for(const el of original)el.style.display=preview?'none':'';
-   frame.style.display=preview?'block':'none';
-   toggle.textContent=preview?'Revenir aux opérations réelles':'Tester le nouveau suivi d’intervention';
-   label.textContent=preview?'Démonstration fictive — aucune opération du jeu n’est modifiée':'Prototype feu industriel · simulation indépendante';
-  }
-  toggle.addEventListener('click',()=>{preview=!preview;display()});
-  display();
- }
- nav.querySelector('[data-tab="operations"]')?.addEventListener('click',()=>setTimeout(install,80));
- setTimeout(install,300);
-})();
 // Real operations: compact cards built from the live game snapshot. Native treatment remains available.
 (function(){
  const panel=$('operationsPanel'),native=$('operationsList');
@@ -150,19 +96,19 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
  const container=document.createElement('div');container.id='ctaRealOperations';container.style.cssText='margin-top:10px';
  native.insertAdjacentElement('beforebegin',container);
  const css=document.createElement('style');css.textContent=`
- #ctaRealOperations .op-card{background:#f8fafc;color:#263348;border:1px solid #cdd7df;border-radius:6px;margin:0 0 8px;overflow:hidden}
+ #ctaRealOperations .op-card{background:#10263d;color:#eaf3fc;border:1px solid #34536d;border-radius:6px;margin:0 0 8px;overflow:hidden}
  #ctaRealOperations .op-head{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 12px;font-size:12px}
- #ctaRealOperations .op-id{font-weight:800;color:#119e94;font-size:14px}
- #ctaRealOperations .op-head button{border:0;background:transparent;color:#334b66;padding:3px 6px;cursor:pointer}
- #ctaRealOperations .op-head button:hover{background:#e2eaf1}
- #ctaRealOperations .op-head .op-expand{margin-left:auto;border:1px solid #b9cbd9;border-radius:4px}
+ #ctaRealOperations .op-id{font-weight:800;color:#36d3c4;font-size:14px}
+ #ctaRealOperations .op-head button{border:0;background:transparent;color:#c7deef;padding:3px 6px;cursor:pointer}
+ #ctaRealOperations .op-head button:hover{background:#20435f}
+ #ctaRealOperations .op-head .op-expand{margin-left:auto;border:1px solid #466987;border-radius:4px}
  #ctaRealOperations .op-body{padding:4px 12px 10px}
- #ctaRealOperations .op-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid #c4d0c9;padding:5px}
- #ctaRealOperations .op-station{background:#1ba89c;color:white;border-radius:3px;min-width:88px;text-align:center;padding:5px;font-size:11px;font-weight:700}
+ #ctaRealOperations .op-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid #36536d;padding:5px}
+ #ctaRealOperations .op-station{background:#168e88;color:white;border-radius:3px;min-width:88px;text-align:center;padding:5px;font-size:11px;font-weight:700}
  #ctaRealOperations .op-unit{border-radius:3px;padding:6px 10px;font-size:11px;font-weight:700}
- #ctaRealOperations .op-log{border-top:1px solid #cdd7df;padding:9px 12px;font-size:12px}
+ #ctaRealOperations .op-log{border-top:1px solid #36536d;padding:9px 12px;font-size:12px}
  #ctaRealOperations .op-log p{margin:5px 0}
- #ctaRealOperations .op-sub{font-size:11px;color:#6a7887;padding:4px}
+ #ctaRealOperations .op-sub{font-size:11px;color:#9dbbd1;padding:4px}
  `;document.head.append(css);
  let collapsed=new Set(),logsOpen=new Set(),last='';
  const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
