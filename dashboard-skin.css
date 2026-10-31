@@ -256,3 +256,13 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 .unit.return-ready{border-top-color:var(--cta-status-return-ready)!important}
 .unit.return-unavailable,.unit.black{border-top-color:#050505!important}
 .unit.transport,.unit.hospital{border-top-color:var(--cta-status-transport)!important}
+
+/* Exact lettering colors from supplied vehicle-status reference */
+.status.departed{color:#111111!important}
+.status.onscene{color:#ffffff!important}
+.status.return-ready{color:#ffff00!important}
+.status.return-unavailable,.status.black{color:#ffffff!important}
+.status.transport{color:#ffffff!important}
+.status.hospital{color:#ffff00!important}
+.status.green{color:#ffffff!important}
+.status.alert{color:#111111!important}
