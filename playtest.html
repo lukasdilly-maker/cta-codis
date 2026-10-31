@@ -242,7 +242,8 @@ window.startCtaGame=async function(){
   // Applied at the game dispatch functions, not merely the vehicle-selection UI.
   const policyCode=`
 function ctaMissionText(incident){
- const parts=[incident?.scenario,incident?.nature,incident?.type,incident?.title,incident?.category,incident?.description,incident?.label];
+ const scenarioDefinition=typeof findScenario==='function'&&incident?.scenario?findScenario(incident.scenario):null;
+ const parts=[scenarioDefinition?.name,scenarioDefinition?.category,incident?.scenario,incident?.nature,incident?.type,incident?.title,incident?.category,incident?.description,incident?.label];
  for(const x of parts)if(x&&typeof x==='object')parts.push(x.name,x.label,x.title,x.type,x.category,x.description);
  return parts.filter(x=>typeof x==='string').join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
 }
