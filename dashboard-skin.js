@@ -54,34 +54,59 @@ const actions=document.createElement('div');actions.className='cta-quick-actions
 operations.insertBefore(actions,$('ctaOperationsContent'));
 $('ctaGoCalls').onclick=()=>$('tab-calls')?.click();
 $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
-// Fault-isolated synoptic: independent iframe, never alters the game engine or original fleet handlers.
-try{
- const fleetHost=$('fleetPanel')||document.querySelector('[data-tab-panel="fleet"]');
- if(fleetHost&&!$('ctaSynopticFrame')){
+// Synoptic attached to the actual tab panel, even when its ID differs.
+(function(){
+ let attached=false;
+ function attach(){
+  if(attached)return;
+  const button=nav.querySelector('[data-tab="fleet"]');
+  const candidates=[...workspace.querySelectorAll('main[role="tabpanel"]')];
+  const panel=candidates.find(el=>el.id==='fleetPanel'||el.id==='tab-fleet'||el.getAttribute('aria-labelledby')===button?.id)
+   ||candidates.find(el=>/synoptique global des moyens/i.test(el.textContent||''))
+   ||(button&&document.getElementById(button.getAttribute('aria-controls')||''));
+  if(!panel)return;
+  attached=true;
+  const originals=[...panel.children];
+  const wrapper=document.createElement('div');
+  wrapper.id='ctaSynopticWrapper';
+  wrapper.style.cssText='display:flex;flex-direction:column;width:100%;height:100%;min-height:520px;gap:6px';
+  const toolbar=document.createElement('div');
+  toolbar.style.cssText='display:flex;justify-content:flex-end;flex:0 0 auto';
+  const toggle=document.createElement('button');
+  toggle.type='button';toggle.textContent='Afficher les moyens classiques';
+  toggle.style.cssText='background:#194e75;color:white;border:1px solid #406889;border-radius:5px;padding:7px 12px';
+  toolbar.append(toggle);
   const frame=document.createElement('iframe');
-  frame.id='ctaSynopticFrame';
-  frame.title='Synoptique des moyens';
-  frame.src='./synoptique-test.html?embedded=1';
-  frame.style.cssText='display:block;width:100%;height:100%;min-height:520px;border:0;background:#081525;border-radius:8px';
-  frame.addEventListener('load',()=>{
-   try{frame.contentWindow.postMessage({type:'cta-synoptic-embedded'},'*')}catch(e){}
-  });
+  frame.id='ctaSynopticFrame';frame.title='Synoptique opérationnelle des moyens';
+  frame.src=new URL('synoptique-test.html?embedded=1',parent.location.href).href;
+  frame.style.cssText='width:100%;height:100%;flex:1 1 auto;min-height:460px;border:0;background:#081525;border-radius:6px';
+  wrapper.append(toolbar,frame);
+  panel.append(wrapper);
+  let classic=false;
+  function show(){
+   for(const node of originals)node.style.display=classic?'':'none';
+   wrapper.style.display=classic?'none':'flex';
+   toggle.textContent=classic?'':'Afficher les moyens classiques';
+  }
+  toggle.onclick=()=>{classic=true;show()};
+  const back=document.createElement('button');
+  back.type='button';back.textContent='Revenir à la synoptique';
+  back.style.cssText='background:#194e75;color:white;border:1px solid #406889;border-radius:5px;padding:7px 12px;margin:5px';
+  back.onclick=()=>{classic=false;back.style.display='none';show()};
+  panel.append(back);back.style.display='none';
+  toggle.onclick=()=>{classic=true;show();back.style.display='inline-block'};
+  show();
   setInterval(()=>{
-   try{if(frame.isConnected&&typeof window.__ctaSynopticData==='function'){const data=window.__ctaSynopticData();if(data)frame.contentWindow?.postMessage({type:'cta-synoptic-live',data},'*')}}
-   catch(e){console.warn('CTA: synchronisation synoptique',e)}
+   try{
+    if(!frame.isConnected||typeof window.__ctaSynopticData!=='function')return;
+    const data=window.__ctaSynopticData();
+    if(data)frame.contentWindow?.postMessage({type:'cta-synoptic-live',data},location.origin);
+   }catch(e){console.warn('CTA synoptique :',e)}
   },1500);
-  const wrapper=document.createElement('div');wrapper.id='ctaSynopticWrapper';
-  wrapper.style.cssText='width:100%;height:100%;min-height:520px;display:flex;flex-direction:column';
-  const fallback=document.createElement('button');fallback.type='button';fallback.textContent='Afficher les moyens classiques';
-  fallback.style.cssText='align-self:flex-end;margin:4px 6px;padding:5px 12px';
-  const original=[...fleetHost.children];
-  const showOriginal=show=>{for(const node of original)node.style.display=show?'':'none';wrapper.style.display=show?'none':'flex'};
-  fallback.onclick=()=>showOriginal(true);
-  wrapper.append(fallback,frame);
-  fleetHost.append(wrapper);
-  showOriginal(false);
  }
-}catch(e){console.error('CTA: synoptique isolée non chargée',e)}
+ nav.querySelector('[data-tab="fleet"]')?.addEventListener('click',()=>setTimeout(attach,80));
+ setTimeout(attach,250);
+})();
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
