@@ -283,7 +283,7 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
    const catalogCode=await catalogResponse.text();
    const catalogAnchor="const PARTNERS=['SAMU','Police','Enedis','Maire','Préfecture'];";
    if(!html.includes(catalogAnchor))throw Error('Ancrage des scénarios introuvable');
-   html=html.replace(catalogAnchor,catalogCode+'\\n'+catalogAnchor);
+   html=html.replace(catalogAnchor,catalogCode+'\n'+catalogAnchor);
    // Enforce dispatch restrictions on the actual native dispatch operation.
    const dispatchAnchor="const vehicles=[...new Set(ids)].map(getVehicle);";
    if(!html.includes(dispatchAnchor))throw Error('Ancrage des départs introuvable');
