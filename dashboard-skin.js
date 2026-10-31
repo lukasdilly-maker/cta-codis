@@ -66,6 +66,10 @@ try{
   frame.addEventListener('load',()=>{
    try{frame.contentWindow.postMessage({type:'cta-synoptic-embedded'},'*')}catch(e){}
   });
+  setInterval(()=>{
+   try{if(frame.isConnected&&typeof window.__ctaSynopticData==='function'){const data=window.__ctaSynopticData();if(data)frame.contentWindow?.postMessage({type:'cta-synoptic-live',data},'*')}}
+   catch(e){console.warn('CTA: synchronisation synoptique',e)}
+  },1500);
   const wrapper=document.createElement('div');wrapper.id='ctaSynopticWrapper';
   wrapper.style.cssText='width:100%;height:100%;min-height:520px;display:flex;flex-direction:column';
   const fallback=document.createElement('button');fallback.type='button';fallback.textContent='Afficher les moyens classiques';
