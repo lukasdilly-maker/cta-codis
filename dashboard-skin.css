@@ -345,3 +345,12 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 #ctaRadioPanel .cta-radio-message button:disabled{opacity:.55}
 #ctaRadioPanel .cta-radio-empty{font-size:12px;color:#a9c1d3}
 @media(prefers-reduced-motion:reduce){#ctaRadioAlert.has-unread .cta-radio-symbol{animation:none!important}}
+
+/* Salle opérationnelle : statistiques et suivi sur toute la largeur, carte réservée à son onglet. */
+#ctaDashboard{grid-template-columns:minmax(0,1fr)!important}
+#ctaDashboardRight,#ctaMapCard{display:none!important}
+#ctaDashboardLeft{width:100%!important;max-width:none!important;min-width:0!important}
+#ctaDashboardLeft>main #roomContent .dashboard{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+#ctaDashboardLeft>main,#ctaOperations{flex:1 1 50%!important}
+@media(max-width:1100px){#ctaDashboardLeft>main #roomContent .dashboard{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){#ctaDashboardLeft>main #roomContent .dashboard{grid-template-columns:minmax(0,1fr)!important}}
