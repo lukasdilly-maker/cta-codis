@@ -288,3 +288,9 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 #ctaWorkspace #operationsPanel #ctaRealOperations .op-station{background:#168e88!important;color:#fff!important}
 #ctaWorkspace #operationsPanel #ctaRealOperations .op-unit{border:0!important}
 #ctaWorkspace #operationsPanel #ctaRealOperations .op-sub{color:#9dbbd1!important}
+
+/* Restore native simulation settings while keeping legacy toolbars hidden */
+#ctaSimulationControls{display:flex!important;flex:0 0 auto!important;min-height:46px!important}
+#ctaSimulationControls label,#ctaSimulationControls span{color:#dcecf9!important}
+#ctaSimulationControls select,#ctaSimulationControls button,#ctaSimulationControls input{background:#193a57!important;color:#f2f9ff!important;border:1px solid #426b8d!important;border-radius:5px!important;padding:6px 10px!important}
+#ctaSimulationControls input[type=checkbox]{accent-color:#26b4a9!important;width:17px!important;height:17px!important}
