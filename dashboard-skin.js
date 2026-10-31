@@ -24,6 +24,72 @@ for(const [icon,label,id,fallback,tone] of specs){
  card.querySelector('strong').textContent=fallback||'—';stats.append(card);
 }
 mainArea.append(stats);
+
+// Operational radio inbox: blinking indicator, acknowledgement and persistent local read state.
+// Events are observed from the real intervention log; no fictitious messages are generated.
+(function(){
+ const widget=document.createElement('div');widget.id='ctaRadioInbox';
+ widget.innerHTML='<button type="button" id="ctaRadioAlert" aria-label="Messages radio" aria-expanded="false"><span class="cta-radio-symbol">◉</span><span>Messages radio</span><span id="ctaRadioUnread" hidden>0</span></button><section id="ctaRadioPanel" hidden><div class="cta-radio-head"><strong>Trafic radio</strong><button type="button" id="ctaRadioClose" aria-label="Fermer">✕</button></div><div id="ctaRadioMessages"></div></section>';
+ stats.insertAdjacentElement('afterend',widget);
+ const button=widget.querySelector('#ctaRadioAlert'),panel=widget.querySelector('#ctaRadioPanel'),list=widget.querySelector('#ctaRadioMessages'),count=widget.querySelector('#ctaRadioUnread');
+ const seen=new Set(),messages=[],acknowledged=new Set();
+ let initialized=false;
+ function classify(text){
+  const t=String(text||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+  if(/renfort|demande de moyens|moyens supplementaires/.test(t))return 'renfort';
+  if(/bilan|compte.rendu|situation sur les lieux|point de situation/.test(t))return 'bilan';
+  if(/urgent|prioritaire|detresse|mayday/.test(t))return 'urgent';
+  return null;
+ }
+ function render(){
+  const unread=messages.filter(m=>!acknowledged.has(m.key));
+  const urgent=unread.some(m=>m.type==='urgent'),renfort=unread.some(m=>m.type==='renfort');
+  button.classList.toggle('has-unread',unread.length>0);
+  button.dataset.level=urgent?'urgent':renfort?'renfort':'bilan';
+  count.hidden=!unread.length;count.textContent=String(unread.length);
+  list.replaceChildren();
+  if(!messages.length){const p=document.createElement('p');p.className='cta-radio-empty';p.textContent='Aucun message radio reçu pour le moment.';list.append(p);return}
+  for(const m of messages.slice().reverse().slice(0,60)){
+   const row=document.createElement('div');row.className='cta-radio-message '+m.type+(acknowledged.has(m.key)?' read':'');
+   const content=document.createElement('div');const title=document.createElement('strong');
+   title.textContent=(m.type==='renfort'?'Demande de renfort':m.type==='urgent'?'Message prioritaire':'Bilan reçu')+' · Intervention n°'+m.incident;
+   const body=document.createElement('p');body.textContent=m.text;
+   content.append(title,body);row.append(content);
+   const ack=document.createElement('button');ack.type='button';ack.textContent=acknowledged.has(m.key)?'Acquitté':'Acquitter';ack.disabled=acknowledged.has(m.key);
+   ack.onclick=()=>{acknowledged.add(m.key);render()};row.append(ack);list.append(row);
+  }
+ }
+ function addMessage(msg){
+  if(seen.has(msg.key))return;
+  seen.add(msg.key);messages.push(msg);if(messages.length>150)messages.shift();render();
+ }
+ function check(){
+  const data=window.__ctaOperationsData?.();if(!data||!Array.isArray(data.incidents))return;
+  const found=[];
+  for(const i of data.incidents){
+   for(let n=0;n<(i.logs||[]).length;n++){
+    const log=i.logs[n];
+    const content=typeof log==='string'?log:[log?.text,log?.message,log?.detail,log?.nature,log?.status].filter(Boolean).join(' ');
+    const type=classify(content);if(!type)continue;
+    const key=String(i.id)+':'+n+':'+content;
+    found.push({key,incident:i.id,text:content,type});
+   }
+  }
+  // Do not blink for historic messages when the dashboard first opens.
+  if(!initialized){for(const m of found)seen.add(m.key);initialized=true;render();return}
+  for(const m of found)addMessage(m);
+ }
+ button.onclick=()=>{panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden))};
+ widget.querySelector('#ctaRadioClose').onclick=()=>{panel.hidden=true;button.setAttribute('aria-expanded','false')};
+ window.addEventListener('message',e=>{
+  if(e.source!==window.parent&&e.source!==window)return;
+  const d=e.data;if(d?.type!=='cta-radio-message'||!d.text)return;
+  const type=classify(d.text)||'bilan';
+  addMessage({key:String(d.id||Date.now()+':'+d.text),incident:d.incident||'—',text:String(d.text),type});
+ });
+ setInterval(()=>{try{check()}catch(e){console.warn('CTA radio inbox',e)}},1500);
+ render();
+})();
 const workspace=document.createElement('div');workspace.id='ctaWorkspace';mainArea.append(workspace);
 const toolbars=[...document.querySelectorAll('body>.toolbar')];
 const notice=document.querySelector('body>#notice');
