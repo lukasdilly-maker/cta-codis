@@ -301,7 +301,8 @@ function update(){
  }
  const selected=nav.querySelector('[aria-selected="true"]')?.dataset.tab||'room';
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
- if(home&&mapSection.parentElement!==mapCard){mapCard.append(mapSection);window.dispatchEvent(new Event('resize'))}
+ // Keep the cartography exclusively in the dedicated Map tab; the operations room is statistics-only.
+ if(home&&mapSection.parentElement!==mapLayout){mapLayout.prepend(mapSection)}
  if(selected==='map'&&mapSection.parentElement!==mapLayout){mapLayout.prepend(mapSection);window.dispatchEvent(new Event('resize'))}
  if(home&&window.__ctaLastHome!==home)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));window.__ctaLastHome=home;
 }
