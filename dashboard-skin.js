@@ -143,6 +143,70 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
  nav.querySelector('[data-tab="operations"]')?.addEventListener('click',()=>setTimeout(install,80));
  setTimeout(install,300);
 })();
+// Real operations: compact cards built from the live game snapshot. Native treatment remains available.
+(function(){
+ const panel=$('operationsPanel'),native=$('operationsList');
+ if(!panel||!native)return;
+ const container=document.createElement('div');container.id='ctaRealOperations';container.style.cssText='margin-top:10px';
+ native.insertAdjacentElement('beforebegin',container);
+ const css=document.createElement('style');css.textContent=`
+ #ctaRealOperations .op-card{background:#f8fafc;color:#263348;border:1px solid #cdd7df;border-radius:6px;margin:0 0 8px;overflow:hidden}
+ #ctaRealOperations .op-head{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 12px;font-size:12px}
+ #ctaRealOperations .op-id{font-weight:800;color:#119e94;font-size:14px}
+ #ctaRealOperations .op-head button{border:0;background:transparent;color:#334b66;padding:3px 6px;cursor:pointer}
+ #ctaRealOperations .op-head button:hover{background:#e2eaf1}
+ #ctaRealOperations .op-head .op-expand{margin-left:auto;border:1px solid #b9cbd9;border-radius:4px}
+ #ctaRealOperations .op-body{padding:4px 12px 10px}
+ #ctaRealOperations .op-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid #c4d0c9;padding:5px}
+ #ctaRealOperations .op-station{background:#1ba89c;color:white;border-radius:3px;min-width:88px;text-align:center;padding:5px;font-size:11px;font-weight:700}
+ #ctaRealOperations .op-unit{border-radius:3px;padding:6px 10px;font-size:11px;font-weight:700}
+ #ctaRealOperations .op-log{border-top:1px solid #cdd7df;padding:9px 12px;font-size:12px}
+ #ctaRealOperations .op-log p{margin:5px 0}
+ #ctaRealOperations .op-sub{font-size:11px;color:#6a7887;padding:4px}
+ `;document.head.append(css);
+ let collapsed=new Set(),logsOpen=new Set(),last='';
+ const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+ const status=v=>{
+  if(v.fault)return ['#050505','#fff','Indisponible'];
+  const s=v.status;
+  if(s==='ready')return ['#10842c','#fff','Disponible'];
+  if(s==='planning')return ['#fff','#111','Alerté'];
+  if(['enroute','routing_detour','roadblock','road_wait'].includes(s))return ['#ff4248','#111','Parti'];
+  if(['operation','onscene','awaiting_hospital','awaiting_release'].includes(s))return ['#ff4248','#fff','Sur les lieux'];
+  if(s==='return')return ['#087c22','#ff0','En retour'];
+  if(['transport','routing_hospital'].includes(s))return ['#0023a5','#fff','Transport CH'];
+  if(s==='hospital')return ['#0023a5','#ff0','Arrivée CH'];
+  return ['#050505','#fff',s||'Indisponible'];
+ };
+ function update(){
+  if(panel.hidden)return;
+  const data=window.__ctaOperationsData?.();if(!data)return;
+  const active=data.incidents.filter(i=>!i.closed);
+  const sig=JSON.stringify(active.map(i=>[i.id,i.phase,i.units,i.logs.length,...i.units.map(id=>{const v=data.vehicles.find(v=>String(v.id)===String(id));return v?.status})]));
+  if(sig===last)return;last=sig;
+  native.style.display='none';
+  const existing=[...native.querySelectorAll('details')];
+  container.innerHTML=active.map(i=>{
+   const old=existing.find(d=>d.querySelector('summary')?.textContent?.includes('#'+i.id+' ·'));
+   const summary=old?.querySelector('summary')?.textContent||('#'+i.id+' · '+i.scenario);
+   const title=summary.replace(/^#[^·]+·\s*/,'').replace(/\s+—\s+[^—]*$/,'');
+   const grouped=new Map();
+   for(const id of i.units){const v=data.vehicles.find(v=>String(v.id)===String(id));if(!v)continue;const b=data.stations.find(b=>String(b.id)===String(v.station));const key=b?.id||'other';if(!grouped.has(key))grouped.set(key,{name:b?.callsign||b?.name||'Autres moyens',vs:[]});grouped.get(key).vs.push(v)}
+   const rows=[...grouped.values()].map(g=>'<div class="op-row"><span class="op-station" title="'+safe(g.name)+'">'+safe(g.name)+'</span>'+g.vs.map(v=>{const [bg,fg,label]=status(v);return '<span class="op-unit" style="background:'+bg+';color:'+fg+'" title="'+safe(label)+'">'+safe(v.name)+'</span>'}).join('')+'</div>').join('');
+   const history=i.logs.slice().reverse().map(l=>'<p><strong>'+new Date(l.at).toLocaleTimeString('fr-FR')+'</strong> · '+safe(l.text)+'</p>').join('');
+   return '<div class="op-card" data-incident="'+safe(i.id)+'"><div class="op-head"><span class="op-id">⚙ '+safe(i.id)+'</span><button data-act="open" title="Ajouter des moyens ou services en renfort">⊞</button><button data-act="log" title="Main courante de l’intervention">◷</button><span>◉ '+safe(i.phase)+'</span><span>◉ '+safe(title)+'</span><span>♧ '+safe(i.address)+'</span><button class="op-expand" data-act="fold">'+(collapsed.has(String(i.id))?'▾ Déplier':'▴ Replier')+'</button></div><div class="op-body" style="'+(collapsed.has(String(i.id))?'display:none':'')+'">'+(rows||'<div class="op-sub">Aucun moyen engagé</div>')+'</div><div class="op-log" style="'+(logsOpen.has(String(i.id))?'':'display:none')+'"><strong>Main courante</strong>'+(history||'<p>Aucun événement</p>')+'</div></div>';
+  }).join('')||'<p>Aucune intervention active.</p>';
+ }
+ container.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-act]'),card=e.target.closest('[data-incident]');if(!btn||!card)return;
+  const id=card.dataset.incident,act=btn.dataset.act;
+  if(act==='fold'){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);last='';update()}
+  if(act==='log'){logsOpen.has(id)?logsOpen.delete(id):logsOpen.add(id);last='';update()}
+  if(act==='open'){const d=[...native.querySelectorAll('details')].find(x=>x.querySelector('summary')?.textContent?.includes('#'+id+' ·'));d?.querySelector('[data-action="treat-incident"]')?.click()}
+ });
+ setInterval(()=>{try{update()}catch(e){console.warn('CTA operations real',e)}},1200);
+ nav.querySelector('[data-tab="operations"]')?.addEventListener('click',()=>setTimeout(()=>{last='';update()},100));
+})();
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
