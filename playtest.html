@@ -300,31 +300,17 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
     "if(vehicles.some(v=>v&&!ctaDispatchAllowed(v,i)))return notify('Départ refusé : ce moyen n’est pas adapté à la nature de cette intervention.',true),false;");
    console.info('CTA CODIS: catalogue V2 et contrôle des départs activés');
   }catch(catalogError){console.error('CTA CODIS catalogue V2',catalogError)}
-  // Correct the call qualification mismatch without bypassing category/nature validation.
-  // Some older calls retain a scenario ID that no longer corresponds to the visible wording.
-  const qualificationCheck="if(s.category!==category||s.id!==type)return notify('Qualification incorrecte : vérifiez le dialogue et la nature.',true),null;";
-  const qualificationFix=`const selected=SCENARIOS.find(x=>x.id===type);
-  const norm=x=>String(x||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-  const visible=norm(c.text), expected=norm(selected?.text);
-  const sameWording=!!selected&&!!expected&&(visible.includes(expected)||expected.includes(visible));
-  if(!selected||selected.category!==category||(!(s.category===category&&s.id===type)&&!sameWording))
-    return notify('Qualification incorrecte : vérifiez le dialogue et la nature.',true),null;
-  if(sameWording&&c.scenario!==selected.id){c.scenario=selected.id;c.needs=selected.needs;}`;
-  if(html.includes(qualificationCheck)){
-    html=html.replace(qualificationCheck,qualificationFix);
-    console.info('CTA CODIS : qualification des appels harmonisée avec le catalogue');
-  }else console.warn('CTA CODIS : ancrage de qualification non trouvé');
   // Restrict automatic suggestions and the dispatch check to mission-compatible units.
   const suggestionAnchor="const ranked=available.filter(v=>!chosen.includes(v)).map(v=>{";
   if(html.includes(suggestionAnchor))html=html.replace(suggestionAnchor,
     "const ranked=available.filter(v=>!chosen.includes(v)&&ctaDispatchAllowed(v,i)).map(v=>{");
   else console.warn('CTA : ancrage de présélection introuvable');
 
-  // Qualification must follow the operator-selected valid nature, not a hidden random scenario ID.
+  // Single authoritative qualification patch: the chosen native scenario is the operational nature.
   const nativeQualify="if(s.category!==category||s.id!==type)return notify('Qualification incorrecte : vérifiez le dialogue et la nature.',true),null;";
   const fixedQualify="const selected=SCENARIOS.find(x=>x.id===type&&x.category===category);if(!selected)return notify('Choisissez une catégorie et une nature d’intervention valides.',true),null;c.scenario=selected.id;c.needs={...selected.needs};";
-  if(html.includes(nativeQualify))html=html.replace(nativeQualify,fixedQualify);
-  else console.warn('CTA qualification: native validation anchor missing');
+  if(!html.includes(nativeQualify))throw Error('Ancrage de qualification absent : correctif non appliqué');
+  html=html.replace(nativeQualify,fixedQualify);
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
