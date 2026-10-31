@@ -54,6 +54,41 @@ const actions=document.createElement('div');actions.className='cta-quick-actions
 operations.insertBefore(actions,$('ctaOperationsContent'));
 $('ctaGoCalls').onclick=()=>$('tab-calls')?.click();
 $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
+// Compact operational synoptic grouped by building, with editable callsigns.
+const fleetPanel=$('fleetPanel');
+if(fleetPanel){
+ const original=fleetPanel.querySelector(':scope > section');
+ if(original)original.classList.add('cta-fleet-original');
+ const board=document.createElement('section');board.id='ctaFleetBoard';
+ board.innerHTML='<div class="cta-fleet-head"><div><h2>Synoptique des moyens</h2><small>Situation opérationnelle par implantation</small></div><div class="cta-fleet-filters"><label>Type de bâtiment<select id="ctaFleetBuildingType"><option value="all">Tous les bâtiments</option></select></label><label>Service<select id="ctaFleetService"><option value="all">Tous les services</option></select></label></div></div><div id="ctaFleetRows" class="cta-fleet-rows"></div><div class="cta-fleet-footer">Cliquez sur l’indicatif pour le modifier. Les couleurs suivent le statut réel des engins.</div>';
+ fleetPanel.append(board);
+ const types={SP:'Sapeurs-pompiers',GN:'Gendarmerie',PN:'Police nationale',PM:'Police municipale',SMUR:'SMUR / SAMU',HELI:'HéliSMUR',AASC:'Associations agréées',AP:'Ambulances privées',CH:'Centre hospitalier',CTA:'CTA / CODIS'};
+ const escapeText=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const palette={green:['#16801b','#fff'],alert:['#f5f6f8','#111'],departed:['#ff4248','#111'],onscene:['#ff4248','#fff'],'return-ready':['#087c22','#ff0'],'return-unavailable':['#050505','#fff'],transport:['#0023a5','#fff'],hospital:['#0023a5','#ff0'],black:['#050505','#fff'],red:['#ff4248','#fff'],orange:['#087c22','#ff0']};
+ let lastSignature='';
+ function refreshFleetBoard(){
+  if(fleetPanel.hidden)return;
+  const snapshot=typeof window.__ctaFleetSnapshot==='function'?window.__ctaFleetSnapshot():null;
+  const rows=$('ctaFleetRows');if(!snapshot){rows.innerHTML='<p class="cta-fleet-empty">Connexion aux moyens de la partie en cours…</p>';return}
+  const stations=snapshot.stations||[],vehicles=snapshot.vehicles||[];
+  const kind=$('ctaFleetBuildingType'),service=$('ctaFleetService');
+  const oldKind=kind.value,oldService=service.value;
+  const kinds=[...new Set(stations.map(b=>b.type))].sort();
+  const services=[...new Set(vehicles.map(v=>v.type.split(':')[0]))].sort();
+  const kindKey=kinds.join('|'),serviceKey=services.join('|');
+  if(kind.dataset.key!==kindKey){kind.innerHTML='<option value="all">Tous les bâtiments</option>'+kinds.map(t=>'<option value="'+escapeText(t)+'">'+escapeText(types[t]||t)+'</option>').join('');kind.value=kinds.includes(oldKind)?oldKind:'all';kind.dataset.key=kindKey}
+  if(service.dataset.key!==serviceKey){service.innerHTML='<option value="all">Tous les services</option>'+services.map(t=>'<option value="'+escapeText(t)+'">'+escapeText(t)+'</option>').join('');service.value=services.includes(oldService)?oldService:'all';service.dataset.key=serviceKey}
+  const filtered=stations.filter(b=>kind.value==='all'||b.type===kind.value).map(b=>({...b,units:vehicles.filter(v=>String(v.station)===String(b.id)&&(service.value==='all'||v.type.startsWith(service.value+':')))})).filter(b=>b.units.length);
+  const signature=JSON.stringify([kind.value,service.value,filtered]);if(signature===lastSignature)return;lastSignature=signature;
+  rows.innerHTML=filtered.map(b=>'<div class="cta-fleet-row"><button type="button" class="cta-station-code" data-station="'+escapeText(b.id)+'" title="Modifier l’indicatif · '+escapeText(b.name)+'"><span>'+escapeText(b.callsign||b.name)+'</span><small>'+b.units.length+'</small></button><div class="cta-fleet-units">'+b.units.map(v=>{const st=v.operational||{key:'black',label:'Indisponible'},colors=palette[st.key]||palette.black;return '<button type="button" class="cta-fleet-unit" data-vehicle="'+escapeText(v.id)+'" title="'+escapeText(v.name+' — '+st.label)+'" style="background:'+colors[0]+';color:'+colors[1]+'">'+escapeText(v.name)+'</button>'}).join('')+'</div></div>').join('')||'<p class="cta-fleet-empty">Aucun engin pour ces filtres.</p>';
+ }
+ board.addEventListener('click',e=>{
+  const station=e.target.closest('[data-station]');if(station){const id=station.dataset.station;const snap=window.__ctaFleetSnapshot?.();const b=snap?.stations.find(x=>String(x.id)===id);if(!b)return;const name=prompt('Indicatif de '+b.name+' (28 caractères maximum) :',b.callsign||b.name);if(name===null)return;if(!name.trim()){alert('L’indicatif ne peut pas être vide.');return}if(window.__ctaSetStationCallsign?.(id,name)){lastSignature='';refreshFleetBoard()}return}
+  const unit=e.target.closest('[data-vehicle]');if(unit){const v=window.__ctaFleetSnapshot?.()?.vehicles.find(x=>String(x.id)===unit.dataset.vehicle);if(v)alert(v.name+'\\nStatut : '+(v.operational?.label||v.status)+'\\nType : '+v.type)}
+ });
+ kind.onchange=()=>{lastSignature='';refreshFleetBoard()};service.onchange=()=>{lastSignature='';refreshFleetBoard()};
+ setInterval(()=>{try{refreshFleetBoard()}catch(e){console.error('CTA synoptique',e)}},1500);
+}
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
