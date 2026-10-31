@@ -54,6 +54,30 @@ const actions=document.createElement('div');actions.className='cta-quick-actions
 operations.insertBefore(actions,$('ctaOperationsContent'));
 $('ctaGoCalls').onclick=()=>$('tab-calls')?.click();
 $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
+// Fault-isolated synoptic: independent iframe, never alters the game engine or original fleet handlers.
+try{
+ const fleetHost=$('fleetPanel')||document.querySelector('[data-tab-panel="fleet"]');
+ if(fleetHost&&!$('ctaSynopticFrame')){
+  const frame=document.createElement('iframe');
+  frame.id='ctaSynopticFrame';
+  frame.title='Synoptique des moyens';
+  frame.src='./synoptique-test.html?embedded=1';
+  frame.style.cssText='display:block;width:100%;height:100%;min-height:520px;border:0;background:#081525;border-radius:8px';
+  frame.addEventListener('load',()=>{
+   try{frame.contentWindow.postMessage({type:'cta-synoptic-embedded'},'*')}catch(e){}
+  });
+  const wrapper=document.createElement('div');wrapper.id='ctaSynopticWrapper';
+  wrapper.style.cssText='width:100%;height:100%;min-height:520px;display:flex;flex-direction:column';
+  const fallback=document.createElement('button');fallback.type='button';fallback.textContent='Afficher les moyens classiques';
+  fallback.style.cssText='align-self:flex-end;margin:4px 6px;padding:5px 12px';
+  const original=[...fleetHost.children];
+  const showOriginal=show=>{for(const node of original)node.style.display=show?'':'none';wrapper.style.display=show?'none':'flex'};
+  fallback.onclick=()=>showOriginal(true);
+  wrapper.append(fallback,frame);
+  fleetHost.append(wrapper);
+  showOriginal(false);
+ }
+}catch(e){console.error('CTA: synoptique isolée non chargée',e)}
 const menu=document.createElement('div');menu.id='ctaSidebarExtra';menu.innerHTML='<button id="ctaCoopNav">♟ &nbsp; Coopération</button><button id="ctaOrsecNav">♧ &nbsp; ORSEC</button><button id="ctaAdminNav">⚙ &nbsp; Administration</button>';nav.append(menu);
 $('ctaCoopNav').onclick=()=>$('ctaMultiOpen').click();
 $('ctaOrsecNav').onclick=()=>document.querySelector('[data-action="orsec"]')?.click();
