@@ -83,6 +83,8 @@ for(let t=0;t<templates.length;t++){
   category,name,text:dialogue,needs:{...needs},
   credits:category==='INC'?2400:category==='SUAP'?1200:1300,
   xp:category==='INC'?110:70,
+  minutes:category==='INC'?35:category==='SUAP'?20:25,
+  service:category==='INC'?'INCENDIE':category==='SUAP'?'SECOURS':'OPERATIONS',
   transport:category==='SUAP'||category==='SANTE',
   message:'Intervention en cours : compte rendu transmis au CTA.',
   family
