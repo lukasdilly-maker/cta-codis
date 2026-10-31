@@ -228,12 +228,6 @@ window.startCtaGame=async function(){
     `;
     html=html.slice(0,fleetStart)+statusFunction+html.slice(fleetEnd);
   }else console.warn('CTA: vehicle status mapping not found');
-  // Operational synoptic bridge: read the active game and persist player-defined station callsigns.
-  const fleetRenderAnchor='function render(){';
-  if(html.includes(fleetRenderAnchor)){
-    html=html.replace(fleetRenderAnchor,fleetRenderAnchor+
-      "window.__ctaFleetSnapshot=()=>({stations:(state?.stations||[]).map(b=>({id:b.id,name:b.name,type:b.type,callsign:b.callsign||''})),vehicles:(state?.vehicles||[]).map(v=>({id:v.id,name:v.name,type:v.type,station:v.station,status:v.status,mission:v.mission,fault:v.fault,operational:fleetState(v)}))});window.__ctaSetStationCallsign=(id,sign)=>{const b=state?.stations?.find(x=>String(x.id)===String(id));if(!b)return false;b.callsign=String(sign||'').trim().slice(0,28);save();render();return true};");
-  }else console.warn('CTA: synoptic bridge not installed (render signature absent)');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
