@@ -48,6 +48,24 @@ $('ctaOpenMap').onclick=()=>$('tab-map')?.click();
 $('ctaFleetOpen').onclick=()=>$('tab-fleet')?.click();
 $('ctaMultiOpen').onclick=()=>parent.postMessage({type:'cta-open-console'},'*');
 for(const panel of document.querySelectorAll('body>main[role="tabpanel"]')){if(panel!==room)workspace.append(panel)}
+// Recover native automatic-call and game-speed controls without duplicating their handlers.
+const ctaSimulationControls=document.createElement('div');
+ctaSimulationControls.id='ctaSimulationControls';
+ctaSimulationControls.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:8px 12px;margin:0 0 10px;background:#10263d;border:1px solid #31526f;border-radius:7px;color:#e7f4ff';
+const ctaSimulationLabel=document.createElement('strong');ctaSimulationLabel.textContent='Simulation';ctaSimulationControls.append(ctaSimulationLabel);
+const movedControls=[];
+for(const bar of toolbars){
+ for(const el of [...bar.querySelectorAll('button,input,select,label')]){
+  if(movedControls.some(x=>x.contains(el)))continue;
+  const str=[el.textContent,el.id,el.name,el.title,el.getAttribute('aria-label'),el.htmlFor].join(' ').toLowerCase();
+  if(!/(appel.{0,18}auto|auto.{0,18}appel|vitesse|speed|simulation.{0,10}(x|vitesse))/.test(str))continue;
+  const node=el.closest('label')||el;
+  if(movedControls.some(x=>x===node||x.contains(node)))continue;
+  movedControls.push(node);
+ }
+}
+for(const node of movedControls)ctaSimulationControls.append(node);
+if(movedControls.length){mainArea.insertBefore(ctaSimulationControls,workspace)}
 const operations=document.createElement('section');operations.id='ctaOperations';operations.innerHTML='<div class="cta-card-head"><h2>▦ Synthèse du centre</h2><button id="ctaOperationsOpen">Voir les opérations ↗</button></div><div id="ctaOperationsContent" class="cta-summary-grid"><div class="cta-summary-item"><small>▥ Bâtiments</small><strong id="ctaSumBuildings">—</strong></div><div class="cta-summary-item"><small>▰ Engins</small><strong id="ctaSumVehicles">—</strong></div><div class="cta-summary-item"><small>♟ Personnels</small><strong id="ctaSumStaff">—</strong></div><div class="cta-summary-item"><small>● Engins disponibles</small><strong id="ctaSumReady">—</strong></div><div class="cta-summary-item"><small>▣ Engins engagés</small><strong id="ctaSumEngaged">—</strong></div><div class="cta-summary-item"><small>☎ Interventions actives</small><strong id="ctaSumIncidents">—</strong></div></div><div class="cta-summary-note" id="ctaSumTerritory">Données de la partie active</div>';
 left.append(operations);$('ctaOperationsOpen').onclick=()=>$('tab-operations')?.click();
 const actions=document.createElement('div');actions.className='cta-quick-actions';actions.innerHTML='<button type="button" id="ctaGoCalls">☎ Gérer les appels</button><button type="button" id="ctaGoFleet">▰ Consulter les moyens</button>';
