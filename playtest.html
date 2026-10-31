@@ -354,7 +354,8 @@ const CTA_GROUPS={
 };
 const ctaNorm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ctaCode=v=>String(TYPES[v.type]?.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-const ctaMatch=(v,pattern)=>pattern.split('|').some(raw=>{const code=raw.replace(/[^A-Z0-9]/g,'');const actual=ctaCode(v);return actual===code||((code==='FPT'||code==='CCFM|CCFS|CCFL'||code==='VSR')&&actual.startsWith(code));});
+const ctaNativeCodes=new Set(Object.values(TYPES).map(t=>String(t.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'')));
+const ctaMatch=(v,pattern)=>pattern.split('|').some(raw=>{const code=raw.toUpperCase().replace(/[^A-Z0-9]/g,'');return ctaNativeCodes.has(code)&&ctaCode(v)===code;});
 const CTA_MISSIONS=[
  [/effondrement|batiment ecroule|ensevelissement|materiaux menacant ruine/i,{group:'usar',extra:[['VSAV',1]],partners:['Police']}],
  [/feu de foret|incendie de foret/i,{group:'giff',partners:[]}],
