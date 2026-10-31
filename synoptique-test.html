@@ -27,6 +27,15 @@ $('board').onclick=e=>{const btn=e.target.closest('[data-station]');if(!btn)retu
 $('cancel').onclick=()=>$('edit').close();
 $('save').onclick=()=>{if(!editing)return;const value=$('editValue').value.trim();if(!value){$('editValue').focus();return}aliases[editing.id]=value;localStorage.setItem('cta-synoptic-aliases-'+profile,JSON.stringify(aliases));$('edit').close();render()};
 $('legend').innerHTML=Object.values(colors).map(c=>'<span style="background:'+c[0]+';color:'+c[1]+'">'+c[2]+'</span>').join('');
+let lastLiveAt=0;
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.type!=='cta-synoptic-live')return;
+ const data=event.data.data;if(!data||!Array.isArray(data.stations)||!Array.isArray(data.vehicles))return;
+ lastLiveAt=Date.now();
+ const nextProfile=String(data.profile||'principal');
+ if(profile!==nextProfile){profile=nextProfile;try{aliases=JSON.parse(localStorage.getItem('cta-synoptic-aliases-'+profile)||'{}')}catch(e){aliases={}}}
+ stations=data.stations;vehicles=data.vehicles;setupFilters();render();
+});
 if(new URLSearchParams(location.search).get('embedded')==='1'){
  document.body.classList.add('embedded');
  const style=document.createElement('style');
@@ -34,7 +43,7 @@ if(new URLSearchParams(location.search).get('embedded')==='1'){
  document.head.append(style);
  let last='';
  setInterval(()=>{
-  try{const raw=localStorage.getItem('cta15-profiles-v4')||'';if(raw!==last){last=raw;load()}}catch(e){console.warn('Synoptique actualisation',e)}
+  try{if(Date.now()-lastLiveAt<5000)return;const raw=localStorage.getItem('cta15-profiles-v4')||'';if(raw!==last){last=raw;load()}}catch(e){console.warn('Synoptique actualisation',e)}
  },1500);
 }
 load();
