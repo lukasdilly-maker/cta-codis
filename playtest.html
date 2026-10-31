@@ -320,6 +320,11 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
     "const ranked=available.filter(v=>!chosen.includes(v)&&ctaDispatchAllowed(v,i)).map(v=>{");
   else console.warn('CTA : ancrage de présélection introuvable');
 
+  // Qualification must follow the operator-selected valid nature, not a hidden random scenario ID.
+  const nativeQualify="if(s.category!==category||s.id!==type)return notify('Qualification incorrecte : vérifiez le dialogue et la nature.',true),null;";
+  const fixedQualify="const selected=SCENARIOS.find(x=>x.id===type&&x.category===category);if(!selected)return notify('Choisissez une catégorie et une nature d’intervention valides.',true),null;c.scenario=selected.id;c.needs={...selected.needs};";
+  if(html.includes(nativeQualify))html=html.replace(nativeQualify,fixedQualify);
+  else console.warn('CTA qualification: native validation anchor missing');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
