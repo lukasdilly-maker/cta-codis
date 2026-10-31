@@ -370,6 +370,26 @@ function ctaRefDeparture(i){
  }
  return null;
 }
+function ctaRefAlternatives(code){
+ const k=String(code||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');
+ const mapping={
+  VLHRCDG:['VLTT'],VLRUCDG:['VLCG'],VLRUCDC:['VLCC'],VLRCDS:['VLCM'],VLRDIRGARDE:['VLCM'],
+  VLRU:['VL'],VLHR:['VLTT'],VLHRCUCTSD:['VLTT'],VLRUCU:['VLCC'],VLRUISPSSO:['VSSO','VLSO'],VLRUCYNO:['VLTT'],
+  EPS:['EPA','BEA','MAH'],ENGINPOMPE:['FPT','FPTL','CCR','FPTSR'],ENGINPOMPEHORSROUTE:['CCR','CCFM','CCFS','CCFL'],
+  CCF:['CCFM','CCFL','CCFS','CCFP'],CCGC:['CCFS','CCFM'],CCIM:['CCI','CCFM'],
+  CEMUL:['CeEMUL'],CEREV:['CeREV'],CEEM:['CeEMUL'],CEDEPOLL:['CeDEV'],CEPOL:['CeDEV'],CEUMD:['CeRAD'],CESD:['CeUSAR','FSD'],CECI:['CeCI'],
+  VPCE:['VPCe'],VPCEPDC CELLULEDESOUTIENOPERATIONNEL:['VPCe','CeLOG'],VPCEPDC:['VPCe','CeLOG'],
+  CID:['VTU','VPI'],VID:['VTU'],VLOG:['CeLOG','VTP'],VLU:['VL'],VLU3SM:['VSSO','VLI'],VLRU3SM:['VSSO','VLI'],
+  VSRM:['VSR','FSR'],VSRMOUFPTSR:['VSR','FPTSR'],GRIMP:['VIMP'],VGRIMP:['VIMP'],PLG:['VPL'],CSL:['EMB'],BSL:['EMB'],
+  VLHRBSL:['VLTT','EMB'],VPLCSL:['VPL','EMB'],VPLBSL:['VPL','EMB'],VLHRCSL:['VLTT','EMB'],
+  FPT RLEM:['FPT','rLC'],FPTRLEM:['FPT','rLC'],PCC:['VPC'],NOVI:['V-NOVI','CeNOVI'],CMIC:['VIRT'],NRBC:['VIRT','CeRAD'],
+  SD:['CeUSAR','FSD'],CYNO:['VLTT'],SMUR:['VLM','UMH','VRM'],VLMUMH:['VLM','UMH','VRM'],VPMA:['CeNOVI','V-NOVI'],
+  MPR:['MPR'],FDF3:['VLCG'],UNITE DRONE:['VL'],UNITEDRONE:['VL'],RCH:['VIRT'],
+  FPTSR:['FPTSR','CCRMSR'],VSR:['VSR','FSR','VTUSR'],VLTT:['VLTT']
+ };
+ return mapping[k]||[code];
+}
+function ctaRefIsQualification(code){return /^(GOC[345]|FDF3)$/.test(String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,''));}
 function ctaRefMatches(v,code){
  const actual=String(TYPES[v.type]?.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
  const required=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -385,12 +405,13 @@ function ctaRefMatches(v,code){
  if(required==='VLMUMH')return ['VLM','UMH','AR','VRM'].includes(actual);
  if(required==='EQUIPESMPMPGHM')return ['VIMP','VGRIMP','VLTT','VLHR'].includes(actual);
  if(required==='EQUIPEGRIMA')return ['VPL','VSN','VBS','VIMP'].includes(actual);
- return actual===required;
+ return ctaRefAlternatives(code).some(candidate=>String(candidate).toUpperCase().replace(/[^A-Z0-9]/g,'')===actual);
 }
 function ctaRefProposal(i,departure){
  const avail=state.vehicles.filter(v=>fleetState(v).key==='green'&&ctaDispatchAllowed(v,i)).sort((a,b)=>distance(getStation(a.station).position,i.position)-distance(getStation(b.station).position,i.position));
  const chosen=[],missing=[];
  for(const item of departure.units)for(let n=0;n<item.qty;n++){
+  if(ctaRefIsQualification(item.code)){missing.push(item.code+' (qualification/commandement à vérifier)');continue;}
   const v=avail.find(v=>!chosen.includes(v)&&ctaRefMatches(v,item.code));
   if(v)chosen.push(v);else missing.push(item.code);
  }
