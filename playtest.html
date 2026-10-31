@@ -259,6 +259,14 @@ function ctaDispatchAllowed(vehicle,incident){
   const publicOrder=/maintien.{0,12}ordre|retablissement.{0,12}ordre|emeute|manifestation|trouble.{0,18}ordre public|violences collectives|affrontements collectifs|mouvement de foule/.test(mission);
   return publicOrder;
  }
+ // Specialty compatibility: broad RESCUE tags must not mix water, collapse and rope rescue.
+ const code=(typeof TYPES!=='undefined'&&TYPES[vehicle?.type]?.code||vehicle?.code||'').toUpperCase();
+ const collapse=/effondrement|ensevelissement|deblaiement|batiment ecroule|glissement de terrain|materiaux menacant ruine/.test(mission);
+ const water=/noyade|aquatique|nautique|voie d'eau|personne tombee a l'eau|plongeur/.test(mission);
+ const rope=/milieu perilleux|hauteur|ravin|falaise|grimp/.test(mission);
+ if(collapse&&/^(VPL|EMB|DRAGON|VIMP)$/.test(code))return false;
+ if(water&&/^(CESD|FSD|VRSD|VIMP)$/.test(code))return false;
+ if(rope&&/^(VPL|EMB|CESD|FSD)$/.test(code))return false;
  if(mousse){
   const majorFire=/incendie|feu|embrasement|explosion/.test(mission);
   const majorScale=/industri|entrepot|hydrocarbure|raffineri|usine|site chimique|depot|stockage|grande ampleur|majeur|important|mousse|grande puissance|complexe/.test(mission);
@@ -306,6 +314,11 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
     html=html.replace(qualificationCheck,qualificationFix);
     console.info('CTA CODIS : qualification des appels harmonisée avec le catalogue');
   }else console.warn('CTA CODIS : ancrage de qualification non trouvé');
+  // Restrict automatic suggestions and the dispatch check to mission-compatible units.
+  const suggestionAnchor="const ranked=available.filter(v=>!chosen.includes(v)).map(v=>{";
+  if(html.includes(suggestionAnchor))html=html.replace(suggestionAnchor,
+    "const ranked=available.filter(v=>!chosen.includes(v)&&ctaDispatchAllowed(v,i)).map(v=>{");
+  else console.warn('CTA : ancrage de présélection introuvable');
   // UI skin runs inside the real game document, preserving all game handlers and saves.
   try{
    const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
