@@ -154,6 +154,11 @@ window.startCtaGame=async function(){
    html=html.replace(stateSignature,stateSignature+
     "window.__ctaSynopticData=()=>state?{stations:state.stations||[],vehicles:state.vehicles||[],profile:profiles.active}:null;");
   }
+  // Read-only real operations snapshot for the compact Operations view.
+  if(html.includes(stateSignature)){
+   html=html.replace(stateSignature,stateSignature+
+    "window.__ctaOperationsData=()=>state?{incidents:(state.incidents||[]).map(i=>({id:i.id,scenario:i.scenario,phase:i.phase,address:i.address,started:i.started,closed:i.closed,units:i.units||[],logs:i.logs||[],partners:i.partners||[]})),stations:(state.stations||[]).map(b=>({id:b.id,name:b.name,type:b.type,callsign:b.callsign})),vehicles:(state.vehicles||[]).map(v=>({id:v.id,name:v.name,type:v.type,station:v.station,status:v.status,mission:v.mission,fault:v.fault}))}:null;");
+  }
   // Reliable statistics bridge: update from the game's own render cycle.
   const renderSignature='function render(){';
   if(html.includes(renderSignature)){
