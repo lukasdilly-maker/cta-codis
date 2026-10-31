@@ -149,6 +149,11 @@ window.startCtaGame=async function(){
    html=html.replace(stateSignature,stateSignature+
     "window.__ctaLiveStats=()=>{if(!state)return null;const vehicles=Array.isArray(state.vehicles)?state.vehicles:[];return {buildings:(state.stations||[]).length,vehicles:vehicles.length,staff:(state.staff||[]).length,ready:vehicles.filter(v=>v.status==='ready'&&!v.mission&&!v.fault).length,engaged:vehicles.filter(v=>v.mission||v.status==='engaged').length,incidents:(state.incidents||[]).filter(i=>!i.closed).length}};");
   }else console.warn('CTA: live statistics bridge signature not found');
+  // Read-only synoptic bridge; no modification to dispatch, saving or rendering.
+  if(html.includes(stateSignature)){
+   html=html.replace(stateSignature,stateSignature+
+    "window.__ctaSynopticData=()=>state?{stations:state.stations||[],vehicles:state.vehicles||[],profile:profiles.active}:null;");
+  }
   // Reliable statistics bridge: update from the game's own render cycle.
   const renderSignature='function render(){';
   if(html.includes(renderSignature)){
