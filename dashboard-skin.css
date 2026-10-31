@@ -267,25 +267,3 @@ html body #ctaDashboardShell #ctaMainArea{min-height:0!important;height:100%!imp
 .status.green{color:#ffffff!important}
 .status.alert{color:#111111!important}
 
-/* Operational synoptic — station callsign in first cell, vehicle chips thereafter */
-#fleetPanel{min-height:0!important;height:100%!important;overflow:hidden!important;padding:8px!important}
-#fleetPanel>.cta-fleet-original{display:none!important}
-#ctaFleetBoard{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;margin:0!important;padding:13px!important;overflow:hidden!important;background:#10263d!important}
-.cta-fleet-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex:0 0 auto;padding-bottom:12px;border-bottom:1px solid #31516c}
-.cta-fleet-head h2{font-size:18px!important;margin:0!important;color:#eff7ff!important}
-.cta-fleet-head small{font-size:11px;color:#9bb9d0}
-.cta-fleet-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.cta-fleet-filters label{display:flex;flex-direction:column;gap:4px;color:#a8c7dd;font-size:11px}
-.cta-fleet-filters select{min-width:180px;max-width:250px;min-height:35px;background:#0b1c30;color:#eff7ff;border:1px solid #42617e;border-radius:6px;padding:6px 9px}
-.cta-fleet-rows{flex:1 1 auto;min-height:0;overflow:auto;padding:8px 0;scrollbar-width:thin}
-.cta-fleet-row{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px;align-items:start;border-bottom:1px solid #31516c;padding:9px 0}
-.cta-station-code{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:5px!important;min-width:0!important;min-height:33px!important;padding:7px 9px!important;margin:0!important;background:#20a99d!important;color:#fff!important;border:1px solid #39c2b7!important;border-radius:5px!important;font-weight:750!important;text-align:left!important}
-.cta-station-code span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cta-station-code small{font-size:10px;color:#eafffb;flex-shrink:0}
-.cta-station-code:hover{background:#168c83!important}
-.cta-fleet-units{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:7px;min-width:0}
-.cta-fleet-unit{display:block!important;width:100%!important;min-width:0!important;min-height:33px!important;margin:0!important;padding:6px 8px!important;border:1px solid #ffffff20!important;border-radius:5px!important;font-size:12px!important;font-weight:700!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-align:center!important}
-.cta-fleet-unit:hover{filter:brightness(1.16)}
-.cta-fleet-empty{padding:22px;color:#9bb9d0;text-align:center}
-.cta-fleet-footer{flex:0 0 auto;padding-top:9px;border-top:1px solid #31516c;color:#91b1c9;font-size:11px}
-@media(max-width:850px){.cta-fleet-head{align-items:stretch;flex-direction:column}.cta-fleet-row{grid-template-columns:95px minmax(0,1fr)}.cta-fleet-units{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:5px}.cta-fleet-filters select{min-width:135px}}
