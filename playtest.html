@@ -485,6 +485,51 @@ function ctaRefProposal(i,departure){
     if(html.includes(renderAnchor))html=html.replace(renderAnchor,renderAnchor+groupUi);
     const refLine='const departure=ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;';
     if(html.includes(refLine))html=html.replace(refLine,"const groupIndex=$('ctaGroupSelect')?.value;const selectedGroup=groupIndex!==undefined&&groupIndex!==''?window.CTA_REFERENCE_V2.groups[Number(groupIndex)]:null;const departure=selectedGroup||ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;");
+    // Manual PC dispatch: keep the native checkboxes and native dispatch action.
+    const manualDispatch=String.raw`
+function ctaManualDispatchControls(item,allowed){
+ const list=$('dispatchList');if(!list)return;
+ let tools=document.getElementById('ctaManualTools');
+ if(!tools){
+  tools=document.createElement('div');tools.id='ctaManualTools';tools.className='cta-manual-tools';
+  tools.innerHTML='<strong>Choix manuel des engins</strong><p>Choisissez librement les moyens disponibles, caserne par caserne. Le départ type reste une simple proposition.</p><div class="cta-manual-row"><input id="ctaVehicleSearch" type="search" placeholder="Rechercher un engin ou une caserne…" aria-label="Rechercher un engin"><select id="ctaVehicleFilter" aria-label="Filtrer les engins"><option value="all">Tous les engins</option><option value="available">Disponibles uniquement</option><option value="selected">Sélectionnés</option></select></div><div class="cta-manual-actions"><button type="button" id="ctaClearSelection">Tout désélectionner</button><button type="button" id="ctaSelectAvailable">Sélectionner les disponibles affichés</button></div><small id="ctaManualCount"></small>';
+  list.parentElement.insertBefore(tools,list);
+  tools.querySelector('#ctaVehicleSearch').addEventListener('input',ctaManualApplyFilter);
+  tools.querySelector('#ctaVehicleFilter').addEventListener('change',ctaManualApplyFilter);
+  tools.querySelector('#ctaClearSelection').addEventListener('click',()=>{list.querySelectorAll('input[type="checkbox"]').forEach(e=>e.checked=false);updateSelection();ctaManualApplyFilter()});
+  tools.querySelector('#ctaSelectAvailable').addEventListener('click',()=>{list.querySelectorAll('.dispatch-group label').forEach(label=>{const e=label.querySelector('input[type="checkbox"]');if(e&&!e.disabled&&!label.hidden)e.checked=true});updateSelection();ctaManualApplyFilter()});
+  list.addEventListener('change',e=>{if(e.target.matches('input[type="checkbox"]')){updateSelection();ctaManualApplyFilter()}});
+ }
+ tools.hidden=!allowed;
+ ctaManualApplyFilter();
+}
+function ctaManualApplyFilter(){
+ const list=$('dispatchList'),tools=document.getElementById('ctaManualTools');if(!list||!tools)return;
+ const search=ctaRefNorm(document.getElementById('ctaVehicleSearch')?.value||'');
+ const mode=document.getElementById('ctaVehicleFilter')?.value||'all';
+ let visible=0,selected=0;
+ list.querySelectorAll('.dispatch-group').forEach(group=>{
+  const heading=ctaRefNorm(group.querySelector('h4')?.textContent||'');
+  let groupVisible=false;
+  group.querySelectorAll('label').forEach(label=>{
+   const checkbox=label.querySelector('input[type="checkbox"]');if(!checkbox)return;
+   const matchesText=!search||ctaRefNorm(label.textContent).includes(search)||heading.includes(search);
+   const matchesMode=mode==='selected'?checkbox.checked:mode==='available'?!checkbox.disabled:true;
+   label.hidden=!(matchesText&&matchesMode);
+   if(!label.hidden){visible++;groupVisible=true}
+   if(checkbox.checked)selected++;
+  });
+  group.hidden=!groupVisible;
+ });
+ const count=document.getElementById('ctaManualCount');if(count)count.textContent=visible+' engin(s) affiché(s) · '+selected+' sélectionné(s)';
+}
+`;
+    const treatmentAnchor='function renderTreatment(fresh=false){';
+    if(html.includes(treatmentAnchor))html=html.replace(treatmentAnchor,manualDispatch+'\n'+treatmentAnchor);
+    const manualRenderAnchor=' renderInterview(item,isCall);if(!isCall)renderDecisions(item);';
+    if(html.includes(manualRenderAnchor))html=html.replace(manualRenderAnchor,' ctaManualDispatchControls(item,allowed);'+manualRenderAnchor);
+    const manualCss='<style>.cta-manual-tools{position:sticky;top:0;z-index:2;padding:12px;margin:10px 0;background:#14263b;border:1px solid #427394;border-radius:12px;color:#eff8ff}.cta-manual-tools p{font-size:12px;margin:5px 0 10px;color:#b9cee1}.cta-manual-row,.cta-manual-actions{display:flex;gap:8px;flex-wrap:wrap}.cta-manual-row>*{flex:1;min-width:180px}.cta-manual-actions button{flex:1;min-width:160px}.cta-manual-tools input,.cta-manual-tools select,.cta-manual-tools button{min-height:38px}.cta-manual-tools small{display:block;margin-top:8px}.dispatch-group[hidden],.dispatch-group label[hidden]{display:none!important}</style>';
+    html=html.replace('</head>',manualCss+'</head>');
     console.info('CTA CODIS: référentiel interventions et groupes chargé');
   }catch(referenceError){console.error('CTA référentiel opérationnel',referenceError)}
   // UI skin runs inside the real game document, preserving all game handlers and saves.
