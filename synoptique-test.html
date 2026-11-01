@@ -31,12 +31,27 @@ function ctaCoverageRender(){
   const people=staff.filter(p=>String(p.station)===String(b.id));const present=people.filter(p=>p.mission===null&&!p.training).length;return {name:b.name||b.callsign||'Centre',ready,active,down,total:all.length,present,people:people.length};
  }).filter(Boolean);
  const uncovered=rows.filter(r=>r.ready===0);
+ const byId=new Map(stations.map(b=>[String(b.id),b]));
+ const rad=x=>x*Math.PI/180;
+ function distanceKm(a,b){
+  const p=a?.position,q=b?.position;if(!p||!q)return Infinity;
+  const lat1=Number(p.lat),lat2=Number(q.lat),lon1=Number(p.lon??p.lng),lon2=Number(q.lon??q.lng);
+  if(![lat1,lat2,lon1,lon2].every(Number.isFinite))return Infinity;
+  const dlat=rad(lat2-lat1),dlon=rad(lon2-lon1);
+  return 6371*2*Math.asin(Math.sqrt(Math.sin(dlat/2)**2+Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(dlon/2)**2));
+ }
+ for(const row of rows){
+  if(row.ready>0)continue;
+  const source=stations.find(b=>(b.name||b.callsign||'Centre')===row.name);
+  const nearby=rows.filter(r=>r.ready>0).map(r=>({row:r,km:distanceKm(source,stations.find(b=>(b.name||b.callsign||'Centre')===r.name))})).filter(x=>Number.isFinite(x.km)).sort((a,b)=>a.km-b.km)[0];
+  row.nearby=nearby?nearby.row.name+' ('+nearby.km.toFixed(1)+' km à vol d’oiseau)':'Aucun centre disponible identifié';
+ }
  const box=$('ctaCoverageContent'),count=$('ctaCoverageCount');
  if(!box||!count)return;
  count.textContent=uncovered.length?'· '+uncovered.length+' centre(s) sans engin disponible':'· couverture suivie';
  box.innerHTML='<p style="font-size:11px;color:#a9c5d8">Disponibilité calculée par centre à partir des engins. Ne préjuge pas de leur capacité opérationnelle ni des temps de réponse.</p>'+
  rows.sort((a,b)=>(a.ready===0?0:1)-(b.ready===0?0:1)||a.name.localeCompare(b.name,'fr')).map(r=>
- '<div class="coverage-row"><span class="'+(r.ready?'coverage-ok':'coverage-alert')+'">'+esc(r.name)+'</span><span title="Engins disponibles">✓ '+r.ready+'</span><span title="Engins engagés">↗ '+r.active+'</span><span title="Engins indisponibles">× '+r.down+'</span><span title="Personnels libres / effectif total">♙ '+r.present+'/'+r.people+'</span></div>').join('');
+ '<div class="coverage-row" title="'+esc(r.nearby?'Centre disponible le plus proche : '+r.nearby:'')+'"><span class="'+(r.ready?'coverage-ok':'coverage-alert')+'">'+esc(r.name)+(r.nearby?'<small style="display:block">Couverture possible : '+esc(r.nearby)+'</small>':'')+'</span><span title="Engins disponibles">✓ '+r.ready+'</span><span title="Engins engagés">↗ '+r.active+'</span><span title="Engins indisponibles">× '+r.down+'</span><span title="Personnels libres / effectif total">♙ '+r.present+'/'+r.people+'</span></div>').join('');
 }
 function render(){const k=$('kind').value,sv=$('service').value,readiness=$('readiness').value,q=$('search').value.trim().toLocaleLowerCase('fr');let count=0;const rows=stations.filter(b=>!k||String(b.type)===k).map(b=>{const unit=vehicles.filter(v=>String(v.station)===String(b.id)).filter(v=>(!sv||String(v.type||'').split(':')[0]===sv)&&(!readiness||status(v)===readiness)&&(!q||[b.name,aliases[b.id],v.name,v.type].some(x=>String(x||'').toLocaleLowerCase('fr').includes(q))));if(!unit.length)return '';count+=unit.length;const sign=aliases[b.id]||b.callsign||b.name||'Sans nom';return '<div class="row"><button class="station" data-station="'+esc(b.id)+'" title="'+esc(b.name)+' — Modifier l’indicatif"><span>'+esc(sign)+'</span><small>'+unit.length+'</small></button><div class="units">'+unit.map(v=>{const c=colors[status(v)]||colors.black;return '<button class="unit" style="background:'+c[0]+';color:'+c[1]+'" data-vehicle="'+esc(v.id)+'" title="Cliquer pour renommer : '+esc(v.name)+' — '+c[2]+'">'+esc(v.name||v.type)+'</button>'}).join('')+'</div></div>'}).filter(Boolean);$('board').innerHTML=rows.join('')||'<div class="empty">Aucun engin ne correspond aux filtres.</div>';$('summary').textContent=rows.length+' bâtiments · '+count+' engins affichés · '+vehicles.length+' engins au total';const tally={ready:0,engaged:0,unavailable:0,transport:0};for(const v of vehicles){const st=status(v);if(['green','return-ready'].includes(st))tally.ready++;else if(st==='black'||st==='return-unavailable')tally.unavailable++;else if(['transport','hospital'].includes(st))tally.transport++;else tally.engaged++;}ctaCoverageRender();const stats=[['Disponibles',tally.ready],['En intervention / départ',tally.engaged],['Transport / hôpital',tally.transport],['Indisponibles',tally.unavailable]];$('ctaOperationalStats').innerHTML=stats.map(([label,value])=>'<div class="metric"><strong>'+value+'</strong><small>'+label+'</small></div>').join('');}
 $('kind').onchange=render;$('service').onchange=render;$('readiness').onchange=render;$('search').oninput=render;$('reload').onclick=load;
