@@ -670,6 +670,50 @@ function ctaManualApplyFilter(){
     if(!removed)console.warn('CTA CODIS : blocage de départ type détecté mais structure inconnue : correction non appliquée');
     else console.info('CTA CODIS : '+removed+' contrôle(s) de départ type supprimé(s)');
   }
+
+  // Filtres de secours montés directement dans la fenêtre d'appel,
+  // indépendamment des remplacements de code du moteur.
+  frame.addEventListener('load',()=>{
+   try{
+    const doc=frame.contentDocument;
+    if(!doc||doc.getElementById('ctaReliableFilters'))return;
+    const list=doc.getElementById('dispatchList');
+    if(!list)return;
+    const toolbar=doc.createElement('div');
+    toolbar.id='ctaReliableFilters';
+    toolbar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;margin:8px 0;background:#15293d;border:1px solid #406482;border-radius:8px';
+    toolbar.innerHTML='<label style="display:flex;align-items:center;gap:6px">Service <select id="ctaReliableService" style="min-width:150px"><option value="all">Tous les services</option></select></label><label style="display:flex;align-items:center;gap:6px">Distance <select id="ctaReliableDistance" style="min-width:170px"><option value="near">Du plus près au plus loin</option><option value="far">Du plus loin au plus près</option></select></label>';
+    list.parentNode.insertBefore(toolbar,list);
+    const service=toolbar.querySelector('#ctaReliableService'),order=toolbar.querySelector('#ctaReliableDistance');
+    const refresh=()=>{
+     const groups=[...list.querySelectorAll('.dispatch-group')];
+     let stations=[];
+     try{stations=frame.contentWindow.eval('state.stations.map(b=>({id:b.id,name:b.name,callsign:b.callsign,type:b.type}))')}catch(_){}
+     const types=[...new Set(stations.map(s=>s.type).filter(Boolean))].sort();
+     const prev=service.value;
+     service.innerHTML='<option value="all">Tous les services</option>'+types.map(t=>'<option value="'+String(t).replace(/"/g,'&quot;')+'">'+String(t)+'</option>').join('');
+     service.value=types.includes(prev)?prev:'all';
+     groups.forEach((group,i)=>{
+      const heading=(group.querySelector('.cta-dispatch-station,h4')?.textContent||'').trim().toLowerCase();
+      const station=stations.find(s=>[s.name,s.callsign].some(v=>v&&String(v).toLowerCase()===heading));
+      group.dataset.ctaService=station?.type||'';
+      group.dataset.ctaOrder=String(i);
+     });
+     apply();
+    };
+    const apply=()=>{
+     const groups=[...list.querySelectorAll('.dispatch-group')];
+     groups.forEach(g=>{g.style.setProperty('display',service.value==='all'||g.dataset.ctaService===service.value?'':'none', 'important')});
+     const sorted=groups.sort((a,b)=>(Number(a.dataset.ctaOrder)-Number(b.dataset.ctaOrder))*(order.value==='far'?-1:1));
+     sorted.forEach(g=>g.parentNode.appendChild(g));
+    };
+    service.addEventListener('change',apply);
+    order.addEventListener('change',apply);
+    const observer=new MutationObserver(()=>{if(!list.querySelector('.dispatch-group'))return;observer.disconnect();refresh();observer.observe(list,{childList:true,subtree:false})});
+    observer.observe(list,{childList:true,subtree:false});
+    refresh();
+   }catch(error){console.error('CTA filtres fenêtre appel',error)}
+  },{once:true});
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
  }catch(error){
