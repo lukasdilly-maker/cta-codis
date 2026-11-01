@@ -482,7 +482,7 @@ function ctaRefProposal(i,departure){
     html=html.replace(anchor,referenceLogic+'\n'+anchor);
     const selection='const result=suggestUnits(i);for(const e of';
     if(!html.includes(selection))throw Error('Sélection native introuvable');
-    html=html.replace(selection,"const departure=ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;const result=referenceResult?{ids:referenceResult.ids,missing:{}}:suggestUnits(i);for(const e of");
+    html=html.replace(selection,"const departure=ctaRefDeparture(i);const referenceResult=departure?ctaRefProposal(i,departure):null;const result={ids:[],missing:{}};for(const e of");
     const message="$('proposalMessage').textContent=result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');";
     if(!html.includes(message))throw Error('Message natif introuvable');
     html=html.replace(message,"$('proposalMessage').textContent=departure?('Départ type — '+departure.name+' : '+departure.units.map(x=>x.qty+' '+x.code).join(' + ')+'. '+result.ids.length+' moyens disponibles.'+(referenceResult.missing.length?' Moyens manquants : '+referenceResult.missing.join(', '):' Composition complète.')):result.ids.length+' moyen(s) présélectionné(s), à valider par le CTA.'+(Object.keys(result.missing).length?' Besoins encore manquants : '+needText({needs:result.missing}):' Départ type couvert.');");
@@ -587,6 +587,8 @@ function ctaManualApplyFilter(){
   const nativeMinimumText="'Départ type minimum : '+needText({needs:item.needs||s.needs})+' · Récompense '+fmt(s.credits)+' crédits / '+s.xp+' XP'";
   html=html.replace(nativeMinimumText,"''");
   html=html.replace('Proposer les moyens nécessaires','');
+  // Aucun moyen n'est présélectionné : le CTA décide de l'intégralité du départ.
+  html=html.replace(/<button[^>]*data-action=["']suggest-means["'][^>]*>[\s\S]*?<\/button>/g,'');
   html=html.replace('<button class="primary" data-action="suggest-means"></button>','');
   html=html.replace('Moyens par proximité','Synoptique des moyens · sélection manuelle');
   html=html.replace('Distances directes avant engagement ; distance routière et','Distances directes avant engagement ; distance routière et');
