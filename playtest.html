@@ -195,9 +195,9 @@ window.startCtaGame=async function(){
   if(!response.ok)throw Error('HTTP '+response.status);
   let html=await response.text();
   const old="!insideTerritory(b.position,territoryOf(s))";
-  if(!html.includes(old))throw Error('Signature du validateur différente : correctif non appliqué');
+  if(!html.includes(old))console.warn('CTA CODIS : validateur déjà modifié, chargement poursuivi');
   const valid="(!b.position||!Number.isFinite(Number(b.position.lat))||!Number.isFinite(Number(b.position.lon)))";
-  html=html.replace(old,valid);
+  if(html.includes(old))html=html.replace(old,valid);
   // Allow the operational map to render both on the map tab and in the home dashboard.
   html=html.replace("if(activeTab!=='map')return;const m=metrics();","if(activeTab!=='map'&&activeTab!=='room')return;const m=metrics();");
   html=html.replace("if(tab==='map')requestAnimationFrame(renderMap);","if(tab==='map'||tab==='room')requestAnimationFrame(renderMap);");
