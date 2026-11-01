@@ -585,6 +585,31 @@ function ctaManualApplyFilter(){
   // Never show a preset group selector: operator composes the response.
   html=html.replace("const groupHost=$('proposalMessage')?.parentElement;","const groupHost=null;");
 
+  // Fiches appels : présentation opérateur homogène, sans modifier les traitements natifs.
+  const callSheetCss=String.raw`
+  <style id="cta-call-sheet-professional">
+  :root{--cta-call-bg:#0c1b2d;--cta-call-surface:#14283d;--cta-call-border:#36536d;--cta-call-accent:#2cc7bd}
+  #treatmentDialog,#callDialog,#incidentDialog,.treatment-dialog,.call-sheet,.incident-sheet{background:var(--cta-call-bg)!important;color:#eaf3fc!important;border:1px solid var(--cta-call-border)!important;border-radius:12px!important;box-shadow:0 24px 80px #0009!important}
+  #treatmentDialog h2,#callDialog h2,#incidentDialog h2,.treatment-dialog h2,.call-sheet h2,.incident-sheet h2{font-size:19px!important;letter-spacing:.01em!important;color:#f2f8ff!important;padding-bottom:12px!important;border-bottom:1px solid #36536d!important}
+  #treatmentDialog h3,#callDialog h3,#incidentDialog h3,.treatment-dialog h3,.call-sheet h3,.incident-sheet h3{font-size:13px!important;font-weight:750!important;color:#5ce2d6!important;letter-spacing:.025em!important}
+  #treatmentDialog input:not([type=checkbox]),#treatmentDialog select,#treatmentDialog textarea,#callDialog input:not([type=checkbox]),#callDialog select,#callDialog textarea,#incidentDialog input:not([type=checkbox]),#incidentDialog select,#incidentDialog textarea{background:#091c2f!important;color:#f0f7ff!important;border:1px solid #47657e!important;border-radius:6px!important;min-height:36px}
+  #treatmentDialog button,#callDialog button,#incidentDialog button{border-radius:6px!important;font-weight:650!important;min-height:34px}
+  #dispatchList{margin-top:10px!important}
+  #dispatchList .cta-dispatch-board{border-radius:7px!important}
+  #dispatchList .cta-dispatch-row{padding:9px!important}
+  #dispatchList .cta-dispatch-station{background:#147f7a!important;border-color:#35bfb5!important}
+  #dispatchList .cta-dispatch-units{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))!important}
+  #dispatchList .cta-dispatch-unit{justify-content:center!important;text-align:center!important;min-height:38px!important;padding:6px!important}
+  #dispatchList .cta-dispatch-unit input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important}
+  #dispatchList .cta-dispatch-unit:has(input:checked){outline:2px solid #8be9ff!important;outline-offset:-2px!important;box-shadow:inset 0 0 0 1px #fff9!important}
+  #dispatchList .cta-dispatch-unit:has(input:checked)::before{content:'✓';margin-right:4px;font-weight:900}
+  #dispatchList .cta-dispatch-unit:focus-within{outline:3px solid #fff!important}
+  .cta-manual-tools{border-radius:8px!important;border-color:#3c637e!important;background:#122b42!important}
+  .cta-manual-tools>strong{display:block;font-size:14px;letter-spacing:.02em}
+  @media(max-width:650px){#dispatchList .cta-dispatch-units{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))!important}#dispatchList .cta-dispatch-row{grid-template-columns:95px minmax(0,1fr)!important}}
+  </style>
+  `;
+  html=html.replace('</head>',callSheetCss+'</head>');
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
   // Appliqué au moteur HTML avant son chargement dans l'iframe.
   const departureBlockText=/Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?/i;
