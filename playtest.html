@@ -653,6 +653,43 @@ function ctaManualApplyFilter(){
   html=html.replace(nativeInitialGuard,'');
   const nativeOtherGuard="if(!hasNeeds(vehicles,i.needs||findScenario(i.scenario).needs))return notify('Départ type minimum non respecté.',true),false;";
   html=html.replace(nativeOtherGuard,'');
+
+  // Automatisation radio : bilans ordinaires acquittés, renforts soumis à décision.
+  const radioAutomation=String.raw`
+function ctaRadioAutoProcess(){
+ if(!state||!Array.isArray(state.incidents))return;
+ let changed=false;
+ for(const i of state.incidents){
+  if(i.closed||i.started===null)continue;
+  ensureOperation(i);
+  if(i.reinforcement||i.reinforcementRequested||i.op.aggravated)continue;
+  if(i.op.ack)continue;
+  const units=currentUnits(i);
+  if(!units.some(v=>['operation','onscene','awaiting_cta','awaiting_hospital','awaiting_release'].includes(v.status)))continue;
+  acknowledge(i);
+  log(i,'RADIO AUTOMATIQUE — bilan courant acquitté par le CTA.');
+  changed=true;
+ }
+ if(changed)save();
+}
+function ctaRadioReinforcementPanel(){
+ const active=state.incidents.filter(i=>!i.closed&&i.started!==null&&(i.reinforcement||i.reinforcementRequested));
+ let panel=document.getElementById('ctaRadioReinforcements');
+ if(!panel){panel=document.createElement('aside');panel.id='ctaRadioReinforcements';document.body.appendChild(panel);}
+ panel.innerHTML='<header>RADIO · DEMANDES DE RENFORT <strong>'+active.length+'</strong></header>'+(!active.length?'<p>Aucune demande en attente. Les bilans ordinaires sont acquittés automatiquement.</p>':active.map(i=>{
+  const missing=missingNeeds(i);
+  const details=Object.entries(missing).map(([type,n])=>n+' × '+type).join(' · ')||'Précisions à confirmer';
+  const vehicles=currentUnits(i).map(v=>v.name).join(', ')||'Moyen non renseigné';
+  return '<article><b>Intervention #'+i.id+' · '+esc(i.address||i.location||findScenario(i.scenario)?.name||'Intervention')+'</b><p><strong>Demande :</strong> '+esc(i.op?.aggravationText||'Renfort demandé par le chef de dispositif')+'</p><p><strong>Moyens demandés :</strong> '+esc(details)+'</p><small>Engagés : '+esc(vehicles)+'</small><button type="button" data-cta-radio-open="'+i.id+'">Gérer les renforts</button></article>';
+ }).join(''));
+ panel.querySelectorAll('[data-cta-radio-open]').forEach(b=>b.addEventListener('click',()=>openTreatment('incident',Number(b.dataset.ctaRadioOpen))));
+}
+const ctaRadioOriginalRender=render;
+render=function(...args){ctaRadioAutoProcess();const result=ctaRadioOriginalRender.apply(this,args);ctaRadioReinforcementPanel();return result;};
+`;
+  if(html.includes('function render(){')&&html.includes('function acknowledge(i)')){
+   html=html.replace('</body>','<style id="cta-radio-auto-style">#ctaRadioReinforcements{position:fixed;bottom:16px;right:16px;z-index:9000;width:min(390px,calc(100vw - 32px));max-height:45vh;overflow:auto;border:1px solid #3d6c86;border-radius:10px;background:#102338;color:#f3f8ff;box-shadow:0 10px 35px #0009;font:13px system-ui}#ctaRadioReinforcements header{padding:10px 12px;background:#203d58;font-weight:800;display:flex;justify-content:space-between}#ctaRadioReinforcements article{margin:9px;padding:10px;border:1px solid #b67438;border-radius:7px;background:#3a2b25}#ctaRadioReinforcements article p{margin:7px 0}#ctaRadioReinforcements small{display:block;margin-bottom:8px}#ctaRadioReinforcements button{width:100%;padding:9px;background:#b96b24;color:white;border:0;border-radius:6px;cursor:pointer}#ctaRadioReinforcements>p{padding:10px;margin:0}</style><script>'+radioAutomation+'</scr'+'ipt></body>');
+  }
   // Vérifier explicitement que la fiche native a bien été remplacée par la grille compacte.
   if(!html.includes('cta-dispatch-board'))console.error('CTA CODIS : grille de sélection non injectée');
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
