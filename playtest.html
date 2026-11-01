@@ -643,6 +643,13 @@ function ctaManualApplyFilter(){
   html=html.replace('</head>',dispatchStatusCss+'</head>');
 
 
+  // Le moteur V2 possède deux versions de dispatch(); neutraliser les deux gardes.
+  const nativeInitialGuard="if(initial&&!hasNeeds(selected,missionNeeds(i)))return notify('Le départ type initial est incomplet. Utilisez la proposition de moyens.',true),false;";
+  html=html.replace(nativeInitialGuard,'');
+  const nativeOtherGuard="if(!hasNeeds(vehicles,i.needs||findScenario(i.scenario).needs))return notify('Départ type minimum non respecté.',true),false;";
+  html=html.replace(nativeOtherGuard,'');
+  // Vérifier explicitement que la fiche native a bien été remplacée par la grille compacte.
+  if(!html.includes('cta-dispatch-board'))console.error('CTA CODIS : grille de sélection non injectée');
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
   // Appliqué au moteur HTML avant son chargement dans l'iframe.
   const departureBlockText=/Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?/i;
