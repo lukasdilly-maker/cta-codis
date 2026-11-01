@@ -310,10 +310,11 @@ function update(){
  }
  const selected=nav.querySelector('[aria-selected="true"]')?.dataset.tab||'room';
  const home=selected==='room';dashboard.hidden=!home;bottom.hidden=!home;stats.hidden=!home;tools.hidden=!home;
- // Keep the cartography exclusively in the dedicated Map tab; the operations room is statistics-only.
- if(home&&mapSection.parentElement!==mapLayout){mapLayout.prepend(mapSection)}
- if(selected==='map'&&mapSection.parentElement!==mapLayout){mapLayout.prepend(mapSection);window.dispatchEvent(new Event('resize'))}
- if(home&&window.__ctaLastHome!==home)requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));window.__ctaLastHome=home;
+ // The live map must be mounted in the visible operational dashboard, not in a hidden tab.
+ const mapTarget=home?mapCard:mapLayout;
+ if(mapSection.parentElement!==mapTarget){mapTarget.append(mapSection)}
+ if(home!==window.__ctaLastHome||mapSection.parentElement===mapTarget){requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));setTimeout(()=>window.dispatchEvent(new Event('resize')),180)})}
+ window.__ctaLastHome=home;
 }
 nav.addEventListener('click',()=>setTimeout(update,60));
 new MutationObserver(()=>setTimeout(update,50)).observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-selected']});
