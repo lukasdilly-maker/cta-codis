@@ -492,10 +492,12 @@ function ctaManualDispatchControls(item,allowed){
  let tools=document.getElementById('ctaManualTools');
  if(!tools){
   tools=document.createElement('div');tools.id='ctaManualTools';tools.className='cta-manual-tools';
-  tools.innerHTML='<strong>Choix manuel des engins</strong><p>Choisissez librement les moyens disponibles, caserne par caserne. Le départ type reste une simple proposition.</p><div class="cta-manual-row"><input id="ctaVehicleSearch" type="search" placeholder="Rechercher un engin ou une caserne…" aria-label="Rechercher un engin"><select id="ctaVehicleFilter" aria-label="Filtrer les engins"><option value="all">Tous les engins</option><option value="available">Disponibles uniquement</option><option value="selected">Sélectionnés</option></select></div><div class="cta-manual-actions"><button type="button" id="ctaClearSelection">Tout désélectionner</button><button type="button" id="ctaSelectAvailable">Sélectionner les disponibles affichés</button></div><small id="ctaManualCount"></small>';
+  tools.innerHTML='<strong>Choix manuel des engins</strong><p>Choisissez librement les moyens disponibles, caserne par caserne. Le départ type reste une simple proposition.</p><div class="cta-manual-row"><input id="ctaVehicleSearch" type="search" placeholder="Rechercher un engin ou une caserne…" aria-label="Rechercher un engin"><select id="ctaBuildingType" aria-label="Trier par service"><option value="all">Tous les services</option></select><select id="ctaDistanceSort" aria-label="Trier par distance"><option value="nearest">Du plus près au plus loin</option><option value="farthest">Du plus loin au plus près</option></select><select id="ctaVehicleFilter" aria-label="Filtrer les engins"><option value="all">Tous les engins</option><option value="available">Disponibles uniquement</option><option value="selected">Sélectionnés</option></select></div><div class="cta-manual-actions"><button type="button" id="ctaClearSelection">Tout désélectionner</button><button type="button" id="ctaSelectAvailable">Sélectionner les disponibles affichés</button></div><small id="ctaManualCount"></small>';
   list.parentElement.insertBefore(tools,list);
   tools.querySelector('#ctaVehicleSearch').addEventListener('input',ctaManualApplyFilter);
   tools.querySelector('#ctaVehicleFilter').addEventListener('change',ctaManualApplyFilter);
+  tools.querySelector('#ctaBuildingType').addEventListener('change',()=>renderTreatment());
+  tools.querySelector('#ctaDistanceSort').addEventListener('change',()=>renderTreatment());
   tools.querySelector('#ctaClearSelection').addEventListener('click',()=>{list.querySelectorAll('input[type="checkbox"]').forEach(e=>e.checked=false);updateSelection();ctaManualApplyFilter()});
   tools.querySelector('#ctaSelectAvailable').addEventListener('click',()=>{list.querySelectorAll('.dispatch-group label').forEach(label=>{const e=label.querySelector('input[type="checkbox"]');if(e&&!e.disabled&&!label.hidden)e.checked=true});updateSelection();ctaManualApplyFilter()});
   list.addEventListener('change',e=>{if(e.target.matches('input[type="checkbox"]')){updateSelection();ctaManualApplyFilter()}});
@@ -509,7 +511,7 @@ function ctaManualApplyFilter(){
  const mode=document.getElementById('ctaVehicleFilter')?.value||'all';
  let visible=0,selected=0;
  list.querySelectorAll('.dispatch-group').forEach(group=>{
-  const heading=ctaRefNorm(group.querySelector('h4')?.textContent||'');
+  const heading=ctaRefNorm(group.querySelector('.cta-dispatch-station')?.textContent||group.querySelector('h4')?.textContent||'');
   let groupVisible=false;
   group.querySelectorAll('label').forEach(label=>{
    const checkbox=label.querySelector('input[type="checkbox"]');if(!checkbox)return;
@@ -558,9 +560,10 @@ function ctaManualApplyFilter(){
  const allBuildings=state.stations.filter(b=>state.vehicles.some(v=>v.station===b.id));
  const typeFilter=document.getElementById('ctaBuildingType')?.value||'all';
  const typeOptions=[...new Set(allBuildings.map(b=>b.type))].sort();
+ const distanceSort=document.getElementById('ctaDistanceSort')?.value||'nearest';
  const filterSelect=document.getElementById('ctaBuildingType');
  if(filterSelect){const previous=filterSelect.value;filterSelect.innerHTML='<option value="all">Tous les types de bâtiments</option>'+typeOptions.map(type=>'<option value="'+esc(type)+'">'+esc(CATALOG[type]?.name||type)+'</option>').join('');filterSelect.value=typeOptions.includes(previous)?previous:'all';}
- $('dispatchList').innerHTML='<div class="cta-dispatch-board">'+allBuildings.filter(b=>typeFilter==='all'||b.type===typeFilter).sort((a,b)=>distance(a.position,item.position)-distance(b.position,item.position)).map(b=>'<div class="dispatch-group cta-dispatch-row"><div class="cta-dispatch-station" title="'+esc(b.name)+'"><strong>'+esc(b.callsign||b.name)+'</strong></div><div class="cta-dispatch-units">'+state.vehicles.filter(v=>v.station===b.id).map(v=>{const f=fleetState(v),t=TYPES[v.type];const ready=allowed&&f.key==='green';const liveStatus=v.fault?'black':v.status==='ready'?'green':v.status==='planning'?'alert':v.status==='return'?'return-ready':(['transport','routing_hospital'].includes(v.status)?'transport':v.status==='hospital'?'hospital':(['onscene','operation','awaiting_hospital','awaiting_release'].includes(v.status)?'onscene':(['enroute','routing_detour','roadblock','road_wait'].includes(v.status)?'departed':f.key)));return '<label class="cta-dispatch-unit '+liveStatus+'" title="'+esc(v.name)+' · '+esc(t.label)+' · '+esc(f.detail)+'"><input type="checkbox" value="'+v.id+'" '+(!ready?'disabled':'')+' '+(ready&&checked.has(String(v.id))?'checked':'')+'><span class="cta-dispatch-unit-name">'+esc(v.name)+'</span></label>';}).join('')+'</div></div>').join('')+'</div>';
+ $('dispatchList').innerHTML='<div class="cta-dispatch-board">'+allBuildings.filter(b=>typeFilter==='all'||b.type===typeFilter).sort((a,b)=>(distance(a.position,item.position)-distance(b.position,item.position))*(distanceSort==='farthest'?-1:1)).map(b=>'<div class="dispatch-group cta-dispatch-row"><div class="cta-dispatch-station" title="'+esc(b.name)+'"><strong>'+esc(b.callsign||b.name)+'</strong></div><div class="cta-dispatch-units">'+state.vehicles.filter(v=>v.station===b.id).map(v=>{const f=fleetState(v),t=TYPES[v.type];const ready=allowed&&f.key==='green';const liveStatus=v.fault?'black':v.status==='ready'?'green':v.status==='planning'?'alert':v.status==='return'?'return-ready':(['transport','routing_hospital'].includes(v.status)?'transport':v.status==='hospital'?'hospital':(['onscene','operation','awaiting_hospital','awaiting_release'].includes(v.status)?'onscene':(['enroute','routing_detour','roadblock','road_wait'].includes(v.status)?'departed':f.key)));return '<label class="cta-dispatch-unit '+liveStatus+'" title="'+esc(v.name)+' · '+esc(t.label)+' · '+esc(f.detail)+'"><input type="checkbox" value="'+v.id+'" '+(!ready?'disabled':'')+' '+(ready&&checked.has(String(v.id))?'checked':'')+'><span class="cta-dispatch-unit-name">'+esc(v.name)+'</span></label>';}).join('')+'</div></div>').join('')+'</div>';
 `;
     html=html.slice(0,from)+replacement+original.slice(endRender)+html.slice(to);
    }
@@ -612,6 +615,7 @@ function ctaManualApplyFilter(){
   `;
   html=html.replace('</head>',callSheetCss+'</head>');
   const compactTilesCss=String.raw`<style id="cta-dispatch-compact-tiles">
+#dispatchList .cta-dispatch-unit[hidden],#dispatchList .dispatch-group[hidden]{display:none!important}
 #dispatchList .cta-dispatch-board{background:#132337!important;border:1px solid #2a4359!important;border-radius:5px!important}
 #dispatchList .cta-dispatch-row{display:block!important;padding:6px 8px!important;border-bottom:1px solid #29445c!important}
 #dispatchList .cta-dispatch-station{display:block!important;background:transparent!important;border:0!important;border-radius:0!important;padding:2px 3px 6px!important;color:#b8d2e8!important}
