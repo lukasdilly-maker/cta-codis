@@ -552,7 +552,7 @@ function ctaManualApplyFilter(){
   const to=from<0?-1:html.indexOf(dispatchListEnd,from);
   if(from>=0&&to>from){
    const original=html.slice(from,to);
-   const endRender=original.lastIndexOf("updateSelection();");
+   const endRender=original.length;
    if(endRender>=0){
     const replacement=String.raw`
  const allBuildings=state.stations.filter(b=>state.vehicles.some(v=>v.station===b.id));
@@ -565,6 +565,7 @@ function ctaManualApplyFilter(){
     html=html.slice(0,from)+replacement+original.slice(endRender)+html.slice(to);
    }
   }
+  if(from<0||to<=from)console.error('CTA CODIS : ancre fiche appel introuvable');
   const nativeMinimumText="'Départ type minimum : '+needText({needs:item.needs||s.needs})+' · Récompense '+fmt(s.credits)+' crédits / '+s.xp+' XP'";
   html=html.replace(nativeMinimumText,"''");
   html=html.replace('Proposer les moyens nécessaires','');
