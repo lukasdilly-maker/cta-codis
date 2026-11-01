@@ -192,6 +192,15 @@ $('ctaGoFleet').onclick=()=>$('tab-fleet')?.click();
  nav.querySelector('[data-tab="fleet"]')?.addEventListener('click',()=>setTimeout(attach,80));
  setTimeout(attach,250);
 })();
+// Renommage de la synoptique embarquée : valider l'origine et transmettre au moteur.
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.type!=='cta-synoptic-rename-vehicle')return;
+ const frame=document.getElementById('ctaSynopticFrame');
+ if(!frame||event.source!==frame.contentWindow)return;
+ const id=Number(event.data.id),name=String(event.data.name||'').trim();
+ if(!Number.isFinite(id)||!name||name.length>60)return;
+ if(window.__ctaRenameSynopticVehicle?.(id,name)!==true)console.warn('CTA : renommage synoptique non disponible',id);
+});
 // Real operations: compact cards built from the live game snapshot. Native treatment remains available.
 (function(){
  const panel=$('operationsPanel'),native=$('operationsList');
