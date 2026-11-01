@@ -699,6 +699,42 @@ render=function(...args){ctaRadioAutoProcess();const result=ctaRadioOriginalRend
     const append="state.calls.push(c);eventLog('Alerte · appel '+c.line+' #'+c.id);return c;";
     if(html.includes(append))html=html.replace(append,"state.calls.push(c);if(!manual?.address)ctaResolveCallAddress(c);eventLog('Alerte · appel '+c.line+' #'+c.id);return c;");
   }
+  // Renommage direct dans la synoptique : clic sur l'indicatif, Entrée ou perte de focus pour enregistrer.
+  const inlineRenameAnchor='<strong>${esc(v.name)}</strong></div><button data-action="rename-vehicle"';
+  if(html.includes(inlineRenameAnchor)){
+   html=html.replace(inlineRenameAnchor,'<strong class="cta-edit-vehicle-name" data-cta-vehicle-id="${v.id}" title="Cliquer pour renommer cet engin" tabindex="0" role="button">${esc(v.name)}</strong></div><button data-action="rename-vehicle"');
+  }
+  const inlineRenameScript=String.raw`
+(function(){
+ let editing=null;
+ function beginRename(label){
+  if(editing||!label)return;
+  const id=Number(label.dataset.ctaVehicleId),v=state.vehicles.find(v=>v.id===id);
+  if(!v)return;
+  const original=v.name,input=document.createElement('input');
+  input.type='text';input.value=original;input.maxLength=60;input.className='cta-inline-vehicle-input';
+  input.setAttribute('aria-label','Nouvel indicatif de '+original);
+  editing=input;label.replaceWith(input);input.focus();input.select();
+  let done=false;
+  function finish(saveName){
+   if(done)return;done=true;
+   const value=input.value.trim();
+   if(saveName&&value&&value!==original){
+    if(!renameVehicle(id,value))notify('Nom invalide (60 caractères maximum).',true);
+    else save();
+   }
+   editing=null;render();
+  }
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish(true);}else if(e.key==='Escape'){e.preventDefault();finish(false);}});
+  input.addEventListener('blur',()=>finish(true));
+ }
+ document.addEventListener('click',e=>{const label=e.target.closest('.cta-edit-vehicle-name');if(label){e.preventDefault();beginRename(label);}});
+ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.cta-edit-vehicle-name')){e.preventDefault();beginRename(e.target);}});
+})();
+`;
+  if(html.includes('function renderFleet(){')){
+   html=html.replace('</body>','<style>.cta-edit-vehicle-name{cursor:text;text-decoration:underline dotted;text-underline-offset:4px}.cta-edit-vehicle-name:hover{color:#78d7ff}.cta-inline-vehicle-input{max-width:220px;min-width:120px;padding:5px 7px;margin:0;font-weight:700;background:#0b2035;color:white;border:2px solid #4bb9f0;border-radius:5px}</style><script>'+inlineRenameScript+'</scr'+'ipt></body>');
+  }
   // Vérifier explicitement que la fiche native a bien été remplacée par la grille compacte.
   if(!html.includes('cta-dispatch-board'))console.error('CTA CODIS : grille de sélection non injectée');
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
