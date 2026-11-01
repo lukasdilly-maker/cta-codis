@@ -196,7 +196,7 @@ window.startCtaGame=async function(){
   // Read-only synoptic bridge; no modification to dispatch, saving or rendering.
   if(html.includes(stateSignature)){
    html=html.replace(stateSignature,stateSignature+
-    "window.__ctaSynopticData=()=>state?{stations:state.stations||[],vehicles:state.vehicles||[],profile:profiles.active}:null;");
+    "window.__ctaSynopticData=()=>state?{stations:state.stations||[],vehicles:state.vehicles||[],staff:state.staff||[],profile:profiles.active}:null;");
   }
   // Read-only real operations snapshot for the compact Operations view.
   if(html.includes(stateSignature)){
