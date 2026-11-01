@@ -560,7 +560,7 @@ function ctaManualApplyFilter(){
  const typeOptions=[...new Set(allBuildings.map(b=>b.type))].sort();
  const filterSelect=document.getElementById('ctaBuildingType');
  if(filterSelect){const previous=filterSelect.value;filterSelect.innerHTML='<option value="all">Tous les types de bâtiments</option>'+typeOptions.map(type=>'<option value="'+esc(type)+'">'+esc(CATALOG[type]?.name||type)+'</option>').join('');filterSelect.value=typeOptions.includes(previous)?previous:'all';}
- $('dispatchList').innerHTML='<div class="cta-dispatch-board">'+allBuildings.filter(b=>typeFilter==='all'||b.type===typeFilter).sort((a,b)=>distance(a.position,item.position)-distance(b.position,item.position)).map(b=>'<div class="dispatch-group cta-dispatch-row"><div class="cta-dispatch-station" title="'+esc(b.name)+'"><strong>'+esc(b.callsign||b.name)+'</strong><small>'+esc(CATALOG[b.type]?.name||b.type)+'</small></div><div class="cta-dispatch-units">'+state.vehicles.filter(v=>v.station===b.id).map(v=>{const f=fleetState(v),t=TYPES[v.type];const ready=allowed&&f.key==='green';return '<label class="cta-dispatch-unit '+f.key+(checked.has(String(v.id))?' selected':'')+'" title="'+esc(v.name)+' · '+esc(t.label)+' · '+esc(f.detail)+'"><input type="checkbox" value="'+v.id+'" '+(!ready?'disabled':'')+' '+(ready&&checked.has(String(v.id))?'checked':'')+'><span class="cta-dispatch-unit-name">'+esc(v.name)+'</span></label>';}).join('')+'</div></div>').join('')+'</div>';
+ $('dispatchList').innerHTML='<div class="cta-dispatch-board">'+allBuildings.filter(b=>typeFilter==='all'||b.type===typeFilter).sort((a,b)=>distance(a.position,item.position)-distance(b.position,item.position)).map(b=>'<div class="dispatch-group cta-dispatch-row"><div class="cta-dispatch-station" title="'+esc(b.name)+'"><strong>'+esc(b.callsign||b.name)+'</strong></div><div class="cta-dispatch-units">'+state.vehicles.filter(v=>v.station===b.id).map(v=>{const f=fleetState(v),t=TYPES[v.type];const ready=allowed&&f.key==='green';return '<label class="cta-dispatch-unit '+f.key+'" title="'+esc(v.name)+' · '+esc(t.label)+' · '+esc(f.detail)+'"><input type="checkbox" value="'+v.id+'" '+(!ready?'disabled':'')+' '+(ready&&checked.has(String(v.id))?'checked':'')+'><span class="cta-dispatch-unit-name">'+esc(v.name)+'</span></label>';}).join('')+'</div></div>').join('')+'</div>';
 `;
     html=html.slice(0,from)+replacement+original.slice(endRender)+html.slice(to);
    }
@@ -610,6 +610,24 @@ function ctaManualApplyFilter(){
   </style>
   `;
   html=html.replace('</head>',callSheetCss+'</head>');
+  const compactTilesCss=String.raw`<style id="cta-dispatch-compact-tiles">
+#dispatchList .cta-dispatch-board{background:#132337!important;border:1px solid #2a4359!important;border-radius:5px!important}
+#dispatchList .cta-dispatch-row{display:block!important;padding:6px 8px!important;border-bottom:1px solid #29445c!important}
+#dispatchList .cta-dispatch-station{display:block!important;background:transparent!important;border:0!important;border-radius:0!important;padding:2px 3px 6px!important;color:#b8d2e8!important}
+#dispatchList .cta-dispatch-station strong{font-size:11px!important;font-weight:750!important}
+#dispatchList .cta-dispatch-units{display:flex!important;flex-wrap:wrap!important;gap:4px!important}
+#dispatchList .cta-dispatch-unit{display:inline-flex!important;flex:0 0 auto!important;min-width:0!important;width:auto!important;max-width:100%!important;min-height:26px!important;padding:4px 9px!important;border-radius:3px!important;border:1px solid #2d9950!important;background:#078326!important;color:#fff!important;font-size:11px!important;font-weight:750!important;line-height:1.2!important;text-align:center!important;justify-content:center!important;white-space:nowrap!important;box-shadow:none!important}
+#dispatchList .cta-dispatch-unit.green{background:#078326!important;color:#fff!important}
+#dispatchList .cta-dispatch-unit.red,#dispatchList .cta-dispatch-unit.departed,#dispatchList .cta-dispatch-unit.onscene{background:#d63c42!important;border-color:#d63c42!important}
+#dispatchList .cta-dispatch-unit.black{background:#1b2028!important;border-color:#465467!important;color:#b6c1ce!important}
+#dispatchList .cta-dispatch-unit:has(input:disabled){opacity:.65!important}
+#dispatchList .cta-dispatch-unit:has(input:checked){outline:2px solid #6fe5ff!important;outline-offset:0!important;background:#087c2b!important}
+#dispatchList .cta-dispatch-unit:has(input:checked)::before{content:'✓';margin-right:4px}
+#dispatchList .cta-dispatch-unit-name{font-size:11px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+#dispatchList .cta-dispatch-unit input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important}
+</style>`;
+  html=html.replace('</head>',compactTilesCss+'</head>');
+
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
   // Appliqué au moteur HTML avant son chargement dans l'iframe.
   const departureBlockText=/Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?/i;
