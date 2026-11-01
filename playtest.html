@@ -735,6 +735,11 @@ render=function(...args){ctaRadioAutoProcess();const result=ctaRadioOriginalRend
   if(html.includes('function renderFleet(){')){
    html=html.replace('</body>','<style>.cta-edit-vehicle-name{cursor:text;text-decoration:underline dotted;text-underline-offset:4px}.cta-edit-vehicle-name:hover{color:#78d7ff}.cta-inline-vehicle-input{max-width:220px;min-width:120px;padding:5px 7px;margin:0;font-weight:700;background:#0b2035;color:white;border:2px solid #4bb9f0;border-radius:5px}</style><script>'+inlineRenameScript+'</scr'+'ipt></body>');
   }
+  // Exposer le renommage sécurisé du moteur à la synoptique intégrée.
+  const renameBridgeAnchor='function renameVehicle(id,name){';
+  if(html.includes(renameBridgeAnchor)){
+   html=html.replace(renameBridgeAnchor,"window.__ctaRenameSynopticVehicle=(id,name)=>{const ok=renameVehicle(id,name);if(ok){save();render();}return ok;};\n"+renameBridgeAnchor);
+  }
   // Vérifier explicitement que la fiche native a bien été remplacée par la grille compacte.
   if(!html.includes('cta-dispatch-board'))console.error('CTA CODIS : grille de sélection non injectée');
   // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
