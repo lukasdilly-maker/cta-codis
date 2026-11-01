@@ -676,6 +676,7 @@ function ctaRadioReinforcementPanel(){
  const active=state.incidents.filter(i=>!i.closed&&i.started!==null&&(i.reinforcement||i.reinforcementRequested));
  let panel=document.getElementById('ctaRadioReinforcements');
  if(!panel){panel=document.createElement('aside');panel.id='ctaRadioReinforcements';document.body.appendChild(panel);}
+ panel.style.display=active.length?'block':'none';
  panel.innerHTML='<header>RADIO · DEMANDES DE RENFORT <strong>'+active.length+'</strong></header>'+(!active.length?'<p>Aucune demande en attente. Les bilans ordinaires sont acquittés automatiquement.</p>':active.map(i=>{
   const missing=missingNeeds(i);
   const details=Object.entries(missing).map(([type,n])=>n+' × '+type).join(' · ')||'Précisions à confirmer';
