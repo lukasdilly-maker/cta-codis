@@ -582,6 +582,17 @@ function ctaManualApplyFilter(){
   // Never show a preset group selector: operator composes the response.
   html=html.replace("const groupHost=$('proposalMessage')?.parentElement;","const groupHost=null;");
 
+  // CTA CODIS : retirer le veto de complétude du départ type initial.
+  // La disponibilité réelle des engins et les autres contrôles de sécurité restent inchangés.
+  const incompleteDeparture=/Le départ type initial est incomplet\\.?\\s*Utilisez la proposition de moyens\\.?/i;
+  if(incompleteDeparture.test(html)){
+    const before=html;
+    // Remplacer le message de refus par une confirmation non bloquante dans les
+    // gardes de type « return notify(...) » (sans toucher au dispatch lui-même).
+    html=html.replace(/if\\s*\\(([^;\\n]{0,500})\\)\\s*(?:return\\s+)?notify\\(\\s*(['"`])Le départ type initial est incomplet\\.\\s*Utilisez la proposition de moyens\\.\\2\\s*,?[^;\\n]*;/gi,
+      '/* Contrôle de complétude supprimé : sélection manuelle autorisée. */');
+    if(html===before)console.warn('CTA CODIS : message de complétude trouvé, garde non reconnue ; correction non appliquée');
+  }
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
  }catch(error){
