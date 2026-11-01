@@ -582,16 +582,20 @@ function ctaManualApplyFilter(){
   // Never show a preset group selector: operator composes the response.
   html=html.replace("const groupHost=$('proposalMessage')?.parentElement;","const groupHost=null;");
 
-  // CTA CODIS : retirer le veto de complétude du départ type initial.
-  // La disponibilité réelle des engins et les autres contrôles de sécurité restent inchangés.
-  const incompleteDeparture=/Le départ type initial est incomplet\\.?\\s*Utilisez la proposition de moyens\\.?/i;
-  if(incompleteDeparture.test(html)){
-    const before=html;
-    // Remplacer le message de refus par une confirmation non bloquante dans les
-    // gardes de type « return notify(...) » (sans toucher au dispatch lui-même).
-    html=html.replace(/if\\s*\\(([^;\\n]{0,500})\\)\\s*(?:return\\s+)?notify\\(\\s*(['"`])Le départ type initial est incomplet\\.\\s*Utilisez la proposition de moyens\\.\\2\\s*,?[^;\\n]*;/gi,
-      '/* Contrôle de complétude supprimé : sélection manuelle autorisée. */');
-    if(html===before)console.warn('CTA CODIS : message de complétude trouvé, garde non reconnue ; correction non appliquée');
+  // Supprimer les blocages de complétude du départ type, sans imposer de présélection.
+  // Appliqué au moteur HTML avant son chargement dans l'iframe.
+  const departureBlockText=/Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?/i;
+  if(departureBlockText.test(html)){
+    let removed=0;
+    const patterns=[
+      /if\s*\([^;\n]{0,700}\)\s*\{\s*(?:return\s+)?notify\(\s*(['"\x60])Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?\1[^;]*;\s*(?:return(?:\s+false)?\s*;)?\s*\}/gi,
+      /if\s*\([^;\n]{0,700}\)\s*return\s+notify\(\s*(['"\x60])Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?\1[^;]*;/gi,
+      /if\s*\([^;\n]{0,700}\)\s*\{\s*notify\(\s*(['"\x60])Le départ type initial est incomplet\.?\s*Utilisez la proposition de moyens\.?\1[^;]*;\s*return(?:\s+false)?\s*;\s*\}/gi
+    ];
+    for(const pattern of patterns)html=html.replace(pattern,()=>{removed++;return '/* Départ type facultatif : validation retirée */';});
+    // La suppression du texte seul ne constitue pas une correction : signaler les gardes non reconnues.
+    if(!removed)console.warn('CTA CODIS : blocage de départ type détecté mais structure inconnue : correction non appliquée');
+    else console.info('CTA CODIS : '+removed+' contrôle(s) de départ type supprimé(s)');
   }
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
