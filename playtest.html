@@ -540,6 +540,48 @@ function ctaManualApplyFilter(){
    html=html.replace('</head>','<style id="cta-dashboard-skin">'+skinCss+'</style></head>');
    html=html.replace('</body>','<script>'+skinJs+'</'+'script></body>');
   }catch(skinError){console.error('Habillage tableau de bord',skinError);status.textContent='Jeu chargé sans habillage : '+skinError.message}
+
+  // PC dispatch: operator is the sole decision-maker. Keep real availability, crew and towing checks.
+  const nativeMinimum="if(!hasNeeds(vehicles,i.needs||findScenario(i.scenario).needs))return notify('Départ type minimum non respecté.',true),false;";
+  html=html.replace(nativeMinimum,'');
+  html=html.replace("if(vehicles.some(v=>v&&!ctaDispatchAllowed(v,i)))return notify('Départ refusé : ce moyen n’est pas adapté à la nature de cette intervention.',true),false;","");
+  html=html.replace("const ranked=available.filter(v=>!chosen.includes(v)&&ctaDispatchAllowed(v,i)).map(v=>{","const ranked=available.filter(v=>!chosen.includes(v)).map(v=>{");
+  const dispatchListStart=" $('dispatchList').innerHTML=state.stations.filter(b=>state.vehicles.some(v=>v.station===b.id))";
+  const dispatchListEnd=" renderInterview(item,isCall);";
+  const from=html.indexOf(dispatchListStart);
+  const to=from<0?-1:html.indexOf(dispatchListEnd,from);
+  if(from>=0&&to>from){
+   const original=html.slice(from,to);
+   const endRender=original.lastIndexOf("updateSelection();");
+   if(endRender>=0){
+    const replacement=String.raw`
+ const allBuildings=state.stations.filter(b=>state.vehicles.some(v=>v.station===b.id));
+ const typeFilter=document.getElementById('ctaBuildingType')?.value||'all';
+ const typeOptions=[...new Set(allBuildings.map(b=>b.type))].sort();
+ const filterSelect=document.getElementById('ctaBuildingType');
+ if(filterSelect){const previous=filterSelect.value;filterSelect.innerHTML='<option value="all">Tous les types de bâtiments</option>'+typeOptions.map(type=>'<option value="'+esc(type)+'">'+esc(CATALOG[type]?.name||type)+'</option>').join('');filterSelect.value=typeOptions.includes(previous)?previous:'all';}
+ $('dispatchList').innerHTML=allBuildings.filter(b=>typeFilter==='all'||b.type===typeFilter).sort((a,b)=>distance(a.position,item.position)-distance(b.position,item.position)).map(b=>'<div class="dispatch-group"><h4>'+esc(b.name)+' · '+esc(CATALOG[b.type]?.name||b.type)+'</h4>'+state.vehicles.filter(v=>v.station===b.id).map(v=>{const f=fleetState(v),t=TYPES[v.type];return '<label class="cta-synoptic-unit '+f.key+'"><span><input type="checkbox" value="'+v.id+'" '+(!allowed||f.key!=='green'?'disabled':'')+' '+(allowed&&f.key==='green'&&checked.has(String(v.id))?'checked':'')+'>'+vehicleIcon(v)+' <strong>'+esc(v.name)+'</strong><small> · '+esc(t.label)+'</small></span>'+statusHTML(v)+'<small>'+esc(f.detail)+'</small></label>';}).join('')+'</div>').join('');
+`;
+    html=html.slice(0,from)+replacement+original.slice(endRender)+html.slice(to);
+   }
+  }
+  const nativeMinimumText="'Départ type minimum : '+needText({needs:item.needs||s.needs})+' · Récompense '+fmt(s.credits)+' crédits / '+s.xp+' XP'";
+  html=html.replace(nativeMinimumText,"''");
+  html=html.replace('Proposer les moyens nécessaires','');
+  html=html.replace('<button class="primary" data-action="suggest-means"></button>','');
+  html=html.replace('Moyens par proximité','Synoptique des moyens · sélection manuelle');
+  html=html.replace('Distances directes avant engagement ; distance routière et','Distances directes avant engagement ; distance routière et');
+  // The generic placeholder is not a vehicle and must not be offered as a dispatch suggestion.
+  html=html.replace(/FPT \+ moyen spécialisé/g,'FPT');
+  html=html.replace(/MOYEN SPECIALISE/g,'');
+  const pcCss='<style>#minimum,#proposalMessage,#ctaGroupSelect,#ctaGroupSelect+small,button[data-action="suggest-means"]{display:none!important}.cta-synoptic-unit{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin:6px 0;border:1px solid #38536c;border-radius:9px;background:#12283c;cursor:pointer}.cta-synoptic-unit input{width:19px;height:19px;margin-right:10px}.cta-synoptic-unit.green{border-left:4px solid #2dc78b}.cta-synoptic-unit.red{border-left:4px solid #e05e64}.cta-synoptic-unit.black{opacity:.55}.cta-synoptic-unit .vehicle-heading{display:inline-flex}.cta-manual-tools{position:relative!important}</style>';
+  html=html.replace('</head>',pcCss+'</head>');
+  html=html.replace('Choisissez librement les moyens disponibles, caserne par caserne. Le départ type reste une simple proposition.','Sélectionnez vous-même les engins dans la synoptique, par type de bâtiment et par caserne.');
+  html=html.replace('<div class="cta-manual-row"><input id="ctaVehicleSearch"','<div class="cta-manual-row"><select id="ctaBuildingType" aria-label="Type de bâtiment"><option value="all">Tous les types de bâtiments</option></select><input id="ctaVehicleSearch"');
+  html=html.replace("tools.querySelector('#ctaVehicleSearch').addEventListener('input',ctaManualApplyFilter);","tools.querySelector('#ctaVehicleSearch').addEventListener('input',ctaManualApplyFilter);tools.querySelector('#ctaBuildingType').addEventListener('change',()=>renderTreatment(false));");
+  // Never show a preset group selector: operator composes the response.
+  html=html.replace("const groupHost=$('proposalMessage')?.parentElement;","const groupHost=null;");
+
   frame.srcdoc=html;
   status.textContent='Correctif import actif ✓ (validation géographique corrigée avant démarrage)';
  }catch(error){
