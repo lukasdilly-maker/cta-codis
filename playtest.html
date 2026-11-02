@@ -354,7 +354,10 @@ window.__ctaDispatchAllowed=ctaDispatchAllowed;
    const reference500Code=await reference500Response.text();
    const catalogAnchor="const PARTNERS=['SAMU','Police','Enedis','Maire','Préfecture'];";
    if(!html.includes(catalogAnchor))throw Error('Ancrage des scénarios introuvable');
-   html=html.replace(catalogAnchor,catalogCode+'\n'+reference500Code+'\n'+catalogAnchor);
+   const o112Response=await fetch('./scenario-operateur112.js',{cache:'no-store'});
+   const o112Code=o112Response.ok?await o112Response.text():'';
+   if(!o112Response.ok)console.warn('Catalogue Operateur112 indisponible : HTTP '+o112Response.status);
+   html=html.replace(catalogAnchor,catalogCode+'\n'+reference500Code+'\n'+o112Code+'\n'+catalogAnchor);
    // Enforce dispatch restrictions on the actual native dispatch operation.
    const dispatchAnchor="const vehicles=[...new Set(ids)].map(getVehicle);";
    if(!html.includes(dispatchAnchor))throw Error('Ancrage des départs introuvable');
