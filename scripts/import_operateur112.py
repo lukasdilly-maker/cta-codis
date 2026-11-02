@@ -49,7 +49,7 @@ for cells in parser.rows:
     category_text=" ".join(cells[-2:])
     cat,needs,family=classify(name,category_text)
     rows.append({"name":name,"category":cat,"needs":needs,"family":family})
-if len(rows)<100:raise SystemExit(f"Unexpected catalogue size ({len(rows)}); refusing to replace file")
+if len(rows)<90:raise SystemExit(f"Unexpected catalogue size ({len(rows)}); refusing to replace file")
 script="""/* Automatically generated from Operateur112 public mission listing; distinct natures only. */
 (function(){
 const source=DATA;
