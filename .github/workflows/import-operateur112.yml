@@ -1,0 +1,33 @@
+name: Actualiser toutes les missions Operateur112
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/import-operateur112.yml'
+      - 'scripts/import_operateur112.py'
+  schedule:
+    - cron: '17 4 * * 1'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Importer les missions
+        run: python scripts/import_operateur112.py
+      - name: Publier si modifié
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scenario-operateur112.js
+          if ! git diff --cached --quiet; then
+            git commit -m "data: sync complete Operateur112 mission catalogue"
+            git push origin HEAD:develop
+          fi
