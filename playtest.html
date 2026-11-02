@@ -552,7 +552,11 @@ function ctaManualApplyFilter(){
     html=html.replace('</head>',manualCss+'</head>');
     console.info('CTA CODIS: référentiel interventions et groupes chargé');
   }catch(referenceError){console.error('CTA référentiel opérationnel',referenceError)}
-  // Keep the game's original graphics and navigation. Only mission catalogues are injected.
+  // Restore original visual layout without disabling the separate mission catalogue patches.
+  // The original game's own stylesheet and navigation are preserved.
+  html=html.replace(/<style id="cta-dashboard-skin">[\\s\\S]*?<\\/style>/g,'');
+  html=html.replace(/<script[^>]*src=["'][^"']*dashboard-skin\\.js["'][^>]*><\\/script>/g,'');
+
   // PC dispatch: operator is the sole decision-maker. Keep real availability, crew and towing checks.
   const nativeMinimum="if(!hasNeeds(vehicles,i.needs||findScenario(i.scenario).needs))return notify('Départ type minimum non respecté.',true),false;";
   html=html.replace(nativeMinimum,'');
