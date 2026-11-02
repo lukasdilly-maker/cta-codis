@@ -552,15 +552,7 @@ function ctaManualApplyFilter(){
     html=html.replace('</head>',manualCss+'</head>');
     console.info('CTA CODIS: référentiel interventions et groupes chargé');
   }catch(referenceError){console.error('CTA référentiel opérationnel',referenceError)}
-  // UI skin runs inside the real game document, preserving all game handlers and saves.
-  try{
-   const [cssResponse,jsResponse]=await Promise.all([fetch('./dashboard-skin.css',{cache:'no-store'}),fetch('./dashboard-skin.js',{cache:'no-store'})]);
-   if(!cssResponse.ok||!jsResponse.ok)throw Error('Fichiers de présentation indisponibles');
-   const skinCss=await cssResponse.text(),skinJs=await jsResponse.text();
-   html=html.replace('</head>','<style id="cta-dashboard-skin">'+skinCss+'</style></head>');
-   html=html.replace('</body>','<script>'+skinJs+'</'+'script></body>');
-  }catch(skinError){console.error('Habillage tableau de bord',skinError);status.textContent='Jeu chargé sans habillage : '+skinError.message}
-
+  // Keep the game's original graphics and navigation. Only mission catalogues are injected.
   // PC dispatch: operator is the sole decision-maker. Keep real availability, crew and towing checks.
   const nativeMinimum="if(!hasNeeds(vehicles,i.needs||findScenario(i.scenario).needs))return notify('Départ type minimum non respecté.',true),false;";
   html=html.replace(nativeMinimum,'');
