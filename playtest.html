@@ -202,6 +202,18 @@ window.startCtaGame=async function(){
   html=html.replace("if(activeTab!=='map')return;const m=metrics();","if(activeTab!=='map'&&activeTab!=='room')return;const m=metrics();");
   html=html.replace("if(tab==='map')requestAnimationFrame(renderMap);","if(tab==='map'||tab==='room')requestAnimationFrame(renderMap);");
   if(!html.includes(valid))console.warn('CTA CODIS : validateur déjà adapté ou signature différente');
+  // Manual, independent commune coverage. No default or nearest-station assignments.
+  if(html.includes(stateSignature)){
+   html=html.replace(stateSignature,stateSignature+
+    "window.__ctaCoverageStations=()=>state?(state.stations||[]).filter(s=>!s.type||/CIS|CS|CSP|CENTRE|CASERNE|FIRE|SDIS/i.test(String(s.type)+' '+String(s.name))).map(s=>({id:s.id,name:s.name||s.callsign||s.id})):[];");
+  }
+  try{
+   const coverageResponse=await fetch('./manual-commune-coverage.js',{cache:'no-store'});
+   if(coverageResponse.ok){
+    const coverageJs=await coverageResponse.text();
+    html=html.replace('</body>','<script>'+coverageJs+'</'+'script></body>');
+   }else console.warn('Gestion communale indisponible : HTTP '+coverageResponse.status);
+  }catch(coverageError){console.error('Gestion communale',coverageError)}
   // Read live statistics from the game engine state rather than localStorage.
   const stateSignature="let profiles={active:'principal',games:{}};let state;";
   if(html.includes(stateSignature)){
