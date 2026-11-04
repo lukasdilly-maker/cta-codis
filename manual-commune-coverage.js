@@ -60,7 +60,7 @@ dialog.querySelector('#ctaCoverageClear').addEventListener('click',()=>{if(!curr
 function captureMap(map){if(!map||map===window.__ctaCoverageMap)return;window.__ctaCoverageMap=map;setTimeout(repaint,100);map.on('layeradd',()=>setTimeout(repaint,0))}
 function handleClick(map,e){
  captureMap(map);
- const original=e?.originalEvent?.target;
+ const original=e?.originalEvent?.target||e?.target;
  let target=original,layer=null;
  while(target&&target!==map.getContainer()){if(map._targets&&target._leaflet_id&&map._targets[target._leaflet_id]){layer=map._targets[target._leaflet_id];break}target=target.parentNode}
  const p=layer?.feature?.properties;
